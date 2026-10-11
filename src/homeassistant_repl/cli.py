@@ -246,7 +246,7 @@ async def _exec(client: Client, args: argparse.Namespace) -> int:
         await client.call("ha_repl_server/reset", session=args.session)
 
     from .plugins import bind_context, run_plugins
-    from .repl import Captured, connect_live
+    from .repl import Captured, bind_live_rebind, connect_live
 
     # The same local-plus-server session the interactive shell uses, so a
     # snippet means the same thing here: `sql` and plain Python run in this
@@ -261,6 +261,7 @@ async def _exec(client: Client, args: argparse.Namespace) -> int:
     )
     # So a snippet sees the same names the interactive shell would.
     bind_context(live.local.globals_, "exec", args.server_name)
+    bind_live_rebind(live, args.plugins)
     await run_plugins(args.plugins, live.run_quiet)
     start = time.perf_counter()
     try:

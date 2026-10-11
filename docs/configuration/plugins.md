@@ -87,7 +87,7 @@ There is no need to change `sys.path`, or to install Home Assistant alongside `h
 
 ## Linters and Type Checkers
 
-`MODE`, `SERVER`, `hass`, `obj`, `sql`, `hass_api` and `show` are put there by the shell, so an editor reports them as undefined. `homeassistant_repl.plugin` declares them. Import from it where only a type checker will look, along with anything else needed only for annotations:
+`MODE`, `SERVER`, `hass`, `obj`, `sql`, `hass_api`, `show` and `rebind` are put there by the shell, so an editor reports them as undefined. `homeassistant_repl.plugin` declares them. Import from it where only a type checker will look, along with anything else needed only for annotations:
 
 ```python
 from typing import TYPE_CHECKING

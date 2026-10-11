@@ -11,16 +11,20 @@ from typing import Any
 
 import pytest
 
-from homeassistant_repl.api_objtree import ApiEntity, ApiObjTree, Cache
+from homeassistant_repl.api_objtree import ApiAction, ApiEntity, ApiObjTree, Cache
 
 
 class FakeClient:
     def __init__(self, responses: dict[str, Any]) -> None:
         self.responses = responses
         self.calls: list[str] = []
+        self.sent: list[tuple[str, dict[str, Any]]] = []
 
     async def call(self, type_: str, **payload: Any) -> Any:
         self.calls.append(type_)
+        self.sent.append((type_, payload))
+        if type_ == "get_services":  # none, unless a test has some
+            return self.responses.get(type_, {})
         return self.responses[type_]
 
 
@@ -370,3 +374,222 @@ async def test_entity_with_no_state_is_not_available():
     assert entity.state is None
     assert entity.available is False
     assert entity.enabled is False
+
+
+# As get_services gives them: `response` only on an action that answers.
+SERVICES = {
+    "hue": {
+        "activate_scene": {
+            "name": "Activate scene",
+            "description": "Activates a Hue scene.",
+            "fields": {"transition": {"name": "Transition"}},
+        }
+    },
+    "mqtt": {
+        "publish": {
+            "name": "Publish",
+            "description": "Publishes a message to an MQTT topic.",
+            "fields": {"topic": {"required": True}, "payload": {}},
+        },
+        "dump": {"name": "Dump", "description": "", "fields": {}},
+    },
+    "weather": {
+        "get_forecasts": {
+            "name": "Get forecasts",
+            "description": "",
+            "fields": {},
+            "response": {"optional": False},
+        }
+    },
+}
+
+
+# The frontend's own names for an action and its fields, where get_services
+# has none - which is most of them.
+TRANSLATIONS = {
+    "component.mqtt.services.dump.name": "Export",
+    "component.mqtt.services.dump.description": "Writes all messages on a topic.",
+    "component.mqtt.services.publish.name": "not used: get_services has one",
+    "component.mqtt.services.publish.fields.topic.name": "Topic",
+    "component.mqtt.services.publish.fields.topic.description": "Topic to publish to.",
+}
+
+
+@pytest.fixture
+async def client() -> FakeClient:
+    return FakeClient({
+        "get_states": STATES,
+        "config/entity_registry/list": ENTITY_REGISTRY,
+        "config/device_registry/list": DEVICE_REGISTRY,
+        "config/area_registry/list": AREA_REGISTRY,
+        "config/label_registry/list": LABEL_REGISTRY,
+        "get_services": SERVICES,
+        "get_config": {"language": "en"},
+        "frontend/get_translations": {"resources": TRANSLATIONS},
+        "call_service": {"context": {}, "response": {"weather.home": {"forecast": []}}},
+    })
+
+
+def _action(tree: ApiObjTree, path: str) -> ApiAction:
+    found = tree[path]
+    assert isinstance(found, ApiAction)
+    return found
+
+
+def _subtree(tree: ApiObjTree, path: str) -> ApiObjTree:
+    found = tree[path]
+    assert isinstance(found, ApiObjTree)
+    return found
+
+
+@pytest.fixture
+async def actions(client: FakeClient) -> ApiObjTree:
+    cache = Cache(client, ttl=30)
+    await cache.refresh()
+    return ApiObjTree(cache)
+
+
+async def test_actions_are_a_level_beside_an_integrations_domains(actions: ApiObjTree):
+    # an integration with only actions is in the tree for them
+    assert list(actions.keys()) == [
+        "/alexa_devices",
+        "/demo",
+        "/hue",
+        "/mqtt",
+        "/weather",
+    ]
+    assert list(_subtree(actions, "/hue").keys()) == ["/action", "/light"]
+    assert list(_subtree(actions, "/mqtt/action").keys()) == ["/dump", "/publish"]
+    assert repr(actions["/mqtt/action"]) == "<obj:/mqtt/action: 2 actions (api)>"
+    with pytest.raises(KeyError):
+        actions["/mqtt/action/nope"]
+    with pytest.raises(KeyError):
+        actions["/demo/action"]
+
+
+async def test_an_action_is_described(actions: ApiObjTree):
+    action = _action(actions, "/mqtt/action/publish")
+
+    assert repr(action) == "<action mqtt.publish>"
+    assert action.action_id == "mqtt.publish"
+    assert action.name == "Publish"
+    assert list(action.fields) == ["topic", "payload"]
+    # the frontend's names for it, where get_services has none
+    assert action.fields["topic"] == {
+        "name": "Topic",
+        "description": "Topic to publish to.",
+        "required": True,
+    }
+    assert (
+        _action(actions, "/mqtt/action/dump").description
+        == "Writes all messages on a topic."
+    )
+    assert action.supports_response == "none"
+    assert _action(actions, "/weather/action/get_forecasts").supports_response == "only"
+    assert (await action.describe())["description"].startswith("Publishes")
+    assert actions.show("/mqtt/action/publish") == {
+        "action": "mqtt.publish",
+        "name": "Publish",
+        "description": "Publishes a message to an MQTT topic.",
+        "fields": {
+            "topic": {
+                "name": "Topic",
+                "description": "Topic to publish to.",
+                "required": True,
+            },
+            "payload": {},
+        },
+        "supports_response": "none",
+    }
+
+
+async def test_calling_an_action_sends_a_call_service(
+    actions: ApiObjTree, client: FakeClient
+):
+    publish = _action(actions, "/mqtt/action/publish")
+    forecasts = _action(actions, "/weather/action/get_forecasts")
+
+    assert await publish(topic="shed/fan", payload="on") is None
+    assert await forecasts(target={"entity_id": "weather.home"}, type="daily") == {
+        "weather.home": {"forecast": []}
+    }
+
+    assert client.sent[-2:] == [
+        (
+            "call_service",
+            {
+                "domain": "mqtt",
+                "service": "publish",
+                "service_data": {"topic": "shed/fan", "payload": "on"},
+                "return_response": False,
+            },
+        ),
+        (
+            "call_service",
+            {
+                "domain": "weather",
+                "service": "get_forecasts",
+                "service_data": {"type": "daily"},
+                "return_response": True,
+                "target": {"entity_id": "weather.home"},
+            },
+        ),
+    ]
+
+
+async def test_find_goes_through_actions_with_everything_else(actions: ApiObjTree):
+    assert sorted(actions.find_names()) == [
+        "hue.activate_scene",
+        "light.kitchen_lights",
+        "light.lounge_lamp",
+        "media_player.kitchen_show",
+        "mqtt.dump",
+        "mqtt.publish",
+        "sensor.outside_temp",
+        "weather.get_forecasts",
+    ]
+    assert sorted(actions.find_paths("/hue")) == [
+        "/hue/action/activate_scene",
+        "/hue/light/kitchen_lights",
+        "/hue/light/lounge_lamp",
+    ]
+    assert sorted(actions.find_names(platform="hue", domain="action")) == [
+        "hue.activate_scene"
+    ]
+    assert sorted(actions.find_names(domain="light")) == [
+        "light.kitchen_lights",
+        "light.lounge_lamp",
+    ]
+    assert sorted(actions.find_names("/mqtt/action")) == ["mqtt.dump", "mqtt.publish"]
+    assert sorted(actions.find_paths("/.*/(action|light)/(publish|lounge.*)")) == [
+        "/hue/light/lounge_lamp",
+        "/mqtt/action/publish",
+    ]
+    assert sorted(_subtree(actions, "/mqtt/action").find_paths()) == [
+        "/dump",
+        "/publish",
+    ]
+    # an action has no area or label to be found by
+    assert sorted(actions.find_names(area="Kitchen")) == [
+        "light.kitchen_lights",
+        "media_player.kitchen_show",
+    ]
+    raw: Any = list(actions.find("/hue/action", raw=True))
+    assert [d["action"] for d in raw] == ["hue.activate_scene"]
+
+
+async def test_find_can_be_kept_to_one_object_type(actions: ApiObjTree):
+    assert all(isinstance(e, ApiEntity) for e in actions.find(object_type="entity"))
+    assert sorted(actions.find_names(platform="hue", object_type="entity")) == [
+        "light.kitchen_lights",
+        "light.lounge_lamp",
+    ]
+    assert sorted(actions.find_names("/mqtt", object_type="action")) == [
+        "mqtt.dump",
+        "mqtt.publish",
+    ]
+    assert len(list(actions.find(object_type=["entity", "action"]))) == 8
+    # devices are not in the tree yet
+    assert list(actions.find(object_type="device")) == []
+    with pytest.raises(ValueError, match="object_type must be one of"):
+        actions.find(object_type="helper")

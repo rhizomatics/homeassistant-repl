@@ -17,7 +17,7 @@ import ast
 import asyncio
 import contextlib
 import sys
-from collections.abc import Awaitable, Callable, Iterable
+from collections.abc import Awaitable, Callable, Iterable, Sequence
 from pathlib import Path
 from typing import Any
 
@@ -39,6 +39,43 @@ def bind_context(globals_: dict[str, Any], mode: str, server: str | None) -> Non
     """
     globals_["MODE"] = mode
     globals_["SERVER"] = server
+
+
+def bind_rebind(
+    globals_: dict[str, Any],
+    files: Sequence[Path],
+    run: Runner,
+    remote: Iterable[str] = (),
+) -> None:
+    """Bind `rebind()` in a session's local namespace, to put back what the
+    shell itself bound there - everything in it as this is called, so call
+    it once those are in place and before any plugin has run. `remote` are
+    the names that live inside Home Assistant and have nothing local to
+    put back (`hass` and `obj` in live mode): a local variable in the way
+    of one is removed. `files` and `run` are as run_plugins() takes them.
+    """
+    remote = tuple(remote)
+    running = False
+
+    async def rebind(*, plugins: bool = True) -> None:
+        """Put back the shell's own names - `obj`, `hass`, `sql`,
+        `hass_api`, `show`, `help` and the rest - where any has been
+        assigned over, and run the plugins again unless `plugins` is
+        False. Nothing else in the session is touched."""
+        nonlocal running
+        for name in remote:
+            globals_.pop(name, None)
+        globals_.update(originals)
+        if not plugins or running:  # a plugin calling this doesn't start them all again
+            return
+        running = True
+        try:
+            await run_plugins(files, run)
+        finally:
+            running = False
+
+    globals_["rebind"] = rebind
+    originals = dict(globals_)
 
 
 def split_statements(source: str) -> list[tuple[int, str]]:

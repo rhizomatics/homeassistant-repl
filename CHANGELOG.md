@@ -4,6 +4,37 @@
     For live mode, generally the client and server component have to be on the same version. Different versions *might* work
     with each other for point releases
 
+# 0.13.0
+## ✨ Enhancements
+### SQL
+- A result column of a Recorder table comes back as what it holds, going by how `db_schema` declares it
+  - A `_ts` column (`TIMESTAMP_TYPE`) and a `DATETIME_TYPE` column as a `datetime` in UTC, in place of seconds since the epoch or text
+  - `context_id_bin` and `context_parent_id_bin` as the ULID text of `context.id`, and `context_user_id_bin` as the user id, in place of bytes
+  - `sql("...", raw=True)` leaves every value as the database has it
+  - Needs both the client and the server component at this version
+- A result has the `query` it came from
+
+### Object Tree
+- Actions (services) are in the tree, in an `action` level beside each integration's entity domains - `obj["/mqtt/action/publish"]`
+  - Call one to run it, with its data as keyword arguments and `target` for what it acts on: `obj["/light/action/turn_on"](target={"entity_id": "light.shed"}, brightness=128)`
+  - What an action that answers gives back is returned
+  - `name`, `description`, `fields` and `supports_response` describe it, as does `obj.show(path)`, with the names and descriptions the frontend shows for the action and each of its fields
+  - The find methods go through actions as well as entities: `obj.find_names(domain="action")` gives every action, and a search with no `domain` now gives both
+  - `object_type="entity"` or `object_type="action"` keeps a find to the one kind. `"device"` is accepted, for when devices are in the tree
+  - In live, exec and API mode alike. An integration with actions and no entities is now in the tree
+  - Live mode needs the server component at this version
+
+### Live Mode
+- New `rebind()`, to put back any of the shell's own names - `hass`, `obj`, `sql`, `hass_api`, `show`, `help`, `MODE`, `SERVER` - that has been assigned over, and run the plugins again
+  - `rebind(plugins=False)` leaves the plugins alone
+  - Also in `ha-repl exec` and API mode
+
+### Live Server
+- `hass` and `sql` can each be given a time limit, in minutes, from the integration's *Configure* form, after which that one is switched off again
+  - Left empty, it stays on, as before
+  - The limit survives a restart of Home Assistant, and one that ran out while it was stopped is applied when it starts
+  - *Configure* shows the minutes left on a running limit, to change or clear
+
 # 0.12.0
 ## ✨ Enhancements
 ### SQL
@@ -16,6 +47,8 @@
   - Nothing is created in the Home Assistant database - a virtual table is added to the query as a `with` clause when the query mentions it
   - `sql.tables` lists them, each as a `VirtualTable` object rather than a `Table`, with a `virtual` flag and the query it stands for as its `definition`
   - Needs both the client and the server component at this version
+
+
 
 ### Live Mode
 - New `show(thing)`, to look inside an object that otherwise prints as little more than its class name: its attributes and their values, in colour, one to a line

@@ -6,16 +6,23 @@ entity registry entry to exercise the api/live branches honestly."""
 from __future__ import annotations
 
 import re
+from typing import Any
 
 import pytest
-from homeassistant.core import HomeAssistant
+from homeassistant.core import (
+    HomeAssistant,
+    ServiceCall,
+    ServiceResponse,
+    SupportsResponse,
+)
+from homeassistant.helpers.service import async_set_service_schema
 from homeassistant.setup import async_setup_component
 from pytest_homeassistant_custom_component.common import (
     MockEntity,
     setup_test_component_platform,
 )
 
-from custom_components.ha_repl_server.objtree import ApiEntity, ObjTree
+from custom_components.ha_repl_server.objtree import Action, ApiEntity, ObjTree
 
 
 @pytest.fixture
@@ -133,3 +140,157 @@ async def test_find_paths_regex_combines_with_domain_filter(obj: ObjTree):
 async def test_find_paths_invalid_regex_raises(obj: ObjTree):
     with pytest.raises(re.error):
         list(obj.find_paths("/test/sensor/["))
+
+
+def _action(tree: ObjTree, path: str) -> Action:
+    found = tree[path]
+    assert isinstance(found, Action)
+    return found
+
+
+def _subtree(tree: ObjTree, path: str) -> ObjTree:
+    found = tree[path]
+    assert isinstance(found, ObjTree)
+    return found
+
+
+@pytest.fixture
+def calls(hass: HomeAssistant, obj: ObjTree) -> list[ServiceCall]:
+    """Two actions of the `test` integration, which also has the sensors,
+    and one of an integration with nothing else - each call kept."""
+    made: list[ServiceCall] = []
+
+    async def record(call: ServiceCall) -> None:
+        made.append(call)
+
+    async def answer(call: ServiceCall) -> ServiceResponse:
+        made.append(call)
+        return {"said": call.data["word"]}
+
+    hass.services.async_register("test", "poke", record)
+    hass.services.async_register(
+        "test", "ask", answer, supports_response=SupportsResponse.ONLY
+    )
+    hass.services.async_register("lonely", "wave", record)
+    return made
+
+
+async def test_actions_are_a_level_beside_an_integrations_domains(
+    obj: ObjTree, calls: list[ServiceCall]
+):
+    # an integration with only actions is in the tree for them
+    assert list(obj.keys()) == ["lonely", "test"]
+    assert list(_subtree(obj, "/test").keys()) == ["action", "sensor"]
+    assert list(_subtree(obj, "/test/action").keys()) == ["ask", "poke"]
+    assert repr(obj["/test/action"]) == "<obj:/test/action: 2 actions>"
+    with pytest.raises(KeyError):
+        obj["/test/action/nope"]
+
+
+async def test_an_action_can_be_looked_at_and_called(
+    hass: HomeAssistant, obj: ObjTree, calls: list[ServiceCall]
+):
+    poke = _action(obj, "/test/action/poke")
+
+    assert repr(poke) == "<action test.poke>"
+    assert poke.action_id == "test.poke"
+    assert poke.supports_response == "none"
+    assert _action(_subtree(obj, "/test"), "action.ask").supports_response == "only"
+    # nothing describes it yet
+    assert obj.show("/test/action/poke") == {
+        "action": "test.poke",
+        "fields": {},
+        "supports_response": "none",
+    }
+    async_set_service_schema(
+        hass,
+        "test",
+        "poke",
+        {
+            "name": "Poke",
+            "description": "Pokes it.",
+            "fields": {
+                "hard": {"required": True},
+                "more": {"collapsed": True, "fields": {"times": {"example": 2}}},
+            },
+        },
+    )
+    assert poke.name == "Poke"
+    # a field in a section of the form is listed with the rest
+    assert poke.fields == {"hard": {"required": True}, "times": {"example": 2}}
+    assert await poke.describe() == {
+        "name": "Poke",
+        "description": "Pokes it.",
+        "fields": poke.fields,
+    }
+    assert obj.show("/test/action/poke") == {
+        "action": "test.poke",
+        "name": "Poke",
+        "description": "Pokes it.",
+        "fields": poke.fields,
+        "supports_response": "none",
+    }
+
+    assert await poke(target={"entity_id": "sensor.test_one"}, hard=True) is None
+    assert await _action(obj, "/test/action/ask")(word="hello") == {"said": "hello"}
+
+    assert [(c.domain, c.service, dict(c.data)) for c in calls] == [
+        ("test", "poke", {"hard": True, "entity_id": "sensor.test_one"}),
+        ("test", "ask", {"word": "hello"}),
+    ]
+
+
+async def test_actions_are_the_same_in_api_mode(obj: ObjTree, calls: list[ServiceCall]):
+    obj.mode("api")
+
+    assert _action(obj, "/test/action/poke").action_id == "test.poke"
+
+
+async def test_find_goes_through_actions_with_everything_else(
+    obj: ObjTree, calls: list[ServiceCall]
+):
+    assert sorted(obj.find_names()) == [
+        "lonely.wave",
+        "sensor.test_one",
+        "sensor.test_two",
+        "test.ask",
+        "test.poke",
+    ]
+    assert sorted(obj.find_paths("/test")) == [
+        "/test/action/ask",
+        "/test/action/poke",
+        "/test/sensor/test_one",
+        "/test/sensor/test_two",
+    ]
+    assert sorted(obj.find_names(domain="sensor")) == [
+        "sensor.test_one",
+        "sensor.test_two",
+    ]
+    assert sorted(obj.find_names(domain="action", platform="lonely")) == ["lonely.wave"]
+    assert sorted(obj.find_paths("/(test|lonely)/action/.*e$")) == [
+        "/lonely/action/wave",
+        "/test/action/poke",
+    ]
+    assert list(_subtree(obj, "/lonely/action").find_paths()) == ["/wave"]
+    raw: Any = list(obj.find("/lonely/action", raw=True))
+    assert [d["action"] for d in raw] == ["lonely.wave"]
+
+
+async def test_find_can_be_kept_to_one_object_type(
+    obj: ObjTree, calls: list[ServiceCall]
+):
+    assert all(isinstance(e, MockEntity) for e in obj.find(object_type="entity"))
+    assert sorted(obj.find_names(platform="test", object_type="entity")) == [
+        "sensor.test_one",
+        "sensor.test_two",
+    ]
+    assert sorted(obj.find_names(object_type="action")) == [
+        "lonely.wave",
+        "test.ask",
+        "test.poke",
+    ]
+    assert len(list(obj.find(object_type=["entity", "action"]))) == 5
+    # devices are not in the tree yet
+    assert list(obj.find(object_type="device")) == []
+    with pytest.raises(ValueError, match="object_type must be one of"):
+        obj.find(object_type="helper")

@@ -10,10 +10,17 @@ initial form: it's an ongoing setting, not a one-time risk acknowledgment,
 so it lives in the entry's *options* - editable any time from Settings >
 Devices & services > Home Assistant REPL > Configure - rather than data
 fixed at creation.
+
+Either can be given a time limit there, in minutes, after which it is
+switched off again (see __init__.py's _expire). The entry keeps the time
+that falls at, as `expose_<name>_until`, not the minutes, so the limit
+survives a restart. With no limit entered, it stays on.
 """
 
 from __future__ import annotations
 
+import math
+from datetime import datetime, timedelta
 from typing import Any
 
 import voluptuous as vol
@@ -23,8 +30,9 @@ from homeassistant.config_entries import (
     ConfigFlowResult,
     OptionsFlowWithReload,
 )
+from homeassistant.util import dt as dt_util
 
-from .const import DOMAIN
+from .const import CAPABILITIES, DOMAIN
 
 TITLE = "Home Assistant REPL Live Server"
 
@@ -76,20 +84,51 @@ class HaReplServerConfigFlow(ConfigFlow, domain=DOMAIN):
         return self.async_create_entry(title=TITLE, data={}, options=_DEFAULT_OPTIONS)
 
 
+def _minutes_left(options: Any, name: str, now: datetime) -> int | None:
+    """Whole minutes, rounded up, until `expose_<name>` is switched off -
+    None if it has no time limit, or is past it."""
+    until = dt_util.parse_datetime(options.get(f"expose_{name}_until") or "")
+    if until is None or until <= now:
+        return None
+    return math.ceil((until - now) / timedelta(minutes=1))
+
+
 class HaReplServerOptionsFlow(OptionsFlowWithReload):
-    """`expose_hass`/`expose_sql` - editable after setup; changing either
-    reloads the entry automatically (OptionsFlowWithReload's own job) so
-    async_setup_entry re-reads them immediately, no manual listener needed.
+    """`expose_hass`/`expose_sql`, and a time limit for each - editable
+    after setup; changing any reloads the entry automatically
+    (OptionsFlowWithReload's own job) so async_setup_entry re-reads them
+    immediately, no manual listener needed.
     """
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        if user_input is not None:
-            return self.async_create_entry(title="", data=user_input)
         options = self.config_entry.options
-        schema = vol.Schema({
-            vol.Required("expose_hass", default=options.get("expose_hass", True)): bool,
-            vol.Required("expose_sql", default=options.get("expose_sql", True)): bool,
-        })
-        return self.async_show_form(step_id="init", data_schema=schema)  # type: ignore[arg-type]
+        now = dt_util.utcnow()
+        if user_input is not None:
+            data: dict[str, Any] = {}
+            for name in CAPABILITIES:
+                data[f"expose_{name}"] = user_input[f"expose_{name}"]
+                minutes = user_input.get(f"expose_{name}_minutes")
+                if not data[f"expose_{name}"] or minutes is None:
+                    continue  # off, or on with no limit: nothing to run out
+                if minutes == _minutes_left(options, name, now):
+                    # the limit already running, as the form showed it
+                    data[f"expose_{name}_until"] = options[f"expose_{name}_until"]
+                else:
+                    until = now + timedelta(minutes=minutes)
+                    data[f"expose_{name}_until"] = until.isoformat()
+            return self.async_create_entry(title="", data=data)
+        fields: dict[Any, Any] = {}
+        for name in CAPABILITIES:
+            exposed = options.get(f"expose_{name}", True)
+            fields[vol.Required(f"expose_{name}", default=exposed)] = bool
+            # A suggested value, not a default: clearing the field has to
+            # be a way of saying "no limit".
+            left = _minutes_left(options, name, now) if exposed else None
+            fields[
+                vol.Optional(
+                    f"expose_{name}_minutes", description={"suggested_value": left}
+                )
+            ] = vol.All(vol.Coerce(int), vol.Range(min=1))
+        return self.async_show_form(step_id="init", data_schema=vol.Schema(fields))  # type: ignore[arg-type]

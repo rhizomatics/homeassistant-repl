@@ -41,7 +41,7 @@ from .cli import display_options, print_result
 from .client import Client, HaReplError, client_version
 from .config import display_path
 from .local_session import LocalSession, format_error
-from .plugins import bind_context, run_plugins
+from .plugins import bind_context, bind_rebind, run_plugins
 from .render import decode_value
 from .rest import hass_api
 from .sql import SqlResult, SqlRow, SqlTool
@@ -503,6 +503,13 @@ async def connect_live(
     return live
 
 
+def bind_live_rebind(live: LiveSession, plugins: Sequence[Path]) -> None:
+    """Bind `rebind()` in a live session - once everything else of the
+    shell's own is bound there, and before the plugins first run."""
+    bind_rebind(live.local.globals_, plugins, live.run_quiet, REMOTE_ONLY)
+    live.shared |= {"rebind"}
+
+
 async def run_repl(
     client: Client,
     session_name: str,
@@ -525,6 +532,7 @@ async def run_repl(
 
     live = await connect_live(client, session_name, auto_await=auto_await)
     bind_context(live.local.globals_, "live", server_name)
+    bind_live_rebind(live, plugins)
     loaded = await run_plugins(plugins, live.run_quiet)
     print(
         f"Live client v{client_version()} connected to {server} at HA API "

@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
     from .sql import SqlTool
 
-__all__ = ["MODE", "SERVER", "hass", "hass_api", "obj", "show", "sql"]
+__all__ = ["MODE", "SERVER", "hass", "hass_api", "obj", "rebind", "show", "sql"]
 
 MODE: Literal["live", "exec", "api"]
 SERVER: str | None  # the configured server's name, None if connected by URL
@@ -39,6 +39,10 @@ sql: SqlTool
 
 # Looks inside an object, on whichever side the object is
 show: Callable[..., Any]
+
+# Puts back any of these names that has been assigned over, and runs the
+# plugins again unless plugins=False
+rebind: Callable[..., Any]
 
 # None in api mode if the REST API couldn't be reached
 hass_api: AsyncClient | None

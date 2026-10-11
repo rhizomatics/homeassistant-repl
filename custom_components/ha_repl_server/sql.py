@@ -20,6 +20,11 @@ for. A column whose name isn't recognised there (e.g. an aggregate like
 COUNT(*)) falls back to a one-off peek at its own first non-null value, not
 a sniff of every column.
 
+The same schema says what a column means as well as how it is stored: a
+TIMESTAMP_TYPE or DATETIME_TYPE column goes out as an Arrow timestamp, a
+CONTEXT_BINARY_TYPE one as the id it holds - see _column_kind(). `raw`
+switches all of that off, for the values as the database has them.
+
 A query can also name a virtual table (see _virtual_tables() below): a
 ready-made join that is not in the database, added to the query as a common table expression
 when the query mentions it, so nothing is ever created in the recorder's
@@ -32,8 +37,9 @@ import functools
 import inspect
 import io
 import re
+from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 from typing import Any
 
@@ -42,6 +48,10 @@ import sqlalchemy as sa
 import sqlparse
 from homeassistant.components.recorder import db_schema, get_instance
 from homeassistant.components.recorder.core import Recorder
+from homeassistant.components.recorder.models.context import (
+    bytes_to_ulid_or_none,
+    bytes_to_uuid_hex_or_none,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.recorder import session_scope
 from nanoarrow.ipc import StreamWriter
@@ -54,26 +64,98 @@ class SqlError(Exception):
     """A rejected or failed query - not a bug in the shell itself."""
 
 
+@dataclass(frozen=True, eq=False)
+class _ColumnKind:
+    """What a recorder column goes out as: its Arrow type, and how each
+    non-null value gets there if it isn't that already."""
+
+    arrow: Any
+    convert: Callable[[Any], Any] | None = None
+
+
 # Most specific first: SmallInteger/BigInteger are themselves Integer
 # subclasses in SQLAlchemy, and Text is a String subclass - the first
 # isinstance match wins, so the narrower types have to come first.
-_ARROW_TYPE_BY_SQLA_TYPE: tuple[tuple[type, Any], ...] = (
-    (sa.SmallInteger, na.int32()),
-    (sa.BigInteger, na.int64()),
-    (sa.Integer, na.int64()),
-    (sa.Boolean, na.bool_()),
-    (sa.Float, na.float64()),
-    (sa.Numeric, na.float64()),
-    (sa.LargeBinary, na.binary()),
-    (sa.Text, na.string()),
-    (sa.String, na.string()),
+_STORAGE_KINDS: tuple[tuple[type, _ColumnKind], ...] = (
+    (sa.SmallInteger, _ColumnKind(na.int32())),
+    (sa.BigInteger, _ColumnKind(na.int64())),
+    (sa.Integer, _ColumnKind(na.int64())),
+    (sa.Boolean, _ColumnKind(na.bool_())),
+    (sa.Float, _ColumnKind(na.float64())),
+    (sa.Numeric, _ColumnKind(na.float64())),
+    (sa.LargeBinary, _ColumnKind(na.binary())),
+    (sa.Text, _ColumnKind(na.string())),
+    (sa.String, _ColumnKind(na.string())),
+)
+
+_EPOCH = datetime(1970, 1, 1, tzinfo=UTC)
+_MICROSECOND = timedelta(microseconds=1)
+_UTC_MICROS = na.timestamp("us", timezone="UTC")
+
+
+def _timestamp_micros(value: Any) -> int:
+    """A TIMESTAMP_TYPE value - seconds since the epoch, as a float."""
+    return round(float(value) * 1_000_000)
+
+
+def _datetime_micros(value: Any) -> int:
+    """A DATETIME_TYPE value: a datetime, or the text of one where the
+    driver doesn't parse it (SQLite, for a query given as text). The
+    recorder writes these in UTC, so one without a timezone is UTC."""
+    if isinstance(value, str):
+        value = datetime.fromisoformat(value)
+    if value.tzinfo is None:
+        value = value.replace(tzinfo=UTC)
+    return (value - _EPOCH) // _MICROSECOND
+
+
+_TIMESTAMP = _ColumnKind(_UTC_MICROS, _timestamp_micros)
+_DATETIME = _ColumnKind(_UTC_MICROS, _datetime_micros)
+_CONTEXT_ULID = _ColumnKind(na.string(), lambda v: bytes_to_ulid_or_none(bytes(v)))
+_CONTEXT_UUID_HEX = _ColumnKind(
+    na.string(), lambda v: bytes_to_uuid_hex_or_none(bytes(v))
 )
 
 
+def _column_kind(column: Any, raw: bool) -> _ColumnKind | None:
+    """How this db_schema column goes out, or None to go by its values.
+
+    Going by the type db_schema declares it with, unless `raw`:
+    TIMESTAMP_TYPE and DATETIME_TYPE as a UTC timestamp, and
+    CONTEXT_BINARY_TYPE as the id text Home Assistant itself makes of it.
+    Otherwise by how it is stored - where `raw` leaves a Boolean to its
+    values too, since not every database has a boolean to give back.
+    """
+    if not raw:
+        # TIMESTAMP_TYPE is DOUBLE_TYPE under another name - the very same
+        # object, so the type alone can't tell `start_ts` from `mean`. The
+        # `_ts` every timestamp column's name ends in does.
+        if column.type is db_schema.TIMESTAMP_TYPE and column.name.endswith("_ts"):
+            return _TIMESTAMP
+        if column.type is db_schema.DATETIME_TYPE:
+            return _DATETIME
+        if column.type is db_schema.CONTEXT_BINARY_TYPE:
+            # Nothing in db_schema says which id a context column holds: a
+            # ULID, except the user's, which is a UUID - as the recorder's
+            # own ulid_to_bytes_or_none / uuid_hex_to_bytes_or_none calls
+            # have it when it writes them.
+            return _CONTEXT_UUID_HEX if "user_id" in column.name else _CONTEXT_ULID
+    elif isinstance(column.type, sa.Boolean):
+        return None
+    return next(
+        (
+            kind
+            for sqla_type, kind in _STORAGE_KINDS
+            if isinstance(column.type, sqla_type)
+        ),
+        None,
+    )
+
+
 @functools.cache
-def _recorder_arrow_types() -> dict[str, Any]:
-    """{column name: nanoarrow type} for every current (non-deprecated)
-    column across Home Assistant's own recorder tables - built once from
+def _recorder_column_kinds(raw: bool = False) -> dict[str, _ColumnKind]:
+    """{column name: kind} for every current (non-deprecated) column
+    across Home Assistant's own recorder tables - built once from
     homeassistant.components.recorder.db_schema, the actual SQLAlchemy
     models every other recorder-reading component already trusts, rather
     than a copy of our own that could drift from a future schema migration.
@@ -83,8 +165,7 @@ def _recorder_arrow_types() -> dict[str, Any]:
     at - _build_column() falls back to a one-off peek at the query's own
     result for those.
     """
-    by_name: dict[str, Any] = {}
-    sqla_type_by_name: dict[str, type] = {}
+    by_name: dict[str, _ColumnKind] = {}
     ambiguous: set[str] = set()
     for name, obj in vars(db_schema).items():
         # Legacy* models are old schema versions kept around for migrations,
@@ -100,23 +181,11 @@ def _recorder_arrow_types() -> dict[str, Any]:
         for column in table.columns:
             if isinstance(column.type, (db_schema.Unused, db_schema.UnusedDateTime)):
                 continue
-            match = next(
-                (
-                    (sqla_type, arrow)
-                    for sqla_type, arrow in _ARROW_TYPE_BY_SQLA_TYPE
-                    if isinstance(column.type, sqla_type)
-                ),
-                None,
-            )
-            if match is None:
+            kind = _column_kind(column, raw)
+            if kind is None:
                 continue
-            sqla_type, arrow_type = match
-            name = column.name
-            if name in sqla_type_by_name and sqla_type_by_name[name] is not sqla_type:
-                ambiguous.add(name)
-                continue
-            sqla_type_by_name[name] = sqla_type
-            by_name[name] = arrow_type
+            if by_name.setdefault(column.name, kind) is not kind:
+                ambiguous.add(column.name)
     for name in ambiguous:
         by_name.pop(name, None)
     return by_name
@@ -138,7 +207,7 @@ def _coerce_for_arrow(value: Any) -> Any:
 def _infer_arrow_type(values: list[Any]) -> Any:
     """A one-off peek at a single unrecognised column's own first non-null
     value (e.g. an aggregate like COUNT(*)) - not a sniff of every column,
-    only the ones _recorder_arrow_types() doesn't already know."""
+    only the ones _recorder_column_kinds() doesn't already know."""
     for value in values:
         if value is None:
             continue
@@ -154,8 +223,19 @@ def _infer_arrow_type(values: list[Any]) -> Any:
     return na.string()
 
 
-def _build_column(name: str, values: list[Any]) -> Any:
-    arrow_type = _recorder_arrow_types().get(name) or _infer_arrow_type(values)
+def _build_column(name: str, values: list[Any], raw: bool = False) -> Any:
+    kind = _recorder_column_kinds(raw).get(name)
+    if kind is not None and kind.convert is not None:
+        try:
+            return na.array(
+                [None if v is None else kind.convert(v) for v in values],
+                schema=kind.arrow,
+            )
+        except ValueError, TypeError, OverflowError:
+            # Not the recorder's column of that name after all (an alias,
+            # say) - go by the values, as for any other name.
+            kind = None
+    arrow_type = kind.arrow if kind is not None else _infer_arrow_type(values)
     converted = [_coerce_for_arrow(v) for v in values]
     try:
         return na.array(converted, schema=arrow_type)
@@ -344,7 +424,11 @@ class ArrowResult:
 
 
 async def sql(
-    hass: HomeAssistant, query: str, *, max_rows: int | None = DEFAULT_MAX_ROWS
+    hass: HomeAssistant,
+    query: str,
+    *,
+    max_rows: int | None = DEFAULT_MAX_ROWS,
+    raw: bool = False,
 ) -> ArrowResult:
     """Run a single read-only SQL SELECT against Home Assistant's Recorder
     database and return the rows as Arrow IPC bytes.
@@ -358,6 +442,11 @@ async def sql(
 
     The query can use a virtual table, such as `state_history`, as if it
     were a real one - see _virtual_tables().
+
+    A column named as one of the recorder's own is given what db_schema
+    says it holds - a time for a TIMESTAMP_TYPE or DATETIME_TYPE column,
+    an id's text for a context one - unless `raw`, which leaves every
+    value as the database gave it.
     """
     if max_rows is not None and max_rows < 1:
         raise SqlError("max_rows must be at least 1")
@@ -371,7 +460,7 @@ async def sql(
     )
     column_values = list(zip(*rows, strict=True)) if rows else [() for _ in columns]
     arrays = {
-        name: _build_column(name, list(values))
+        name: _build_column(name, list(values), raw)
         for name, values in zip(columns, column_values, strict=True)
     }
     schema = na.struct({name: arr.schema for name, arr in arrays.items()})
@@ -388,7 +477,7 @@ async def sql(
 def table_schemas() -> list[dict[str, Any]]:
     """The recorder's own current (non-deprecated) tables and their columns,
     as plain data - from homeassistant.components.recorder.db_schema, the
-    same source _recorder_arrow_types() reads above, not a live reflection
+    same source _recorder_column_kinds() reads above, not a live reflection
     of the connected database: these tables are schema-defined and the same
     for every instance of a given HA version. `class` and `doc` are the
     name and docstring of the db_schema class mapped to each table, and a

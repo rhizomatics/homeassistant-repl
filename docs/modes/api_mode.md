@@ -8,7 +8,7 @@ Its aimed to be as code compatible with `live`, so you can use `obj` code in eit
 
 The two special variables in `api` mode are:
 
-* `obj` - the [Object Tree](../obj_tree.md) exposed as a dictionary object and common methods, with the source being the Home Assistant API
+* `obj` - the [Object Tree](../obj_tree.md) exposed as a dictionary object and common methods, with the source being the Home Assistant API. It has each integration's [actions](../obj_tree.md#actions) as well as the entities, to look at or call
 * `hass_api` - the Home Assistant web socket / REST API exposed using the [homeassistant-api](https://pypi.org/project/HomeAssistant-API/) library
 
 The objects returned by `obj` are of class `ApiEntity`, and combines the `Entity` class from Home Assistant, with `RegistryEntity` since things of common use are split across both.
@@ -75,7 +75,7 @@ An `ApiEntity` uses the real `Entity` names wherever it has the data, so the sam
 ```python
 {
     e.entity_id: e.registry_entry.unique_id
-    for e in obj.find(platform="mqtt")
+    for e in obj.find(platform="mqtt", object_type="entity")
     if e.available
 }
 ```
@@ -100,9 +100,26 @@ The API access is read/write, so can be used for anything that the user who issu
 hass_api.trigger_service("switch", "turn_off", entity_id="switch.living_room_light")
 ```
 
+An action can also be called straight from the object tree, which works the same in `live` mode:
+
+```python
+obj["/switch/action/turn_off"](target={"entity_id": "switch.living_room_light"})
+```
+
 Since everything is plain Python, these can be combined together in procedural or one-liner comprehension type code, and use other libraries you've imported.
 
 ```python
 for e in obj.find_names(".*light.*", domain="switch"):
     hass_api.trigger_service("switch", "turn_off", entity_id=e)
 ```
+### Getting The Built-ins Back
+
+`obj` and `hass_api` are ordinary names, as are `show`, `help`, `MODE` and `SERVER`, so assigning to one replaces it for the rest of the session - `obj = 5`, or a `for obj in things:` loop. `rebind()` puts them all back, and runs the [plugins](../configuration/plugins.md) again.
+
+```python
+>>> obj = obj["sensor.sun_next_rising"]    # `obj` is now that one entity
+>>> rebind()                               # `obj` is the object tree again
+>>> rebind(plugins=False)                  # the same, without running the plugins
+```
+
+Nothing else in the session is touched: variables of your own stay as they are, apart from any a plugin assigns. It works the same way in `live` mode.

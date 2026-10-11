@@ -1,4 +1,4 @@
-"""ApiObjTree - API client mode's read-only `obj[...]`, built entirely from
+"""ApiObjTree - API client mode's `obj[...]`, built entirely from
 Home Assistant's standard websocket API (get_states, config/*_registry/list)
 - no ha_repl_server component needed, works against any instance an admin
 token can reach. Bound to the same name, `obj`, as the live tree (see
@@ -7,6 +7,12 @@ mode. Entities only have what that API exposes: state + attributes from
 get_states, and whatever the entity registry's own partial dict exposes (no
 live component instance, so no calling methods on it, no fields an
 integration keeps off the registry/state).
+
+Actions (services) are in the tree too, from get_services, under the
+integration that registers them: `obj["/mqtt/action/publish"]`. Looking one
+up reads the snapshot like anything else here; calling it is the one thing
+in this tree that isn't read-only, and goes to Home Assistant as a
+call_service.
 
 Mirrors custom_components/ha_repl_server/objtree.py's shape - __getitem__,
 .keys()/.values()/.items(), find(), show() all behave the same way modulo the
@@ -39,7 +45,7 @@ from collections.abc import (
     Sequence,
     ValuesView,
 )
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, NamedTuple, Protocol, Self
 
@@ -234,6 +240,170 @@ class ApiEntity:
         return self.registry_entry.get("translation_key")
 
 
+# The level of the tree an integration's actions are under, beside its
+# entity domains - `/mqtt/action/publish`. Not an entity domain itself.
+ACTION = "action"
+
+
+def _describe_action(
+    domain: str, service: str, described: dict[str, Any], translations: dict[str, str]
+) -> dict[str, Any]:
+    """One action's description as a person would want it: what Home
+    Assistant keeps about it (its fields, from services.yaml) with the
+    names and descriptions the frontend shows, which are kept apart from
+    that, in the translations. Fields in a collapsible section of the
+    form are listed with the rest.
+
+    Duplicated from custom_components/ha_repl_server/objtree.py.
+    """
+    base = f"component.{domain}.services.{service}"
+    fields: dict[str, Any] = {}
+
+    def add(specs: Any) -> None:
+        for key, spec in (specs or {}).items():
+            spec = dict(spec or {})
+            if "fields" in spec:  # a section, not a field
+                add(spec["fields"])
+                continue
+            texts = {
+                item: translations.get(f"{base}.fields.{key}.{item}")
+                for item in ("name", "description")
+                if item not in spec
+            }
+            fields[key] = {**{k: v for k, v in texts.items() if v}, **spec}
+
+    add(described.get("fields"))
+    result: dict[str, Any] = {
+        "name": described.get("name") or translations.get(f"{base}.name"),
+        "description": described.get("description")
+        or translations.get(f"{base}.description"),
+        "fields": fields,
+    }
+    if "target" in described:
+        result["target"] = described["target"]
+    return result
+
+
+@dataclass(frozen=True, repr=False)
+class ApiAction:
+    """One action (service) of an integration, as `obj["/mqtt/action/publish"]`
+    gives it. Call it to run the action, with the action's data as keyword
+    arguments:
+
+        await obj["/mqtt/action/publish"](topic="shed/fan", payload="on")
+        await obj["/light/action/turn_on"](target={"entity_id": "light.shed"})
+        await obj["/weather/action/get_forecasts"](entity_id="weather.home", type="daily")
+
+    What an action that answers gives back is returned. `name`,
+    `description` and `fields` are Home Assistant's description of it.
+    """
+
+    domain: str
+    service: str
+    name: str | None
+    description: str | None
+    fields: dict[str, Any]
+    """Each field the action takes: its name and description, whether it
+    is required, an example, and the selector the frontend uses."""
+    supports_response: str
+    """"none", "optional" or "only" - whether calling it gives data back."""
+    _client: _ApiClient = field(compare=False)
+
+    @property
+    def action_id(self) -> str:
+        """The action as Home Assistant names it, e.g. `mqtt.publish`."""
+        return f"{self.domain}.{self.service}"
+
+    async def describe(self) -> dict[str, Any]:
+        """Home Assistant's description of the action - its `name`,
+        `description` and `fields` - as one dict. Something to await, as
+        it is in live mode."""
+        return {
+            "name": self.name,
+            "description": self.description,
+            "fields": self.fields,
+        }
+
+    async def __call__(
+        self,
+        *,
+        target: dict[str, Any] | None = None,
+        return_response: bool | None = None,
+        **data: Any,
+    ) -> Any:
+        """Run the action and wait for it, with `data` as its data and
+        `target` as what it is to act on (`{"entity_id": ...}`,
+        `{"area_id": ...}`). Returns what it answers with, if it is one that
+        answers - `return_response` says whether to ask, for one where
+        that is optional."""
+        if return_response is None:
+            return_response = self.supports_response == "only"
+        payload: dict[str, Any] = {
+            "domain": self.domain,
+            "service": self.service,
+            "service_data": data,
+            "return_response": return_response,
+        }
+        if target is not None:
+            payload["target"] = target
+        result = await self._client.call("call_service", **payload)
+        return (result or {}).get("response") if return_response else None
+
+    def __repr__(self) -> str:
+        return f"<action {self.action_id}>"
+
+
+def _to_action(
+    client: _ApiClient,
+    domain: str,
+    service: str,
+    described: dict[str, Any],
+    translations: dict[str, str],
+) -> ApiAction:
+    """An ApiAction from one service's entry in a get_services reply, where
+    `response` is there only for one that answers."""
+    response = described.get("response")
+    supports = (
+        "none"
+        if response is None
+        else "optional"
+        if response.get("optional")
+        else "only"
+    )
+    full = _describe_action(domain, service, described, translations)
+    return ApiAction(
+        domain=domain,
+        service=service,
+        name=full["name"],
+        description=full["description"],
+        fields=full["fields"],
+        supports_response=supports,
+        _client=client,
+    )
+
+
+def _name_of(thing: Any) -> str:
+    """What find_names() gives for something found: an entity's id, or an
+    action's - `light.shed`, `mqtt.publish`."""
+    return thing.action_id if isinstance(thing, ApiAction) else thing.entity_id
+
+
+# What find() can be told to look for. Devices are not in the tree yet, so
+# asking for them alone finds nothing.
+OBJECT_TYPES = ("entity", "action", "device")
+
+
+def _object_types(value: str | list[str] | None) -> set[str]:
+    """The kinds of object a find is for - all of them if none is named."""
+    types = _as_set(value)
+    if unknown := types - set(OBJECT_TYPES):
+        raise ValueError(
+            f"object_type must be one of {', '.join(OBJECT_TYPES)}, "
+            f"not {', '.join(sorted(unknown))}"
+        )
+    return types or set(OBJECT_TYPES)
+
+
 class _Found(NamedTuple):
     """Internal only - never returned from find()/find_paths()/find_names(),
     just the shared (path, entity) pair each of them projects from
@@ -243,7 +413,7 @@ class _Found(NamedTuple):
     found.entity.entity_id."""
 
     path: str
-    entity: ApiEntity
+    entity: ApiEntity | ApiAction
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self.entity, name)
@@ -263,6 +433,7 @@ class Cache:
         self.ttl = ttl
         self._fetched_at: float | None = None
         self.entities: dict[str, ApiEntity] = {}
+        self.actions: dict[tuple[str, str], ApiAction] = {}
         self.areas: dict[str, dict[str, Any]] = {}
         self.labels: dict[str, dict[str, Any]] = {}
 
@@ -318,6 +489,26 @@ class Cache:
                 registry_entry=ApiRegistryEntry(entry),
             )
         self.entities = entities
+        services = await self.client.call("get_services")
+        try:
+            # The names and descriptions the frontend shows for an action
+            # and its fields - kept apart from the rest, as translations.
+            config = await self.client.call("get_config")
+            reply = await self.client.call(
+                "frontend/get_translations",
+                language=config.get("language", "en"),
+                category="services",
+            )
+            translations = reply.get("resources", {})
+        except Exception:  # noqa: BLE001 - actions are just less well described without
+            translations = {}
+        self.actions = {
+            (domain, service): _to_action(
+                self.client, domain, service, described, translations
+            )
+            for domain, described_services in services.items()
+            for service, described in described_services.items()
+        }
         self._fetched_at = time.monotonic()
 
 
@@ -379,8 +570,8 @@ def _clean(data: dict[str, Any]) -> dict[str, Any]:
 
 
 @dataclass(frozen=True)
-class ApiObjTree(Mapping[str, "ApiEntity | ApiObjTree"]):
-    """The tree of Home Assistant's entities, as read through its API.
+class ApiObjTree(Mapping[str, "ApiEntity | ApiAction | ApiObjTree"]):
+    """The tree of Home Assistant's entities and actions, as read through its API.
 
     Entities are arranged by integration, then domain, then name:
 
@@ -395,11 +586,20 @@ class ApiObjTree(Mapping[str, "ApiEntity | ApiObjTree"]):
 
     find() goes through every entity below a path instead, in no fixed
     order. It takes a path or regular expression, and any of domain=,
-    platform=, area= and label=, each a string or a list of strings.
+    platform=, area=, label= and object_type=, each a string or a list
+    of strings.
     find_paths() and find_names() take the same and give tree paths or
     entity ids rather than the entities.
 
     show(path) gives the most useful details of one entity.
+
+    An integration's actions (services) are beside its domains:
+
+        obj["/mqtt/action"]             its actions
+        obj["/mqtt/action/publish"]     one action - call it to run it
+
+    The find methods go through actions as well as entities. Give them
+    object_type="entity" or object_type="action" for just the one kind.
 
     This is a snapshot, refreshed between prompts once it is a while old.
     reset_cache() makes the next prompt fetch a new one.
@@ -414,7 +614,7 @@ class ApiObjTree(Mapping[str, "ApiEntity | ApiObjTree"]):
     def reset_cache(self) -> None:
         self.cache.reset()
 
-    def __getitem__(self, key: str) -> ApiEntity | ApiObjTree:
+    def __getitem__(self, key: str) -> ApiEntity | ApiAction | ApiObjTree:
         _require_str(key, "key")
         if (
             "/" not in key
@@ -447,10 +647,27 @@ class ApiObjTree(Mapping[str, "ApiEntity | ApiObjTree"]):
                 raise KeyError(key)
             return subtree
         integration, domain, object_id = full
+        if domain == ACTION:
+            action = self.cache.actions.get((integration, object_id))
+            if action is None:
+                raise KeyError(key)
+            return action
         entity = self.cache.entities.get(f"{domain}.{object_id}")
         if entity is None or entity.platform != integration:
             raise KeyError(key)
         return entity
+
+    def _actions(self, prefix: tuple[str, ...]) -> Iterator[ApiAction]:
+        """Every action whose (integration, "action", name) matches `prefix`
+        position by position, as _entries() does for entities."""
+        if len(prefix) >= 2 and prefix[1] != ACTION:
+            return
+        for action in self.cache.actions.values():
+            if len(prefix) >= 1 and action.domain != prefix[0]:
+                continue
+            if len(prefix) >= 3 and action.service != prefix[2]:
+                continue
+            yield action
 
     def _entries(self, prefix: tuple[str, ...]) -> Iterator[ApiEntity]:
         for entity in self.cache.entities.values():
@@ -467,6 +684,10 @@ class ApiObjTree(Mapping[str, "ApiEntity | ApiObjTree"]):
         children = {
             (entity.platform, entity.domain, entity.object_id)[len(scope)]
             for entity in self._entries(scope)
+        }
+        children |= {
+            (action.domain, ACTION, action.service)[len(scope)]
+            for action in self._actions(scope)
         }
         for child in sorted(children):
             yield "/" + child
@@ -491,6 +712,7 @@ class ApiObjTree(Mapping[str, "ApiEntity | ApiObjTree"]):
         domain: str | list[str] | None,
         area: str | list[str] | None,
         label: str | list[str] | None,
+        object_type: str | list[str] | None = None,
     ) -> Iterator[_Found]:
         """The real search, shared by find()/find_paths()/find_names() - each
         just projects a different field from the (path, entity) pairs this
@@ -509,6 +731,13 @@ class ApiObjTree(Mapping[str, "ApiEntity | ApiObjTree"]):
         integration; `area`/`label` each take an id or a display name. Each
         of the four ORs within itself when given a list, and they AND
         together. No order guarantee; wrap in sorted(...) if you want one.
+
+        Actions are found along with entities, each with "action" as its
+        domain and the integration whose action it is as its platform. An
+        action has no area or label, so a search by either finds none.
+
+        `object_type` narrows it to "entity", "action" or "device", or a
+        list of those - all of them when it isn't given.
         """
         _require_str(path)
         scope = tuple(p for p in (self.integration, self.domain) if p is not None)
@@ -526,11 +755,12 @@ class ApiObjTree(Mapping[str, "ApiEntity | ApiObjTree"]):
 
         platforms = _as_set(platform)
         domains = _as_set(domain)
+        types = _object_types(object_type)
         area_ids = _resolve_from_cache(area, self.cache.areas, "area", "area_id")
         label_ids = _resolve_from_cache(label, self.cache.labels, "label", "label_id")
 
         def _matches() -> Iterator[_Found]:
-            for entity in self._entries(prefix):
+            for entity in self._entries(prefix) if "entity" in types else ():
                 if platforms and entity.platform not in platforms:
                     continue
                 if domains and entity.domain not in domains:
@@ -545,6 +775,19 @@ class ApiObjTree(Mapping[str, "ApiEntity | ApiObjTree"]):
                 if pattern is not None and not pattern.match(full_path):
                     continue
                 yield _Found(full_path, entity)
+            if area_ids or label_ids or "action" not in types:
+                return
+            for action in self._actions(prefix):
+                if platforms and action.domain not in platforms:
+                    continue
+                if domains and ACTION not in domains:
+                    continue
+                full_path = "/" + "/".join(
+                    (action.domain, ACTION, action.service)[len(scope) :]
+                )
+                if pattern is not None and not pattern.match(full_path):
+                    continue
+                yield _Found(full_path, action)
 
         return _matches()
 
@@ -556,8 +799,9 @@ class ApiObjTree(Mapping[str, "ApiEntity | ApiObjTree"]):
         domain: str | list[str] | None = None,
         area: str | list[str] | None = None,
         label: str | list[str] | None = None,
+        object_type: str | list[str] | None = None,
         raw: bool = False,
-    ) -> Iterator[ApiEntity] | Iterator[dict[str, Any]]:
+    ) -> Iterator[ApiEntity | ApiAction] | Iterator[dict[str, Any]]:
         """Every entity (or raw dict, if raw=True) matching the filters under
         `path` (relative to this view, "/" meaning this view's whole
         subtree) - flat, skipping the directory-style one-level-at-a-time
@@ -572,7 +816,12 @@ class ApiObjTree(Mapping[str, "ApiEntity | ApiObjTree"]):
         came from.
         """
         matches = self._find(
-            path, platform=platform, domain=domain, area=area, label=label
+            path,
+            platform=platform,
+            domain=domain,
+            area=area,
+            label=label,
+            object_type=object_type,
         )
         if raw:
             return (self.show(found.path) for found in matches)
@@ -586,13 +835,19 @@ class ApiObjTree(Mapping[str, "ApiEntity | ApiObjTree"]):
         domain: str | list[str] | None = None,
         area: str | list[str] | None = None,
         label: str | list[str] | None = None,
+        object_type: str | list[str] | None = None,
     ) -> Iterator[str]:
         """Just the tree-path strings from find() (e.g.
         "/demo/light/kitchen_lights") - see _find() for the filters."""
         return (
             found.path
             for found in self._find(
-                path, platform=platform, domain=domain, area=area, label=label
+                path,
+                platform=platform,
+                domain=domain,
+                area=area,
+                label=label,
+                object_type=object_type,
             )
         )
 
@@ -604,15 +859,21 @@ class ApiObjTree(Mapping[str, "ApiEntity | ApiObjTree"]):
         domain: str | list[str] | None = None,
         area: str | list[str] | None = None,
         label: str | list[str] | None = None,
+        object_type: str | list[str] | None = None,
     ) -> Iterator[str]:
         """Just the HA entity_id strings from find() (e.g.
         "light.kitchen_lights") - see _find() for the filters. Not the same
         as find_paths(): this is the flat entity_id, not this tree's
         /integration/domain/object_id path."""
         return (
-            found.entity_id
+            _name_of(found.entity)
             for found in self._find(
-                path, platform=platform, domain=domain, area=area, label=label
+                path,
+                platform=platform,
+                domain=domain,
+                area=area,
+                label=label,
+                object_type=object_type,
             )
         )
 
@@ -629,6 +890,17 @@ class ApiObjTree(Mapping[str, "ApiEntity | ApiObjTree"]):
         if len(full) != 3:
             raise KeyError(f"{path!r} - show() needs a full entity path")
         integration, domain, object_id = full
+        if domain == ACTION:
+            action = self.cache.actions.get((integration, object_id))
+            if action is None:
+                raise KeyError(path)
+            return _clean({
+                "action": action.action_id,
+                "name": action.name,
+                "description": action.description,
+                "fields": action.fields,
+                "supports_response": action.supports_response,
+            })
         entity = self.cache.entities.get(f"{domain}.{object_id}")
         if entity is None or entity.platform != integration:
             raise KeyError(path)
@@ -645,7 +917,9 @@ class ApiObjTree(Mapping[str, "ApiEntity | ApiObjTree"]):
         scope = "/".join(p for p in (self.integration, self.domain) if p is not None)
         label = f"obj:/{scope}" if scope else "obj"
         kind = (
-            "entities"
+            "actions"
+            if self.domain == ACTION
+            else "entities"
             if self.domain is not None
             else "domains"
             if self.integration

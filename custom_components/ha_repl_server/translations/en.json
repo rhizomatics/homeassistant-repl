@@ -25,8 +25,11 @@
         "title": "Home Assistant REPL",
         "data": {
           "expose_hass": "Expose `hass` in live sessions",
-          "expose_sql": "Expose `sql` in live sessions"
-        }
+          "expose_hass_minutes": "Switch `hass` off after (minutes)",
+          "expose_sql": "Expose `sql` in live sessions",
+          "expose_sql_minutes": "Switch `sql` off after (minutes)"
+        },
+        "description": "Either can be given a time limit, after which it is switched off again. Leave the limit empty to keep it on."
       }
     }
   }

@@ -54,7 +54,7 @@ Find me all the MQTT devices that are exposed to Alexa.
 ```python
 [
     o.entity_id
-    for o in obj.find(platform="mqtt")
+    for o in obj.find(platform="mqtt", object_type="entity")
     if o.registry_entry.options.get("cloud.alexa", {}).get("should_expose", {})
 ]
 ```
@@ -149,7 +149,7 @@ sql("""
 #### State history for an entity
 
 - `states` has no entity id of its own, so this uses the [`state_history` virtual table](./sql.md#virtual-tables), which adds it
-- Times are seconds since the epoch, in the `_ts` columns, so the cutoff is worked out in Python
+- Times are seconds since the epoch, in the `_ts` columns, so the cutoff is worked out in Python. In the result they are [datetimes](./sql.md#column-values)
 
 ```python
 import time

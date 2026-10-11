@@ -53,7 +53,7 @@ left out.
 | Name | What it is | Where it runs |
 | ---- | ---------- | ------------- |
 | `hass` | The live `HomeAssistant` object | Inside Home Assistant |
-| `obj` | Entities as a tree: `obj["/mqtt/sensor/name"]`, `obj["sensor.name"]`, `obj.find(...)`, `obj.find_names(...)`, `obj.find_paths(...)`, `obj.show(path)` | Inside Home Assistant |
+| `obj` | Entities as a tree: `obj["/mqtt/sensor/name"]`, `obj["sensor.name"]`, `obj.find(...)`, `obj.find_names(...)`, `obj.find_paths(...)`, `obj.show(path)`. Actions too: `obj["/mqtt/action/publish"](topic=..., payload=...)` calls one, `obj["/mqtt/action"].keys()` lists them | Inside Home Assistant |
 | `sql` | `sql("select ...", max_rows=N)` queries the recorder and gives a local result object; `sql.tables` lists tables and columns | Local |
 | `hass_api` | A `homeassistant-api` REST client | Local |
 
@@ -105,11 +105,18 @@ A `sql` result is a local object holding the downloaded rows. `len(r)`, slices s
 and looping over rows work on it. `r[0]` is one row, read by position or column name, so
 `sql("select count(*) from events")[0][0]` is the number itself. Also:
 
-- `r.column_names`, `r.rowcount`, and `r.truncated`, which is true when the query hit `max_rows`
+- `r.column_names`, `r.rowcount`, `r.query`, and `r.truncated`, which is true when the query hit
+  `max_rows`
 - `r.to_dicts()` for a list of dicts, `r.project([...])` for some of the columns, `r.sample()`
   for random rows
 - `r.to_polars()` or `r.to_pandas()` if that library is installed locally, `r.export_csv()` to
   write a local file
+
+A recorder column comes back as what it holds: a `_ts` column as a `datetime` in UTC (ISO 8601
+text with `--json`), `context_id_bin` and `context_parent_id_bin` as the ULID text of
+`context.id`, `context_user_id_bin` as the user id. This goes by the column's name in the
+result, so an expression needs the name back: `max(last_updated_ts) as last_updated_ts`.
+`sql(..., raw=True)` leaves every value as the database has it.
 
 Some recorder columns are legacy: still in the table, no longer written to, such as
 `states.entity_id`, now in `states_meta`. A result keeps them out of view unless the query names them,
@@ -162,10 +169,11 @@ sql(f"""
 PY
 ```
 
-- Times are seconds since the epoch, as floats, in columns ending `_ts`: `last_updated_ts` on
-  every row, `last_changed_ts` only when it differs from that, so read
-  `coalesce(last_changed_ts, last_updated_ts)`. Work out a cutoff in Python, as above, rather
-  than with SQL date functions, which differ between SQLite, MariaDB and PostgreSQL.
+- Times are stored as seconds since the epoch, as floats, in columns ending `_ts`:
+  `last_updated_ts` on every row, `last_changed_ts` only when it differs from that, so read
+  `coalesce(last_changed_ts, last_updated_ts) as last_changed_ts`. Work out a cutoff in Python,
+  as above, rather than with SQL date functions, which differ between SQLite, MariaDB and
+  PostgreSQL. A `where` compares the stored float; the result has a `datetime`.
 - `state` is always a string, with `unavailable` and `unknown` among the values, so filter those
   out before casting to a number.
 - Attributes are in `state_attributes.shared_attrs` as a JSON string, joined on `attributes_id`.

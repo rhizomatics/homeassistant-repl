@@ -7,6 +7,7 @@ is tests/test_sql_client.py's business."""
 from __future__ import annotations
 
 import re
+import uuid
 from datetime import timedelta
 from typing import Any
 
@@ -16,8 +17,9 @@ from homeassistant.components.recorder.models import StatisticMeanType
 from homeassistant.components.recorder.statistics import (
     async_add_external_statistics,
 )
-from homeassistant.core import HomeAssistant
+from homeassistant.core import Context, HomeAssistant
 from homeassistant.util import dt as dt_util
+from homeassistant.util.ulid import ulid_to_bytes
 from pytest_homeassistant_custom_component.components.recorder.common import (
     async_wait_recording_done,
 )
@@ -26,6 +28,7 @@ from custom_components.ha_repl_server.sql import (
     ArrowResult,
     SqlError,
     _add_virtual_tables,
+    _recorder_column_kinds,
     sql,
     table_schemas,
 )
@@ -323,3 +326,93 @@ def test_table_schemas_lists_current_recorder_tables_with_columns():
     assert list(tables) == sorted(tables)
     described = {t["name"]: (t["class"], t["doc"]) for t in table_schemas()}
     assert described["states"] == ("States", "State change history.")
+
+
+async def test_sql_gives_recorder_columns_what_db_schema_says_they_hold(
+    recorder_mock, hass: HomeAssistant
+):
+    before = dt_util.utcnow() - timedelta(seconds=5)
+    hass.states.async_set(
+        "sensor.test", "42", context=Context(user_id=uuid.uuid4().hex)
+    )
+    await _settle(hass)
+    state = hass.states.get("sensor.test")
+    assert state is not None
+
+    result = await sql(
+        hass,
+        "select last_updated_ts, context_id_bin, context_user_id_bin, "
+        "context_parent_id_bin from state_history",
+    )
+
+    batch = _batch(result)
+    assert [str(f.type) for f in batch.schema.fields] == [
+        "Type.TIMESTAMP",
+        "Type.STRING",
+        "Type.STRING",
+        "Type.STRING",
+    ]
+    (row,) = batch.to_pylist()
+    # TIMESTAMP_TYPE: seconds since the epoch, sent as a time in UTC
+    assert row["last_updated_ts"] == state.last_updated
+    assert row["last_updated_ts"].tzinfo is not None
+    assert row["last_updated_ts"] > before
+    # a context id is a ULID - all but the user's, which is a UUID
+    assert row["context_id_bin"] == state.context.id
+    assert row["context_user_id_bin"] == state.context.user_id
+    assert row["context_parent_id_bin"] is None
+
+
+async def test_sql_datetime_and_boolean_columns(recorder_mock, hass: HomeAssistant):
+    await _settle(hass)
+
+    result = await sql(hass, "select start, closed_incorrect from recorder_runs")
+
+    batch = _batch(result)
+    assert [str(f.type) for f in batch.schema.fields] == [
+        "Type.TIMESTAMP",
+        "Type.BOOL",
+    ]
+    row = batch.to_pylist()[0]
+    # DATETIME_TYPE: text in SQLite, with no timezone, which is UTC
+    assert abs(row["start"] - dt_util.utcnow()) < timedelta(hours=1)
+    assert row["closed_incorrect"] is False
+
+
+async def test_sql_raw_leaves_values_as_the_database_has_them(
+    recorder_mock, hass: HomeAssistant
+):
+    hass.states.async_set("sensor.test", "42")
+    await _settle(hass)
+    state = hass.states.get("sensor.test")
+    assert state is not None
+
+    result = await sql(
+        hass, "select last_updated_ts, context_id_bin from state_history", raw=True
+    )
+    runs = await sql(
+        hass, "select start, closed_incorrect from recorder_runs", raw=True
+    )
+
+    (row,) = _batch(result).to_pylist()
+    assert row["last_updated_ts"] == pytest.approx(state.last_updated.timestamp())
+    assert row["context_id_bin"] == ulid_to_bytes(state.context.id)
+    run = _batch(runs).to_pylist()[0]
+    assert isinstance(run["start"], str)
+    assert run["closed_incorrect"] == 0
+    assert type(run["closed_incorrect"]) is int
+
+
+async def test_sql_a_column_only_named_like_a_recorder_one_goes_by_its_values(
+    recorder_mock, hass: HomeAssistant
+):
+    result = await sql(hass, "select 'soon' as start_ts, 'x' as context_id_bin")
+
+    assert _batch(result).to_pylist() == [{"start_ts": "soon", "context_id_bin": "x"}]
+
+
+def test_a_plain_double_is_not_taken_for_a_timestamp():
+    # TIMESTAMP_TYPE and DOUBLE_TYPE are one object in db_schema
+    kinds = _recorder_column_kinds()
+    assert str(kinds["mean"].arrow.type) == "Type.DOUBLE"
+    assert str(kinds["start_ts"].arrow.type) == "Type.TIMESTAMP"

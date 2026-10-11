@@ -10,11 +10,12 @@ from typing import Any
 from homeassistant_repl.local_session import LocalSession
 from homeassistant_repl.plugins import (
     bind_context,
+    bind_rebind,
     local_runner,
     run_plugins,
     split_statements,
 )
-from homeassistant_repl.repl import Captured, LiveSession
+from homeassistant_repl.repl import Captured, LiveSession, bind_live_rebind
 
 
 class FakeClient:
@@ -233,3 +234,72 @@ async def test_a_file_can_branch_on_mode_in_live_mode(tmp_path, capsys):
 class _Obj:
     def find(self, domain: str) -> list[str]:
         return [f"found {domain}"]
+
+
+async def test_rebind_puts_back_the_shells_own_names_in_live_mode(tmp_path, capsys):
+    client = FakeClient()
+    sql = object()
+    live = LiveSession(
+        client, "default", LocalSession({"sql": sql}), shared=frozenset({"sql"})
+    )
+    bind_context(live.local.globals_, "live", "house")
+    path = _file(tmp_path, "10-helpers.py", "limit = 3\n")
+    bind_live_rebind(live, [path])
+    await run_plugins([path], live.run_quiet)
+    show = live.local.globals_["show"]
+
+    # each of these is a local variable now, in the way of the real thing
+    assert await live.run("hass = obj = sql = show = MODE = 1; limit = 99; mine = 5")
+    assert await live.run("hass")
+    assert client.executed == []
+
+    assert await live.run("rebind()")
+
+    assert live.local.globals_["sql"] is sql
+    assert live.local.globals_["show"] is show
+    assert live.local.globals_["MODE"] == "live"
+    assert "hass" not in live.local.globals_
+    assert "obj" not in live.local.globals_
+    # the plugins ran again, and nothing else was touched
+    assert live.local.globals_["limit"] == 3
+    assert live.local.globals_["mine"] == 5
+    # so `hass` is Home Assistant's again
+    assert await live.run("hass.states")
+    assert client.executed == ["hass.states"]
+    capsys.readouterr()
+
+
+async def test_rebind_leaves_the_plugins_alone_when_told_to(tmp_path):
+    live = _live(FakeClient())
+    path = _file(tmp_path, "10-helpers.py", "limit = 3\n")
+    bind_live_rebind(live, [path])
+    await run_plugins([path], live.run_quiet)
+
+    assert await live.run("limit = 99; show = 1; rebind(plugins=False)")
+
+    assert live.local.globals_["limit"] == 99
+    assert callable(live.local.globals_["show"])
+
+
+async def test_rebind_in_api_mode_puts_obj_back(tmp_path):
+    obj = _Obj()
+    session = LocalSession({"obj": obj})
+    bind_context(session.globals_, "api", None)
+    path = _file(tmp_path, "10-helpers.py", "limit = 3\n")
+    bind_rebind(session.globals_, [path], local_runner(session))
+
+    assert await session.run("obj = None; limit = 99; rebind()")
+
+    assert session.globals_["obj"] is obj
+    assert session.globals_["limit"] == 3
+
+
+async def test_a_plugin_that_calls_rebind_does_not_run_them_all_again(tmp_path):
+    runs: list[int] = []
+    session = LocalSession({"runs": runs})
+    path = _file(tmp_path, "10-loop.py", "runs.append(1)\nrebind()\n")
+    bind_rebind(session.globals_, [path], local_runner(session))
+
+    assert await session.run("rebind()")
+
+    assert runs == [1]

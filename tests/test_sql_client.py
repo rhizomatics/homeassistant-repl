@@ -556,3 +556,40 @@ def test_empty_and_out_of_range_slices():
 def test_stepped_slice_points_at_polars():
     with pytest.raises(ValueError, match="to_polars"):
         _result(a=[1, 2, 3, 4])[::2]
+
+
+async def test_result_carries_the_query_it_came_from():
+    tool = await SqlTool.connect(_FakeClient(_server_arrow_bytes(id=[1, 2])))
+
+    result = await tool("select id from t")
+
+    assert result.query == "select id from t"
+    assert result[:1].query == result.project(["id"]).query == "select id from t"
+    assert _result(id=[1]).query == ""
+
+
+async def test_sqltool_asks_for_raw_only_when_told_to():
+    client = _FakeClient(_server_arrow_bytes(id=[1]))
+    tool = await SqlTool.connect(client)
+
+    await tool("select 1")
+    await tool("select 1", raw=True)
+
+    assert [c[1].get("raw") for c in client.calls[1:]] == [None, True]
+
+
+def test_a_time_column_reads_as_datetimes_and_survives_a_copy():
+    from datetime import UTC, datetime
+
+    when = datetime(2026, 10, 11, 12, 30, 0, 123456, tzinfo=UTC)
+    micros = 1_791_721_800_123_456
+    times = na.array([micros, None, micros + 1], na.timestamp("us", timezone="UTC"))
+    schema = na.struct({"start_ts": times.schema})
+    batch = na.c_array_from_buffers(schema, length=3, buffers=[], children=[times])
+    result = SqlResult(na.Array(batch))
+
+    assert result[0]["start_ts"] == when
+    assert result.json_data()["rows"][0] == ["2026-10-11T12:30:00.123456+00:00"]
+    # sample() and a sliced arrow_ipc() rebuild the column from its values
+    assert list(result.sample(3)) == list(result)
+    assert list(SqlResult.from_arrow(result[1:].arrow_ipc())) == list(result)[1:]

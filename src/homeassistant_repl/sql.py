@@ -30,6 +30,7 @@ import random
 import re
 from collections.abc import Iterator
 from dataclasses import dataclass, field
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -182,6 +183,9 @@ class SqlResult:
     set to True, which can be done at any time."""
     _hidden: frozenset[str] = frozenset()
     """The columns `legacy` decides on."""
+    query: str = ""
+    """The query this is the result of, as it was given to `sql` - empty
+    for a result that didn't come from `sql`."""
 
     @classmethod
     def from_arrow(
@@ -192,19 +196,21 @@ class SqlResult:
         tables: list[SqlTable] | None = None,
         legacy: bool = False,
         hidden: frozenset[str] = frozenset(),
+        query: str = "",
     ) -> SqlResult:
         """Rebuild a SqlResult from Arrow IPC stream bytes (the one shared
         contract with the server that produced them) - a single
         struct-typed batch, one named field per column. `truncated` isn't
         itself encoded in the Arrow data (it's metadata about the query,
         not the rows), so it travels alongside the bytes rather than
-        inside them. `hidden` names the columns left out unless `legacy`.
+        inside them. `hidden` names the columns left out unless `legacy`,
+        and `query` is the query the bytes are the result of.
         """
         batch = na.ArrayStream.from_readable(data).read_all()
         names = {field.name for field in batch.schema.fields}
         matches = [t for t in tables or () if names <= {c.name for c in t._columns}]
         table = matches[0] if len(matches) == 1 else None
-        return cls(batch, truncated, table, legacy, hidden)
+        return cls(batch, truncated, table, legacy, hidden, query)
 
     @classmethod
     def _from_columns(
@@ -409,7 +415,7 @@ class SqlResult:
         """A new SqlResult holding copies of just these rows, in this order
         - only the rows asked for are read, not the whole column."""
         columns = {
-            name: na.array([column[i].as_py() for i in indices], column.schema)
+            name: na.array([_stored(column[i].as_py()) for i in indices], column.schema)
             for name, column in self._all_arrays().items()
         }
         return self._from_columns(columns, len(indices), self)
@@ -466,11 +472,25 @@ class SqlResult:
         )
 
 
+_EPOCH = datetime(1970, 1, 1, tzinfo=UTC)
+_MICROSECOND = timedelta(microseconds=1)
+
+
+def _stored(value: Any) -> Any:
+    """A value read out of an Arrow column, as building one takes it: a
+    time as the microseconds since the epoch the server sends it as."""
+    if isinstance(value, datetime):
+        return (value - _EPOCH) // _MICROSECOND
+    return value
+
+
 def _json_value(value: Any) -> Any:
     if value is None or isinstance(value, (str, int, float, bool)):
         return value
     if isinstance(value, (bytes, bytearray, memoryview)):
         return bytes(value).hex()
+    if isinstance(value, datetime):
+        return value.isoformat()
     return str(value)
 
 
@@ -543,21 +563,29 @@ class SqlTool:
         *,
         max_rows: int | None = _MAX_ROWS_UNSET,
         legacy: bool = False,
+        raw: bool = False,
     ) -> SqlResult:
         """Run a single read-only SELECT against Home Assistant's Recorder
         database. At most `max_rows` rows are fetched (default: this
         object's own `.max_rows`) - pass None for no cap at all.
 
+        A recorder column comes back as what it holds: a `_ts` or
+        datetime column as a datetime in UTC, a context id as its text.
+        With `raw` they are left as the database has them - seconds
+        since the epoch as a float, the id's bytes.
+
         Legacy columns - still in a table, no longer written to - are
         downloaded but kept out of view unless the query names them or
         `legacy` is True, so a `select *` shows only the columns in use.
         Setting `.legacy = True` on the result brings them into view."""
+        params: dict[str, Any] = {
+            "query": query,
+            "max_rows": self.max_rows if max_rows is _MAX_ROWS_UNSET else max_rows,
+        }
+        if raw:  # left out otherwise, which an older server needs
+            params["raw"] = True
         try:
-            reply = await self.client.call(
-                "ha_repl_server/sql",
-                query=query,
-                max_rows=self.max_rows if max_rows is _MAX_ROWS_UNSET else max_rows,
-            )
+            reply = await self.client.call("ha_repl_server/sql", **params)
         except HaReplError as err:
             if err.code != "sql_error":
                 raise
@@ -568,6 +596,7 @@ class SqlTool:
             tables=self._tables_of(query),
             legacy=legacy,
             hidden=self._unnamed_legacy(query),
+            query=query,
         )
 
     def _tables_of(self, query: str) -> list[SqlTable]:
@@ -593,6 +622,6 @@ class SqlTool:
 
     def __repr__(self) -> str:
         return (
-            f"<sql(query, max_rows=...) - default max_rows={self.max_rows!r}; "
+            f"<sql(query, max_rows=..., raw=False) - default max_rows={self.max_rows!r}; "
             "see sql.tables, sql.table(name)>"
         )

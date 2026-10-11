@@ -28,7 +28,7 @@ from pygments.lexers.python import PythonLexer
 from .api_objtree import ApiObjTree, Cache
 from .client import Client, HaReplError, client_version
 from .local_session import LocalSession
-from .plugins import bind_context, local_runner, run_plugins
+from .plugins import bind_context, bind_rebind, local_runner, run_plugins
 from .repl import banner_address, banner_plugins, is_quit_call
 from .rest import hass_api
 
@@ -61,11 +61,12 @@ async def run_api_repl(
         history=FileHistory(str(HISTORY)), lexer=PygmentsLexer(PythonLexer)
     )
     bind_context(session.globals_, "api", server_name)
+    bind_rebind(session.globals_, plugins, local_runner(session))
     loaded = await run_plugins(plugins, local_runner(session))
     print(
         f"API connected to {banner_address(client.url, server_name)}. "
         f"Client v{client_version()}. "
-        "`obj` (read-only) and `hass_api` (REST client) - no `hass`. Ctrl-D to exit."
+        "`obj` (entities and actions) and `hass_api` (REST client) - no `hass`. Ctrl-D to exit."
         f"{banner_plugins(loaded)}"
     )
     lines: list[str] = []

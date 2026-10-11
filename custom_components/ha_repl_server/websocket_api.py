@@ -5,6 +5,7 @@ ha_repl_server/sql_tables (all admin only)."""
 from __future__ import annotations
 
 import base64
+import contextlib
 from typing import Any, cast
 
 import probatio as vol
@@ -13,6 +14,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.loader import async_get_integration
 
 from .const import DEFAULT_SESSION, DOMAIN
+from .objtree import async_load_action_descriptions
 from .session import SessionManager
 from .sql import DEFAULT_MAX_ROWS, SqlError, sql, table_schemas
 
@@ -67,6 +69,10 @@ async def ws_exec(
 ) -> None:
     if (manager := _manager(hass, connection, msg)) is None:
         return
+    # So an action in `obj` has its description, which is read where nothing
+    # can be waited for. The code runs without it, just less well described.
+    with contextlib.suppress(Exception):
+        await async_load_action_descriptions(hass)
     result = await manager.get(msg["session"]).run(
         msg["code"],
         msg.get("timeout"),
@@ -152,6 +158,7 @@ def _sql_manager(
             vol.Optional("max_rows", default=DEFAULT_MAX_ROWS): vol.Any(
                 None, vol.Coerce(int)
             ),
+            vol.Optional("raw", default=False): bool,
         },
     )
 )
@@ -166,7 +173,7 @@ async def ws_sql(
     if _sql_manager(hass, connection, msg) is None:
         return
     try:
-        result = await sql(hass, msg["query"], max_rows=msg["max_rows"])
+        result = await sql(hass, msg["query"], max_rows=msg["max_rows"], raw=msg["raw"])
     except SqlError as err:
         connection.send_error(msg["id"], "sql_error", str(err))
         return
