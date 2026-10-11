@@ -1728,7 +1728,7 @@
 </div>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">[</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="n">o</span><span class="o">.</span><span class="n">entity_id</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">platform</span><span class="o">=</span><span class="s2">"mqtt"</span><span class="p">)</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">platform</span><span class="o">=</span><span class="s2">"mqtt"</span><span class="p">,</span> <span class="n">object_type</span><span class="o">=</span><span class="s2">"entity"</span><span class="p">)</span>
 </span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="k">if</span> <span class="n">o</span><span class="o">.</span><span class="n">registry_entry</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"cloud.alexa"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"should_expose"</span><span class="p">,</span> <span class="p">{})</span>
 </span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="p">]</span>
 </span></code></pre></div>
@@ -1789,7 +1789,7 @@
 <h4 id="state-history-for-an-entity">State history for an entity<a class="headerlink" href="#state-history-for-an-entity" title="Permanent link">&para;</a></h4>
 <ul>
 <li><code>states</code> has no entity id of its own, so this uses the <a href="../sql/#virtual-tables"><code>state_history</code> virtual table</a>, which adds it</li>
-<li>Times are seconds since the epoch, in the <code>_ts</code> columns, so the cutoff is worked out in Python</li>
+<li>Times are seconds since the epoch, in the <code>_ts</code> columns, so the cutoff is worked out in Python. In the result they are <a href="../sql/#column-values">datetimes</a></li>
 </ul>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 </span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>

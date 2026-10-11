@@ -82,6 +82,18 @@ Anything enormous is cut short, with a note of how much was left out, so it is s
 
 It works on local objects as well, such as a `sql` result or something of your own.
 
+## Getting The Shell's Names Back
+
+`hass`, `obj`, `sql`, `hass_api`, `show`, `help`, `MODE` and `SERVER` are ordinary names, so assigning to one replaces it for the rest of the session - `obj = 5`, or a `for sql in queries:` loop. `rebind()` puts them all back, and runs the [plugins](https://homeassistant-repl.rhizomatics.org.uk/configuration/plugins/index.md) again.
+
+```python
+>>> obj = hass.states.get("sun.sun")    # `obj` is now a local variable
+>>> rebind()                            # `obj` is the object tree again
+>>> rebind(plugins=False)               # the same, without running the plugins
+```
+
+Nothing else in the session is touched: variables of your own stay as they are, apart from any a plugin assigns. It is also there in `ha-repl exec` and in API mode.
+
 ## Mixing Both Sides
 
 The two sides are separate Python sessions, and the shell does a small amount of work to let a statement on one side use a value from the other. Treat it as a convenience for simple cases rather than something to build on: it is deliberately limited, and anything it can't do is refused rather than attempted.

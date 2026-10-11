@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="All of the objects (only entities for now) are arranged in a giant tree, like a file system, exposed as the global variable obj and implemented as Python Mapping object (which provides the MappingView views ItemsView and KeysView)">
+        <meta name="description" content="All of the objects (entities and actions for now) are arranged in a giant tree, like a file system, exposed as the global variable obj and implemented as Python Mapping object (which provides the MappingView views ItemsView and KeysView)">
       
       
       
@@ -661,6 +661,56 @@
     <span class="md-ellipsis">
       
         obj.show(..)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Actions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Actions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#calling-an-action" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Calling An Action
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-an-action-has" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What An Action Has
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#finding-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Finding Actions
       
     </span>
   </a>
@@ -1498,7 +1548,7 @@
 
 
 <h1 id="the-object-tree">The Object Tree<a class="headerlink" href="#the-object-tree" title="Permanent link">&para;</a></h1>
-<p>All of the objects (only entities for now) are arranged in a giant tree, like a file system, exposed as the global variable <code>obj</code> and implemented as Python <a href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping">Mapping</a> object (which provides the <a href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MappingView">MappingView</a> views <a href="https://docs.python.org/3/library/collections.abc.html#collections.abc.ItemsView">ItemsView</a> and <a href="https://docs.python.org/3/library/collections.abc.html#collections.abc.KeysView">KeysView</a>)</p>
+<p>All of the objects (entities and actions for now) are arranged in a giant tree, like a file system, exposed as the global variable <code>obj</code> and implemented as Python <a href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping">Mapping</a> object (which provides the <a href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MappingView">MappingView</a> views <a href="https://docs.python.org/3/library/collections.abc.html#collections.abc.ItemsView">ItemsView</a> and <a href="https://docs.python.org/3/library/collections.abc.html#collections.abc.KeysView">KeysView</a>)</p>
 <p><code>obj</code> offers:</p>
 <ul>
 <li>Dictionary style access, using <code>[]</code></li>
@@ -1511,6 +1561,8 @@
 <li>Optionally restrict by <code>platform</code>,<code>area</code>,<code>label</code></li>
 <li><code>show()</code></li>
 <li>Dump the most useful info on an object to console</li>
+<li><a href="#actions">Actions</a></li>
+<li>Each integration's actions, in an <code>action</code> level beside its entity domains, to look at or call</li>
 </ul>
 <p><code>help(obj)</code> gives a summary of all of this at the prompt.</p>
 <p>All the usual Python tricks can of course also be used, iterators, comprehensions, classes, lambdas or a simple <code>len()</code>.</p>
@@ -1550,7 +1602,7 @@
 <h4 id="objfind"><code>obj.find('..')</code><a class="headerlink" href="#objfind" title="Permanent link">&para;</a></h4>
 <p>Where the dictionary access gives a nested directory view of the object tree, <code>find</code> provides a flat iteration with no order guarantees, so its fast and simple and can be sorted the usual Python way if needed.</p>
 <p><code>find</code> functions can accept a full or partial path, or a regular expression.</p>
-<p><code>find</code> also has built in filters, to narrow the big list of objects by one or more <code>platform</code>,<code>domain</code>,<code>area</code>,<code>label</code> - each of these will take a single string or list of strings, and they can be combined to narrow down the list.</p>
+<p><code>find</code> also has built in filters, to narrow the big list of objects by one or more <code>platform</code>,<code>domain</code>,<code>area</code>,<code>label</code>,<code>object_type</code> - each of these will take a single string or list of strings, and they can be combined to narrow down the list. <code>object_type</code> is <code>"entity"</code>, <code>"action"</code> or <code>"device"</code> - see <a href="#finding-actions">Finding Actions</a>.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="o">&gt;&gt;&gt;</span> <span class="p">{(</span><span class="n">o</span><span class="o">.</span><span class="n">entity_id</span><span class="p">,</span> <span class="n">o</span><span class="o">.</span><span class="n">state</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">domain</span><span class="o">=</span><span class="s2">"binary_sensor"</span><span class="p">)}</span>
 </span></code></pre></div>
 <p>Or using a regular expression:</p>
@@ -1570,6 +1622,84 @@
 <p>The <code>show</code> function will give a pretty version of an object where it knows how. For entities this means it combines the <code>RegistryEntry</code> and <code>Entity</code> information, drops some boring internal stuff, filters out all the <code>None</code> values and turns <code>datetime.datetime</code> structures into local date times.</p>
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="l l-Scalar l-Scalar-Plain">obj.show('/unifi/sensor/kitchen_wifi_cpu_utilization')</span>
 </span></code></pre></div>
+<h3 id="actions">Actions<a class="headerlink" href="#actions" title="Permanent link">&para;</a></h3>
+<p>An integration's actions - what Home Assistant used to call services - are in the tree with its entities, in an <code>action</code> level beside its entity domains. So <code>mqtt.publish</code> is at <code>/mqtt/action/publish</code>, and <code>light.turn_on</code> at <code>/light/action/turn_on</code>.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>- mqtt
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>  - action
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    - dump
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    - publish
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    - reload
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>  - sensor
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    - shed_temperature
+</span></code></pre></div>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span><span class="p">[</span><span class="s2">"/mqtt"</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>                 <span class="c1"># 'action', then mqtt's entity domains</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span><span class="p">[</span><span class="s2">"/mqtt/action"</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>          <span class="c1"># the names of mqtt's actions</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span><span class="p">[</span><span class="s2">"/mqtt/action/publish"</span><span class="p">]</span>         <span class="c1"># one action</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="s2">"/mqtt/action/publish"</span><span class="p">)</span>    <span class="c1"># its name, description and fields</span>
+</span></code></pre></div>
+<p>An integration that has actions and no entities, such as <code>homeassistant</code> or <code>persistent_notification</code>, is in the tree for its actions alone.</p>
+<h4 id="calling-an-action">Calling An Action<a class="headerlink" href="#calling-an-action" title="Permanent link">&para;</a></h4>
+<p>An action is called like a function, with the action's data as keyword arguments. <code>target</code> says what it is to act on, as it does in an automation.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span><span class="p">[</span><span class="s2">"/mqtt/action/publish"</span><span class="p">](</span><span class="n">topic</span><span class="o">=</span><span class="s2">"shed/fan"</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="s2">"on"</span><span class="p">)</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span><span class="p">[</span><span class="s2">"/light/action/turn_on"</span><span class="p">](</span><span class="n">target</span><span class="o">=</span><span class="p">{</span><span class="s2">"entity_id"</span><span class="p">:</span> <span class="s2">"light.shed"</span><span class="p">},</span> <span class="n">brightness</span><span class="o">=</span><span class="mi">128</span><span class="p">)</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span><span class="p">[</span><span class="s2">"/light/action/turn_off"</span><span class="p">](</span><span class="n">target</span><span class="o">=</span><span class="p">{</span><span class="s2">"area_id"</span><span class="p">:</span> <span class="s2">"kitchen"</span><span class="p">})</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span><span class="p">[</span><span class="s2">"/weather/action/get_forecasts"</span><span class="p">](</span><span class="n">entity_id</span><span class="o">=</span><span class="s2">"weather.home"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">"daily"</span><span class="p">)</span>
+</span></code></pre></div>
+<p>The call waits for the action to finish. An action that answers with data, such as <code>weather.get_forecasts</code>, gives that back; for one where answering is optional, pass <code>return_response=True</code> to ask for it.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Calling an action does what it says - the light goes off, the message is published. This is the one part of <code>obj</code> that is not read-only, in API mode as much as in live mode.</p>
+</div>
+<h4 id="what-an-action-has">What An Action Has<a class="headerlink" href="#what-an-action-has" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>action_id</code></td>
+<td>The action as Home Assistant names it, e.g. <code>mqtt.publish</code></td>
+</tr>
+<tr>
+<td><code>domain</code>, <code>service</code></td>
+<td>The two halves of that</td>
+</tr>
+<tr>
+<td><code>name</code>, <code>description</code>, <code>fields</code></td>
+<td>Home Assistant's own description of the action, and of each field it takes</td>
+</tr>
+<tr>
+<td><code>supports_response</code></td>
+<td><code>none</code>, <code>optional</code> or <code>only</code> - whether calling it gives data back</td>
+</tr>
+<tr>
+<td><code>describe()</code></td>
+<td>The name, description and fields as one dict</td>
+</tr>
+</tbody>
+</table>
+<p><code>fields</code> has an entry for each field the action takes, with its name and description, whether it is <code>required</code>, an <code>example</code> where there is one, and the <code>selector</code> the frontend uses for it.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="s2">"/mqtt/action/publish"</span><span class="p">)</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span><span class="p">[</span><span class="s2">"/mqtt/action/publish"</span><span class="p">]</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="o">&gt;&gt;&gt;</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"description"</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">[</span><span class="s2">"/light/action/turn_on"</span><span class="p">]</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+</span></code></pre></div>
+<h4 id="finding-actions">Finding Actions<a class="headerlink" href="#finding-actions" title="Permanent link">&para;</a></h4>
+<p>The find methods go through actions along with everything else in the tree. An action's domain is <code>action</code> and its platform is the integration it belongs to, and <code>find_names()</code> gives it as Home Assistant names it, <code>mqtt.publish</code>.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="o">&gt;&gt;&gt;</span> <span class="nb">list</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">find_names</span><span class="p">(</span><span class="n">domain</span><span class="o">=</span><span class="s2">"action"</span><span class="p">))</span>                  <span class="c1"># every action</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="o">&gt;&gt;&gt;</span> <span class="nb">list</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">find_paths</span><span class="p">(</span><span class="s2">"/mqtt"</span><span class="p">))</span>                          <span class="c1"># mqtt's entities and its actions</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="o">&gt;&gt;&gt;</span> <span class="nb">list</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">find_paths</span><span class="p">(</span><span class="s2">"/mqtt/action"</span><span class="p">))</span>                   <span class="c1"># just its actions</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="o">&gt;&gt;&gt;</span> <span class="nb">list</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">find_paths</span><span class="p">(</span><span class="s2">"/.*/action/reload"</span><span class="p">))</span>              <span class="c1"># everything with a reload</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="o">&gt;&gt;&gt;</span> <span class="nb">list</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">find_names</span><span class="p">(</span><span class="n">domain</span><span class="o">=</span><span class="s2">"action"</span><span class="p">,</span> <span class="n">platform</span><span class="o">=</span><span class="s2">"mqtt"</span><span class="p">))</span>
+</span></code></pre></div>
+<p>So a search gives both, unless it is kept to one kind with <code>object_type</code>:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="o">&gt;&gt;&gt;</span> <span class="nb">list</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">platform</span><span class="o">=</span><span class="s2">"mqtt"</span><span class="p">,</span> <span class="n">object_type</span><span class="o">=</span><span class="s2">"entity"</span><span class="p">))</span>    <span class="c1"># mqtt's entities, no actions</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="o">&gt;&gt;&gt;</span> <span class="nb">list</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">find_names</span><span class="p">(</span><span class="s2">"/mqtt"</span><span class="p">,</span> <span class="n">object_type</span><span class="o">=</span><span class="s2">"action"</span><span class="p">))</span>      <span class="c1"># mqtt's actions, no entities</span>
+</span></code></pre></div>
+<p><code>object_type</code> is <code>"entity"</code>, <code>"action"</code> or <code>"device"</code>, or a list of them, and anything else is a <code>ValueError</code>. Code that reads <code>state</code> or <code>entity_id</code> from each result wants <code>object_type="entity"</code>. Devices are not in the tree yet, so <code>"device"</code> finds nothing for now.</p>
+<p>An action has no area or label, so a search by either finds none.</p>
 
 
 

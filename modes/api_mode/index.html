@@ -1335,6 +1335,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#getting-the-built-ins-back" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Getting The Built-ins Back
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1501,7 +1512,7 @@
 <h2 id="built-ins">Built-ins<a class="headerlink" href="#built-ins" title="Permanent link">&para;</a></h2>
 <p>The two special variables in <code>api</code> mode are:</p>
 <ul>
-<li><code>obj</code> - the <a href="../../obj_tree/">Object Tree</a> exposed as a dictionary object and common methods, with the source being the Home Assistant API</li>
+<li><code>obj</code> - the <a href="../../obj_tree/">Object Tree</a> exposed as a dictionary object and common methods, with the source being the Home Assistant API. It has each integration's <a href="../../obj_tree/#actions">actions</a> as well as the entities, to look at or call</li>
 <li><code>hass_api</code> - the Home Assistant web socket / REST API exposed using the <a href="https://pypi.org/project/HomeAssistant-API/">homeassistant-api</a> library</li>
 </ul>
 <p>The objects returned by <code>obj</code> are of class <code>ApiEntity</code>, and combines the <code>Entity</code> class from Home Assistant, with <code>RegistryEntity</code> since things of common use are split across both.</p>
@@ -1586,7 +1597,7 @@
 </table>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="n">e</span><span class="o">.</span><span class="n">entity_id</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">registry_entry</span><span class="o">.</span><span class="n">unique_id</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">platform</span><span class="o">=</span><span class="s2">"mqtt"</span><span class="p">)</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">platform</span><span class="o">=</span><span class="s2">"mqtt"</span><span class="p">,</span> <span class="n">object_type</span><span class="o">=</span><span class="s2">"entity"</span><span class="p">)</span>
 </span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">available</span>
 </span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="p">}</span>
 </span></code></pre></div>
@@ -1604,10 +1615,20 @@ These can be accessed via <code>hass_api</code>, and mixed with the results and 
 <p>The API access is read/write, so can be used for anything that the user who issued the token can do.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">hass_api</span><span class="o">.</span><span class="n">trigger_service</span><span class="p">(</span><span class="s2">"switch"</span><span class="p">,</span> <span class="s2">"turn_off"</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="s2">"switch.living_room_light"</span><span class="p">)</span>
 </span></code></pre></div>
-<p>Since everything is plain Python, these can be combined together in procedural or one-liner comprehension type code, and use other libraries you've imported.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">find_names</span><span class="p">(</span><span class="s2">".*light.*"</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="s2">"switch"</span><span class="p">):</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="n">hass_api</span><span class="o">.</span><span class="n">trigger_service</span><span class="p">(</span><span class="s2">"switch"</span><span class="p">,</span> <span class="s2">"turn_off"</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="n">e</span><span class="p">)</span>
+<p>An action can also be called straight from the object tree, which works the same in <code>live</code> mode:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">obj</span><span class="p">[</span><span class="s2">"/switch/action/turn_off"</span><span class="p">](</span><span class="n">target</span><span class="o">=</span><span class="p">{</span><span class="s2">"entity_id"</span><span class="p">:</span> <span class="s2">"switch.living_room_light"</span><span class="p">})</span>
 </span></code></pre></div>
+<p>Since everything is plain Python, these can be combined together in procedural or one-liner comprehension type code, and use other libraries you've imported.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">find_names</span><span class="p">(</span><span class="s2">".*light.*"</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="s2">"switch"</span><span class="p">):</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="n">hass_api</span><span class="o">.</span><span class="n">trigger_service</span><span class="p">(</span><span class="s2">"switch"</span><span class="p">,</span> <span class="s2">"turn_off"</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="n">e</span><span class="p">)</span>
+</span></code></pre></div>
+<h3 id="getting-the-built-ins-back">Getting The Built-ins Back<a class="headerlink" href="#getting-the-built-ins-back" title="Permanent link">&para;</a></h3>
+<p><code>obj</code> and <code>hass_api</code> are ordinary names, as are <code>show</code>, <code>help</code>, <code>MODE</code> and <code>SERVER</code>, so assigning to one replaces it for the rest of the session - <code>obj = 5</code>, or a <code>for obj in things:</code> loop. <code>rebind()</code> puts them all back, and runs the <a href="../../configuration/plugins/">plugins</a> again.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">obj</span><span class="p">[</span><span class="s2">"sensor.sun_next_rising"</span><span class="p">]</span>    <span class="c1"># `obj` is now that one entity</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">rebind</span><span class="p">()</span>                               <span class="c1"># `obj` is the object tree again</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">rebind</span><span class="p">(</span><span class="n">plugins</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>                  <span class="c1"># the same, without running the plugins</span>
+</span></code></pre></div>
+<p>Nothing else in the session is touched: variables of your own stay as they are, apart from any a plugin assigns. It works the same way in <code>live</code> mode.</p>
 
 
 

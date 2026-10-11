@@ -337,6 +337,18 @@ Anything enormous is cut short, with a note of how much was left out, so it is s
 
 It works on local objects as well, such as a `sql` result or something of your own.
 
+## Getting The Shell's Names Back
+
+`hass`, `obj`, `sql`, `hass_api`, `show`, `help`, `MODE` and `SERVER` are ordinary names, so assigning to one replaces it for the rest of the session - `obj = 5`, or a `for sql in queries:` loop. `rebind()` puts them all back, and runs the [plugins](https://homeassistant-repl.rhizomatics.org.uk/configuration/plugins/index.md) again.
+
+```python
+>>> obj = hass.states.get("sun.sun")    # `obj` is now a local variable
+>>> rebind()                            # `obj` is the object tree again
+>>> rebind(plugins=False)               # the same, without running the plugins
+```
+
+Nothing else in the session is touched: variables of your own stay as they are, apart from any a plugin assigns. It is also there in `ha-repl exec` and in API mode.
+
 ## Mixing Both Sides
 
 The two sides are separate Python sessions, and the shell does a small amount of work to let a statement on one side use a value from the other. Treat it as a convenience for simple cases rather than something to build on: it is deliberately limited, and anything it can't do is refused rather than attempted.
@@ -491,7 +503,7 @@ PY
 
 # The Object Tree
 
-All of the objects (only entities for now) are arranged in a giant tree, like a file system, exposed as the global variable `obj` and implemented as Python [Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping) object (which provides the [MappingView](https://docs.python.org/3/library/collections.abc.html#collections.abc.MappingView) views [ItemsView](https://docs.python.org/3/library/collections.abc.html#collections.abc.ItemsView) and [KeysView](https://docs.python.org/3/library/collections.abc.html#collections.abc.KeysView))
+All of the objects (entities and actions for now) are arranged in a giant tree, like a file system, exposed as the global variable `obj` and implemented as Python [Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping) object (which provides the [MappingView](https://docs.python.org/3/library/collections.abc.html#collections.abc.MappingView) views [ItemsView](https://docs.python.org/3/library/collections.abc.html#collections.abc.ItemsView) and [KeysView](https://docs.python.org/3/library/collections.abc.html#collections.abc.KeysView))
 
 `obj` offers:
 
@@ -505,6 +517,8 @@ All of the objects (only entities for now) are arranged in a giant tree, like a 
 - Optionally restrict by `platform`,`area`,`label`
 - `show()`
 - Dump the most useful info on an object to console
+- [Actions](#actions)
+- Each integration's actions, in an `action` level beside its entity domains, to look at or call
 
 `help(obj)` gives a summary of all of this at the prompt.
 
@@ -557,7 +571,7 @@ Where the dictionary access gives a nested directory view of the object tree, `f
 
 `find` functions can accept a full or partial path, or a regular expression.
 
-`find` also has built in filters, to narrow the big list of objects by one or more `platform`,`domain`,`area`,`label` - each of these will take a single string or list of strings, and they can be combined to narrow down the list.
+`find` also has built in filters, to narrow the big list of objects by one or more `platform`,`domain`,`area`,`label`,`object_type` - each of these will take a single string or list of strings, and they can be combined to narrow down the list. `object_type` is `"entity"`, `"action"` or `"device"` - see [Finding Actions](#finding-actions).
 
 ```python
 >>> {(o.entity_id, o.state) for o in obj.find(domain="binary_sensor")}
@@ -595,6 +609,87 @@ The `show` function will give a pretty version of an object where it knows how. 
 obj.show('/unifi/sensor/kitchen_wifi_cpu_utilization')
 ```
 
+### Actions
+
+An integration's actions - what Home Assistant used to call services - are in the tree with its entities, in an `action` level beside its entity domains. So `mqtt.publish` is at `/mqtt/action/publish`, and `light.turn_on` at `/light/action/turn_on`.
+
+```text
+- mqtt
+  - action
+    - dump
+    - publish
+    - reload
+  - sensor
+    - shed_temperature
+```
+
+```python
+>>> obj["/mqtt"].keys()                 # 'action', then mqtt's entity domains
+>>> obj["/mqtt/action"].keys()          # the names of mqtt's actions
+>>> obj["/mqtt/action/publish"]         # one action
+>>> obj.show("/mqtt/action/publish")    # its name, description and fields
+```
+
+An integration that has actions and no entities, such as `homeassistant` or `persistent_notification`, is in the tree for its actions alone.
+
+#### Calling An Action
+
+An action is called like a function, with the action's data as keyword arguments. `target` says what it is to act on, as it does in an automation.
+
+```python
+>>> obj["/mqtt/action/publish"](topic="shed/fan", payload="on")
+>>> obj["/light/action/turn_on"](target={"entity_id": "light.shed"}, brightness=128)
+>>> obj["/light/action/turn_off"](target={"area_id": "kitchen"})
+>>> obj["/weather/action/get_forecasts"](entity_id="weather.home", type="daily")
+```
+
+The call waits for the action to finish. An action that answers with data, such as `weather.get_forecasts`, gives that back; for one where answering is optional, pass `return_response=True` to ask for it.
+
+Warning
+
+Calling an action does what it says - the light goes off, the message is published. This is the one part of `obj` that is not read-only, in API mode as much as in live mode.
+
+#### What An Action Has
+
+| Operation                       | Description                                                                |
+| ------------------------------- | -------------------------------------------------------------------------- |
+| `action_id`                     | The action as Home Assistant names it, e.g. `mqtt.publish`                 |
+| `domain`, `service`             | The two halves of that                                                     |
+| `name`, `description`, `fields` | Home Assistant's own description of the action, and of each field it takes |
+| `supports_response`             | `none`, `optional` or `only` - whether calling it gives data back          |
+| `describe()`                    | The name, description and fields as one dict                               |
+
+`fields` has an entry for each field the action takes, with its name and description, whether it is `required`, an `example` where there is one, and the `selector` the frontend uses for it.
+
+```python
+>>> obj.show("/mqtt/action/publish")
+>>> obj["/mqtt/action/publish"].fields.keys()
+>>> {name: f.get("description") for name, f in obj["/light/action/turn_on"].fields.items()}
+```
+
+#### Finding Actions
+
+The find methods go through actions along with everything else in the tree. An action's domain is `action` and its platform is the integration it belongs to, and `find_names()` gives it as Home Assistant names it, `mqtt.publish`.
+
+```python
+>>> list(obj.find_names(domain="action"))                  # every action
+>>> list(obj.find_paths("/mqtt"))                          # mqtt's entities and its actions
+>>> list(obj.find_paths("/mqtt/action"))                   # just its actions
+>>> list(obj.find_paths("/.*/action/reload"))              # everything with a reload
+>>> list(obj.find_names(domain="action", platform="mqtt"))
+```
+
+So a search gives both, unless it is kept to one kind with `object_type`:
+
+```python
+>>> list(obj.find(platform="mqtt", object_type="entity"))    # mqtt's entities, no actions
+>>> list(obj.find_names("/mqtt", object_type="action"))      # mqtt's actions, no entities
+```
+
+`object_type` is `"entity"`, `"action"` or `"device"`, or a list of them, and anything else is a `ValueError`. Code that reads `state` or `entity_id` from each result wants `object_type="entity"`. Devices are not in the tree yet, so `"device"` finds nothing for now.
+
+An action has no area or label, so a search by either finds none.
+
 # SQL Access
 
 Home Assistant has an internal SQL database front-ended by the [Recorder](https://www.home-assistant.io/integrations/recorder/) integration. It holds, history, activity, long term statistics and more. Underneath it can by Sqlite (most common), MariaDB, MySQL or PostgreSQL.
@@ -613,6 +708,7 @@ Data is serialized as Apache Arrow using the `nanofeather` library - this provid
 | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | `sql("<query>")`                   | Send a query to the database and wait for results                                                                                            |
 | `sql("<query>", legacy=True)`      | The same, with [legacy columns](#legacy-columns) in view                                                                                     |
+| `sql("<query>", raw=True)`         | The same, with every value [as the database has it](#column-values)                                                                          |
 | `sql.max_rows`                     | Read/write property to set the default row limit for results in this session                                                                 |
 | `sql.table("<name>")`              | Returns the `Table` object that describes the named table and its contents, or raises `KeyError` if there is no such table                   |
 | `sql.table("<name>", legacy=True)` | The same, with the table's [legacy columns](#legacy-columns) included                                                                        |
@@ -637,6 +733,7 @@ A single row can be picked out by position, so `[0]` for the first row or `[-1]`
 | -------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | `rowcount`     | Size of result set, may not be size of table due to row limits                                                            |
 | `truncated`    | `True` if results were truncated due to row limits                                                                        |
+| `query`        | The query this is the result of, as it was given to `sql`                                                                 |
 | `legacy`       | Read/write flag, set to `True` to bring [legacy columns](#legacy-columns) into view                                       |
 | `table`        | The `Table` object describing this table, or `None` if the columns don't identify a single table                          |
 | `column_names` | List of the column names in the table, in order                                                                           |
@@ -650,6 +747,31 @@ A single row can be picked out by position, so `[0]` for the first row or `[-1]`
 | `to_dicts()`   | Extract a `list` of `dict` objects from the results                                                                       |
 | `to_pandas()`  | Turn the results into a *pandas* dataframe, if pandas installed                                                           |
 | `to_polars()`  | Turn the results into a *polars* dataframe, if polars installed                                                           |
+
+### Column Values
+
+A column of a Recorder table comes back as what it holds, not as how the database stores it. This goes by how Home Assistant declares the column in `db_schema`.
+
+| Declared in `db_schema` as | Columns                                                                                                      | Stored as                           | In a result                                        |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------ | ----------------------------------- | -------------------------------------------------- |
+| `TIMESTAMP_TYPE`           | Those ending `_ts`, such as `last_updated_ts`, `time_fired_ts`, `start_ts`                                   | Seconds since the epoch, as a float | A `datetime` in UTC                                |
+| `DATETIME_TYPE`            | `start`, `end` and `created` of `recorder_runs`, `start` of `statistics_runs`, `changed` of `schema_changes` | A date and time, as text in SQLite  | A `datetime` in UTC                                |
+| `CONTEXT_BINARY_TYPE`      | `context_id_bin`, `context_parent_id_bin`                                                                    | 16 bytes                            | The ULID as text, as `context.id` has it           |
+| `CONTEXT_BINARY_TYPE`      | `context_user_id_bin`                                                                                        | 16 bytes                            | The user's id as text, as `context.user_id` has it |
+| `Boolean`                  | `has_sum`, `closed_incorrect`                                                                                | `0` or `1` in SQLite                | `True` or `False`                                  |
+
+The times are Arrow timestamps, so they are also datetimes in a `polars` or `pandas` dataframe, and ISO 8601 text in `to_json()`.
+
+Pass `raw=True` for the values as the database has them instead.
+
+```python
+>>> sql("select entity_id, last_updated_ts, context_id_bin from state_history")[0]
+>>> sql("select entity_id, last_updated_ts, context_id_bin from state_history", raw=True)[0]
+```
+
+- A column is recognised by its name in the result, so `max(last_updated_ts)` is a plain number unless it is given the name back, as in `max(last_updated_ts) as last_updated_ts`
+- This only changes what comes back. Inside the query the columns are still as stored, so a `where` on a `_ts` column compares it to seconds since the epoch
+- `state` is text in `states` and a number in `statistics`, so it is left as it comes
 
 ### Row Objects
 
@@ -744,6 +866,18 @@ A legacy column is in view when:
 ```
 
 A query is checked by its words rather than parsed, so a legacy column mentioned anywhere in it, such as in a `where`, is in view.
+
+### Dataframe Portability
+
+Since internally `pyarrow` is used for moving and holding data, and the `arrow()` method returns a `pycapsule` compliant interface, the data can be used in other tools that accept Arrow.
+
+In this example the dataframe-neutral [narwhals](https://narwhals-dev.github.io/narwhals/) library is used to construct a dataframe, which can then have implementation neutral manipulation applied, or re-exported to another dataframe type.
+
+```python
+import narwhals as nw
+import polars as pl
+>>> df=nw.from_arrow(sql('select * from events',backend=pl).arrow())
+```
 
 ### More Help
 

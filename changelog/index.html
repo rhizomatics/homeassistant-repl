@@ -1371,9 +1371,44 @@
 <p>For live mode, generally the client and server component have to be on the same version. Different versions <em>might</em> work
 with each other for point releases</p>
 </div>
-<h1 id="0120">0.12.0<a class="headerlink" href="#0120" title="Permanent link">&para;</a></h1>
+<h1 id="0130">0.13.0<a class="headerlink" href="#0130" title="Permanent link">&para;</a></h1>
 <h2 id="-enhancements">✨ Enhancements<a class="headerlink" href="#-enhancements" title="Permanent link">&para;</a></h2>
 <h3 id="sql">SQL<a class="headerlink" href="#sql" title="Permanent link">&para;</a></h3>
+<ul>
+<li>A result column of a Recorder table comes back as what it holds, going by how <code>db_schema</code> declares it</li>
+<li>A <code>_ts</code> column (<code>TIMESTAMP_TYPE</code>) and a <code>DATETIME_TYPE</code> column as a <code>datetime</code> in UTC, in place of seconds since the epoch or text</li>
+<li><code>context_id_bin</code> and <code>context_parent_id_bin</code> as the ULID text of <code>context.id</code>, and <code>context_user_id_bin</code> as the user id, in place of bytes</li>
+<li><code>sql("...", raw=True)</code> leaves every value as the database has it</li>
+<li>Needs both the client and the server component at this version</li>
+<li>A result has the <code>query</code> it came from</li>
+</ul>
+<h3 id="object-tree">Object Tree<a class="headerlink" href="#object-tree" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Actions (services) are in the tree, in an <code>action</code> level beside each integration's entity domains - <code>obj["/mqtt/action/publish"]</code></li>
+<li>Call one to run it, with its data as keyword arguments and <code>target</code> for what it acts on: <code>obj["/light/action/turn_on"](target={"entity_id": "light.shed"}, brightness=128)</code></li>
+<li>What an action that answers gives back is returned</li>
+<li><code>name</code>, <code>description</code>, <code>fields</code> and <code>supports_response</code> describe it, as does <code>obj.show(path)</code>, with the names and descriptions the frontend shows for the action and each of its fields</li>
+<li>The find methods go through actions as well as entities: <code>obj.find_names(domain="action")</code> gives every action, and a search with no <code>domain</code> now gives both</li>
+<li><code>object_type="entity"</code> or <code>object_type="action"</code> keeps a find to the one kind. <code>"device"</code> is accepted, for when devices are in the tree</li>
+<li>In live, exec and API mode alike. An integration with actions and no entities is now in the tree</li>
+<li>Live mode needs the server component at this version</li>
+</ul>
+<h3 id="live-mode">Live Mode<a class="headerlink" href="#live-mode" title="Permanent link">&para;</a></h3>
+<ul>
+<li>New <code>rebind()</code>, to put back any of the shell's own names - <code>hass</code>, <code>obj</code>, <code>sql</code>, <code>hass_api</code>, <code>show</code>, <code>help</code>, <code>MODE</code>, <code>SERVER</code> - that has been assigned over, and run the plugins again</li>
+<li><code>rebind(plugins=False)</code> leaves the plugins alone</li>
+<li>Also in <code>ha-repl exec</code> and API mode</li>
+</ul>
+<h3 id="live-server">Live Server<a class="headerlink" href="#live-server" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>hass</code> and <code>sql</code> can each be given a time limit, in minutes, from the integration's <em>Configure</em> form, after which that one is switched off again</li>
+<li>Left empty, it stays on, as before</li>
+<li>The limit survives a restart of Home Assistant, and one that ran out while it was stopped is applied when it starts</li>
+<li><em>Configure</em> shows the minutes left on a running limit, to change or clear</li>
+</ul>
+<h1 id="0120">0.12.0<a class="headerlink" href="#0120" title="Permanent link">&para;</a></h1>
+<h2 id="-enhancements_1">✨ Enhancements<a class="headerlink" href="#-enhancements_1" title="Permanent link">&para;</a></h2>
+<h3 id="sql_1">SQL<a class="headerlink" href="#sql_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li>New virtual tables, to query as if they were real ones, in place of the join almost every query on these tables needs</li>
 <li><code>state_history</code> is <code>states</code> with each row's <code>entity_id</code> as the first column</li>
@@ -1385,7 +1420,7 @@ with each other for point releases</p>
 <li><code>sql.tables</code> lists them, each as a <code>VirtualTable</code> object rather than a <code>Table</code>, with a <code>virtual</code> flag and the query it stands for as its <code>definition</code></li>
 <li>Needs both the client and the server component at this version</li>
 </ul>
-<h3 id="live-mode">Live Mode<a class="headerlink" href="#live-mode" title="Permanent link">&para;</a></h3>
+<h3 id="live-mode_1">Live Mode<a class="headerlink" href="#live-mode_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li>New <code>show(thing)</code>, to look inside an object that otherwise prints as little more than its class name: its attributes and their values, in colour, one to a line</li>
 <li><code>show(hass.config)</code>, <code>show(hass.states.get("sun.sun"))</code></li>
@@ -1400,12 +1435,12 @@ with each other for point releases</p>
 </ul>
 <h1 id="0111">0.11.1<a class="headerlink" href="#0111" title="Permanent link">&para;</a></h1>
 <h2 id="-fixes">🐛 Fixes<a class="headerlink" href="#-fixes" title="Permanent link">&para;</a></h2>
-<h3 id="live-mode_1">Live Mode<a class="headerlink" href="#live-mode_1" title="Permanent link">&para;</a></h3>
+<h3 id="live-mode_2">Live Mode<a class="headerlink" href="#live-mode_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li>A name used only in a type annotation no longer decides which side a statement runs on, and no longer stops it running inside Home Assistant because it "only exists in the local session"</li>
 <li>A bare declaration, such as <code>hass: HomeAssistant</code>, is no longer treated as an assignment</li>
 </ul>
-<h2 id="-enhancements_1">✨ Enhancements<a class="headerlink" href="#-enhancements_1" title="Permanent link">&para;</a></h2>
+<h2 id="-enhancements_2">✨ Enhancements<a class="headerlink" href="#-enhancements_2" title="Permanent link">&para;</a></h2>
 <h3 id="plugins">Plugins<a class="headerlink" href="#plugins" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>homeassistant_repl.plugin</code> declares <code>MODE</code>, <code>SERVER</code>, <code>hass</code>, <code>obj</code>, <code>sql</code> and <code>hass_api</code> for linters and type checkers, to import under <code>TYPE_CHECKING</code></li>
@@ -1417,7 +1452,7 @@ with each other for point releases</p>
 <li>A link is given to the example <a href="https://github.com/rhizomatics/supernotify/blob/main/.ha-repl/plugins/10-supernotify-internals.py">Supernotify ha-repl plugin code</a></li>
 </ul>
 <h1 id="0110">0.11.0<a class="headerlink" href="#0110" title="Permanent link">&para;</a></h1>
-<h2 id="-enhancements_2">✨ Enhancements<a class="headerlink" href="#-enhancements_2" title="Permanent link">&para;</a></h2>
+<h2 id="-enhancements_3">✨ Enhancements<a class="headerlink" href="#-enhancements_3" title="Permanent link">&para;</a></h2>
 <h3 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Implementation of <a href="https://homeassistant-repl.rhizomatics.org.uk/developer/design/rfcs/0001-persistent-config/">RFC-0001: Persistent Config</a></li>
@@ -1445,7 +1480,7 @@ with each other for point releases</p>
 <li>Reorganized and improved the configuration and installation</li>
 </ul>
 <h1 id="0100">0.10.0<a class="headerlink" href="#0100" title="Permanent link">&para;</a></h1>
-<h2 id="-enhancements_3">✨ Enhancements<a class="headerlink" href="#-enhancements_3" title="Permanent link">&para;</a></h2>
+<h2 id="-enhancements_4">✨ Enhancements<a class="headerlink" href="#-enhancements_4" title="Permanent link">&para;</a></h2>
 <h3 id="help">Help<a class="headerlink" href="#help" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>help()</code> on something local - <code>obj</code> in API mode, <code>sql</code> and its results, tables and rows - now gives a short summary of what it is for, its methods, properties and attributes, as it already did for objects inside Home Assistant. Special methods, inherited members, data descriptors and the method resolution order are left out</li>
@@ -1453,7 +1488,7 @@ with each other for point releases</p>
 <li><code>help(obj)</code> explains how to use the object tree</li>
 <li>Type annotations in the summary are no longer shown in quotes</li>
 </ul>
-<h3 id="sql_1">SQL<a class="headerlink" href="#sql_1" title="Permanent link">&para;</a></h3>
+<h3 id="sql_2">SQL<a class="headerlink" href="#sql_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>sql.table("states")</code> returns the <code>Table</code> object for a single table, by name</li>
 <li><code>Table</code> objects have <code>class_name</code> and <code>description</code>, the name and docstring of the class the Recorder maps to the table, e.g. <code>States</code> and <code>State change history.</code></li>
@@ -1471,7 +1506,7 @@ with each other for point releases</p>
 <li>Lots more examples of how to use all the builtins</li>
 </ul>
 <h1 id="090">0.9.0<a class="headerlink" href="#090" title="Permanent link">&para;</a></h1>
-<h2 id="live-server">Live Server<a class="headerlink" href="#live-server" title="Permanent link">&para;</a></h2>
+<h2 id="live-server_1">Live Server<a class="headerlink" href="#live-server_1" title="Permanent link">&para;</a></h2>
 <ul>
 <li>No longer needs <code>homeassistant-api</code>: <code>hass_api</code> is the shell's own local REST client, and is no longer also bound inside Home Assistant</li>
 </ul>
@@ -1482,7 +1517,7 @@ with each other for point releases</p>
 <li><code>ha-repl --json exec</code> reports a plain-data value from inside Home Assistant as data, not as its printed form</li>
 </ul>
 <h1 id="080">0.8.0<a class="headerlink" href="#080" title="Permanent link">&para;</a></h1>
-<h2 id="live-server_1">Live Server<a class="headerlink" href="#live-server_1" title="Permanent link">&para;</a></h2>
+<h2 id="live-server_2">Live Server<a class="headerlink" href="#live-server_2" title="Permanent link">&para;</a></h2>
 <ul>
 <li>No longer uses <code>rich</code>, so installing no longer upgrades the much older <code>rich</code> bundled with Home Assistant 2026.10 - which could fail setup with <code>cannot import name 'SyntaxPosition' from 'rich.syntax'</code> until a second restart</li>
 <li>Values and errors are now sent to the client as data, and rendered there</li>
@@ -1500,7 +1535,7 @@ with each other for point releases</p>
 <li><code>obj</code> and <code>hass</code> are the only fake objects, redirecting their inputs and outputs to the real equivalents inside the live server</li>
 <li>Both these objects are limited to accepting local primitive values only as arguments, and can't be combined in a single statement</li>
 </ul>
-<h2 id="sql_2">SQL<a class="headerlink" href="#sql_2" title="Permanent link">&para;</a></h2>
+<h2 id="sql_3">SQL<a class="headerlink" href="#sql_3" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Results object has new features:</li>
 <li>It can now be sliced like a list, e.g. <code>[:-10]</code> for last 10 rows, <code>[:10]</code> for first 10</li>
@@ -1515,7 +1550,7 @@ with each other for point releases</p>
 <li>Internally the data is more efficiently stored, as single native Arrow object</li>
 <li>Queries all executed under <code>read_only</code> session scope so no commits expected (this is not a security measure)</li>
 </ul>
-<h2 id="live-server_2">Live Server<a class="headerlink" href="#live-server_2" title="Permanent link">&para;</a></h2>
+<h2 id="live-server_3">Live Server<a class="headerlink" href="#live-server_3" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Config switches now to optionally switch off <code>sql</code> and/or <code>hass</code> access</li>
 </ul>

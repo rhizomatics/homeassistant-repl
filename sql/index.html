@@ -660,6 +660,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#column-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Column Values
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#row-objects" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -697,6 +708,17 @@
     <span class="md-ellipsis">
       
         Legacy Columns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dataframe-portability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dataframe Portability
       
     </span>
   </a>
@@ -1511,6 +1533,10 @@
 <td>The same, with <a href="#legacy-columns">legacy columns</a> in view</td>
 </tr>
 <tr>
+<td><code>sql("&lt;query&gt;", raw=True)</code></td>
+<td>The same, with every value <a href="#column-values">as the database has it</a></td>
+</tr>
+<tr>
 <td><code>sql.max_rows</code></td>
 <td>Read/write property to set the default row limit for results in this session</td>
 </tr>
@@ -1552,6 +1578,10 @@
 <tr>
 <td><code>truncated</code></td>
 <td><code>True</code> if results were truncated due to row limits</td>
+</tr>
+<tr>
+<td><code>query</code></td>
+<td>The query this is the result of, as it was given to <code>sql</code></td>
 </tr>
 <tr>
 <td><code>legacy</code></td>
@@ -1607,6 +1637,60 @@
 </tr>
 </tbody>
 </table>
+<h3 id="column-values">Column Values<a class="headerlink" href="#column-values" title="Permanent link">&para;</a></h3>
+<p>A column of a Recorder table comes back as what it holds, not as how the database stores it. This goes by how Home Assistant declares the column in <code>db_schema</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Declared in <code>db_schema</code> as</th>
+<th>Columns</th>
+<th>Stored as</th>
+<th>In a result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TIMESTAMP_TYPE</code></td>
+<td>Those ending <code>_ts</code>, such as <code>last_updated_ts</code>, <code>time_fired_ts</code>, <code>start_ts</code></td>
+<td>Seconds since the epoch, as a float</td>
+<td>A <code>datetime</code> in UTC</td>
+</tr>
+<tr>
+<td><code>DATETIME_TYPE</code></td>
+<td><code>start</code>, <code>end</code> and <code>created</code> of <code>recorder_runs</code>, <code>start</code> of <code>statistics_runs</code>, <code>changed</code> of <code>schema_changes</code></td>
+<td>A date and time, as text in SQLite</td>
+<td>A <code>datetime</code> in UTC</td>
+</tr>
+<tr>
+<td><code>CONTEXT_BINARY_TYPE</code></td>
+<td><code>context_id_bin</code>, <code>context_parent_id_bin</code></td>
+<td>16 bytes</td>
+<td>The ULID as text, as <code>context.id</code> has it</td>
+</tr>
+<tr>
+<td><code>CONTEXT_BINARY_TYPE</code></td>
+<td><code>context_user_id_bin</code></td>
+<td>16 bytes</td>
+<td>The user's id as text, as <code>context.user_id</code> has it</td>
+</tr>
+<tr>
+<td><code>Boolean</code></td>
+<td><code>has_sum</code>, <code>closed_incorrect</code></td>
+<td><code>0</code> or <code>1</code> in SQLite</td>
+<td><code>True</code> or <code>False</code></td>
+</tr>
+</tbody>
+</table>
+<p>The times are Arrow timestamps, so they are also datetimes in a <code>polars</code> or <code>pandas</code> dataframe, and ISO 8601 text in <code>to_json()</code>.</p>
+<p>Pass <code>raw=True</code> for the values as the database has them instead.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">sql</span><span class="p">(</span><span class="s2">"select entity_id, last_updated_ts, context_id_bin from state_history"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">sql</span><span class="p">(</span><span class="s2">"select entity_id, last_updated_ts, context_id_bin from state_history"</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</span></code></pre></div>
+<ul>
+<li>A column is recognised by its name in the result, so <code>max(last_updated_ts)</code> is a plain number unless it is given the name back, as in <code>max(last_updated_ts) as last_updated_ts</code></li>
+<li>This only changes what comes back. Inside the query the columns are still as stored, so a <code>where</code> on a <code>_ts</code> column compares it to seconds since the epoch</li>
+<li><code>state</code> is text in <code>states</code> and a number in <code>statistics</code>, so it is left as it comes</li>
+</ul>
 <h3 id="row-objects">Row Objects<a class="headerlink" href="#row-objects" title="Permanent link">&para;</a></h3>
 <p>Indexing a result with a row number gives a <code>Row</code> object. It reads like a list of the row's values, in column order, and can also be indexed by column name.</p>
 <table>
@@ -1635,10 +1719,10 @@
 </tr>
 </tbody>
 </table>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">sql</span><span class="p">(</span><span class="s2">"select count(*) from events"</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">row</span> <span class="o">=</span> <span class="n">sql</span><span class="p">(</span><span class="s2">"select * from states_meta"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">row</span><span class="p">[</span><span class="s2">"entity_id"</span><span class="p">]</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="o">&gt;&gt;&gt;</span> <span class="p">{</span><span class="n">col</span><span class="p">:</span> <span class="n">sql</span><span class="p">(</span><span class="sa">f</span><span class="s2">"select count(distinct </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">) from events"</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">sql</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">"events"</span><span class="p">)</span><span class="o">.</span><span class="n">column_names</span><span class="p">}</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">sql</span><span class="p">(</span><span class="s2">"select count(*) from events"</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">row</span> <span class="o">=</span> <span class="n">sql</span><span class="p">(</span><span class="s2">"select * from states_meta"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">row</span><span class="p">[</span><span class="s2">"entity_id"</span><span class="p">]</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="o">&gt;&gt;&gt;</span> <span class="p">{</span><span class="n">col</span><span class="p">:</span> <span class="n">sql</span><span class="p">(</span><span class="sa">f</span><span class="s2">"select count(distinct </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">) from events"</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">sql</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">"events"</span><span class="p">)</span><span class="o">.</span><span class="n">column_names</span><span class="p">}</span>
 </span></code></pre></div>
 <h3 id="table-objects">Table Objects<a class="headerlink" href="#table-objects" title="Permanent link">&para;</a></h3>
 <p>A <code>Table</code> object describes one table, using Home Assistant's own definition of it in <code>homeassistant.components.recorder.db_schema</code>.</p>
@@ -1706,11 +1790,11 @@
 </tr>
 </tbody>
 </table>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">sql</span><span class="p">(</span><span class="s2">"select * from state_history where entity_id = 'sensor.outside_temperature'"</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">sql</span><span class="p">(</span><span class="s2">"select entity_id, count(*) from state_history group by entity_id"</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">sql</span><span class="p">(</span><span class="s2">"select event_type, count(*) from event_history group by event_type"</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">sql</span><span class="p">(</span><span class="s2">"select start_ts, mean from statistics_history where statistic_id = 'sensor.outside_temperature'"</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">sql</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">"state_history"</span><span class="p">)</span><span class="o">.</span><span class="n">column_names</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">sql</span><span class="p">(</span><span class="s2">"select * from state_history where entity_id = 'sensor.outside_temperature'"</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">sql</span><span class="p">(</span><span class="s2">"select entity_id, count(*) from state_history group by entity_id"</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">sql</span><span class="p">(</span><span class="s2">"select event_type, count(*) from event_history group by event_type"</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">sql</span><span class="p">(</span><span class="s2">"select start_ts, mean from statistics_history where statistic_id = 'sensor.outside_temperature'"</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">sql</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">"state_history"</span><span class="p">)</span><span class="o">.</span><span class="n">column_names</span>
 </span></code></pre></div>
 <p>A virtual table can be used wherever a real one can in a query - filtered, grouped, joined to other tables, real or virtual, or to itself - and the database does all of that work, as it would for the join written out.</p>
 <p><code>sql.tables</code> lists them among the real tables. Each is a <code>VirtualTable</code> object, which shows as <code>VirtualTable(...)</code> rather than <code>Table(...)</code>, so the two can't be mistaken for each other. It has everything a <code>Table</code> has, with <code>virtual</code> set to <code>True</code>, an empty <code>class_name</code>, and one thing more:</p>
@@ -1728,8 +1812,8 @@
 </tr>
 </tbody>
 </table>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="o">&gt;&gt;&gt;</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">sql</span><span class="o">.</span><span class="n">tables</span> <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">virtual</span><span class="p">]</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">sql</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">"state_history"</span><span class="p">)</span><span class="o">.</span><span class="n">definition</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="o">&gt;&gt;&gt;</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">sql</span><span class="o">.</span><span class="n">tables</span> <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">virtual</span><span class="p">]</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">sql</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">"state_history"</span><span class="p">)</span><span class="o">.</span><span class="n">definition</span>
 </span></code></pre></div>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
@@ -1744,14 +1828,21 @@
 <li>the query is made with <code>legacy=True</code></li>
 <li><code>legacy</code> is set to <code>True</code> on the result afterwards, which needs no new query</li>
 </ul>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">r</span> <span class="o">=</span> <span class="n">sql</span><span class="p">(</span><span class="s2">"select * from states"</span><span class="p">)</span>                 <span class="c1"># columns in use</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">r</span><span class="o">.</span><span class="n">legacy</span> <span class="o">=</span> <span class="kc">True</span>                                 <span class="c1"># now every column</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">sql</span><span class="p">(</span><span class="s2">"select * from states"</span><span class="p">,</span> <span class="n">legacy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>        <span class="c1"># every column from the start</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">sql</span><span class="p">(</span><span class="s2">"select state_id, entity_id from states"</span><span class="p">)</span>   <span class="c1"># named, so in view</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">sql</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">"states"</span><span class="p">)</span><span class="o">.</span><span class="n">column_names</span>               <span class="c1"># columns in use</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">sql</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">"states"</span><span class="p">,</span> <span class="n">legacy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">column_names</span>  <span class="c1"># every column</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">r</span> <span class="o">=</span> <span class="n">sql</span><span class="p">(</span><span class="s2">"select * from states"</span><span class="p">)</span>                 <span class="c1"># columns in use</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">r</span><span class="o">.</span><span class="n">legacy</span> <span class="o">=</span> <span class="kc">True</span>                                 <span class="c1"># now every column</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">sql</span><span class="p">(</span><span class="s2">"select * from states"</span><span class="p">,</span> <span class="n">legacy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>        <span class="c1"># every column from the start</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">sql</span><span class="p">(</span><span class="s2">"select state_id, entity_id from states"</span><span class="p">)</span>   <span class="c1"># named, so in view</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">sql</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">"states"</span><span class="p">)</span><span class="o">.</span><span class="n">column_names</span>               <span class="c1"># columns in use</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">sql</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">"states"</span><span class="p">,</span> <span class="n">legacy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">column_names</span>  <span class="c1"># every column</span>
 </span></code></pre></div>
 <p>A query is checked by its words rather than parsed, so a legacy column mentioned anywhere in it, such as in a <code>where</code>, is in view.</p>
+<h3 id="dataframe-portability">Dataframe Portability<a class="headerlink" href="#dataframe-portability" title="Permanent link">&para;</a></h3>
+<p>Since internally <code>pyarrow</code> is used for moving and holding data, and the <code>arrow()</code> method returns a <code>pycapsule</code> compliant interface, the data can be used in other tools that accept Arrow. </p>
+<p>In this example the dataframe-neutral <a href="https://narwhals-dev.github.io/narwhals/">narwhals</a> library is used to construct a dataframe, which can then have implementation neutral manipulation applied, or re-exported to another dataframe type.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">narwhals</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nw</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">df</span><span class="o">=</span><span class="n">nw</span><span class="o">.</span><span class="n">from_arrow</span><span class="p">(</span><span class="n">sql</span><span class="p">(</span><span class="s1">'select * from events'</span><span class="p">,</span><span class="n">backend</span><span class="o">=</span><span class="n">pl</span><span class="p">)</span><span class="o">.</span><span class="n">arrow</span><span class="p">())</span>
+</span></code></pre></div>
 <h3 id="more-help">More Help<a class="headerlink" href="#more-help" title="Permanent link">&para;</a></h3>
 <p>Use <code>help(sql)</code>, or call <code>help(..)</code> on a result, row or table object, to get reminded of the API. It gives a short summary of the methods, properties and attributes; add <code>full=True</code> for Python's own full help page.</p>
 

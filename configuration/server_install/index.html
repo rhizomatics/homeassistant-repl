@@ -835,6 +835,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="HACS Component">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#limiting-what-is-exposed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limiting What Is Exposed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -1470,6 +1487,14 @@
 <li>From <strong>Settings → Devices &amp; services → Add integration</strong> find <strong>Home Assistant REPL Server</strong> in the list and install, there's no further config needed</li>
 <li>The component will quiz you first to make sure you know what you're doing</li>
 <li>Alternatively add <code>ha_repl_server:</code> to <code>configuration.yaml</code>, which is imported as a config entry) </li>
+</ul>
+<h3 id="limiting-what-is-exposed">Limiting What Is Exposed<a class="headerlink" href="#limiting-what-is-exposed" title="Permanent link">&para;</a></h3>
+<p><strong>Configure</strong>, on the integration's own page, has a switch for each of the two things a live session can reach: <code>hass</code>, and <code>sql</code>.</p>
+<p>Each switch has a time limit beside it, in minutes. Enter one and that capability is switched off again once the time is up, as if from the form - so it can be opened up for one piece of work without being left on. Leave the limit empty and it stays on.</p>
+<ul>
+<li>The limit is counted from when the form is saved, and carries on through a restart of Home Assistant</li>
+<li>Opening <strong>Configure</strong> again shows the minutes left, to change, or to clear for no limit</li>
+<li>Saving the form, or a limit running out, reloads the integration, which ends any live sessions' server-side state</li>
 </ul>
 
 

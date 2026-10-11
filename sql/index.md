@@ -16,6 +16,7 @@ Data is serialized as Apache Arrow using the `nanofeather` library - this provid
 | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | `sql("<query>")`                   | Send a query to the database and wait for results                                                                                            |
 | `sql("<query>", legacy=True)`      | The same, with [legacy columns](#legacy-columns) in view                                                                                     |
+| `sql("<query>", raw=True)`         | The same, with every value [as the database has it](#column-values)                                                                          |
 | `sql.max_rows`                     | Read/write property to set the default row limit for results in this session                                                                 |
 | `sql.table("<name>")`              | Returns the `Table` object that describes the named table and its contents, or raises `KeyError` if there is no such table                   |
 | `sql.table("<name>", legacy=True)` | The same, with the table's [legacy columns](#legacy-columns) included                                                                        |
@@ -40,6 +41,7 @@ A single row can be picked out by position, so `[0]` for the first row or `[-1]`
 | -------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | `rowcount`     | Size of result set, may not be size of table due to row limits                                                            |
 | `truncated`    | `True` if results were truncated due to row limits                                                                        |
+| `query`        | The query this is the result of, as it was given to `sql`                                                                 |
 | `legacy`       | Read/write flag, set to `True` to bring [legacy columns](#legacy-columns) into view                                       |
 | `table`        | The `Table` object describing this table, or `None` if the columns don't identify a single table                          |
 | `column_names` | List of the column names in the table, in order                                                                           |
@@ -53,6 +55,31 @@ A single row can be picked out by position, so `[0]` for the first row or `[-1]`
 | `to_dicts()`   | Extract a `list` of `dict` objects from the results                                                                       |
 | `to_pandas()`  | Turn the results into a *pandas* dataframe, if pandas installed                                                           |
 | `to_polars()`  | Turn the results into a *polars* dataframe, if polars installed                                                           |
+
+### Column Values
+
+A column of a Recorder table comes back as what it holds, not as how the database stores it. This goes by how Home Assistant declares the column in `db_schema`.
+
+| Declared in `db_schema` as | Columns                                                                                                      | Stored as                           | In a result                                        |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------ | ----------------------------------- | -------------------------------------------------- |
+| `TIMESTAMP_TYPE`           | Those ending `_ts`, such as `last_updated_ts`, `time_fired_ts`, `start_ts`                                   | Seconds since the epoch, as a float | A `datetime` in UTC                                |
+| `DATETIME_TYPE`            | `start`, `end` and `created` of `recorder_runs`, `start` of `statistics_runs`, `changed` of `schema_changes` | A date and time, as text in SQLite  | A `datetime` in UTC                                |
+| `CONTEXT_BINARY_TYPE`      | `context_id_bin`, `context_parent_id_bin`                                                                    | 16 bytes                            | The ULID as text, as `context.id` has it           |
+| `CONTEXT_BINARY_TYPE`      | `context_user_id_bin`                                                                                        | 16 bytes                            | The user's id as text, as `context.user_id` has it |
+| `Boolean`                  | `has_sum`, `closed_incorrect`                                                                                | `0` or `1` in SQLite                | `True` or `False`                                  |
+
+The times are Arrow timestamps, so they are also datetimes in a `polars` or `pandas` dataframe, and ISO 8601 text in `to_json()`.
+
+Pass `raw=True` for the values as the database has them instead.
+
+```python
+>>> sql("select entity_id, last_updated_ts, context_id_bin from state_history")[0]
+>>> sql("select entity_id, last_updated_ts, context_id_bin from state_history", raw=True)[0]
+```
+
+- A column is recognised by its name in the result, so `max(last_updated_ts)` is a plain number unless it is given the name back, as in `max(last_updated_ts) as last_updated_ts`
+- This only changes what comes back. Inside the query the columns are still as stored, so a `where` on a `_ts` column compares it to seconds since the epoch
+- `state` is text in `states` and a number in `statistics`, so it is left as it comes
 
 ### Row Objects
 
@@ -147,6 +174,18 @@ A legacy column is in view when:
 ```
 
 A query is checked by its words rather than parsed, so a legacy column mentioned anywhere in it, such as in a `where`, is in view.
+
+### Dataframe Portability
+
+Since internally `pyarrow` is used for moving and holding data, and the `arrow()` method returns a `pycapsule` compliant interface, the data can be used in other tools that accept Arrow.
+
+In this example the dataframe-neutral [narwhals](https://narwhals-dev.github.io/narwhals/) library is used to construct a dataframe, which can then have implementation neutral manipulation applied, or re-exported to another dataframe type.
+
+```python
+import narwhals as nw
+import polars as pl
+>>> df=nw.from_arrow(sql('select * from events',backend=pl).arrow())
+```
 
 ### More Help
 
