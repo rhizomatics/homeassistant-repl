@@ -21,7 +21,7 @@ It is an opinionated REPL ([Read-Eval-Print-Loop](https://en.wikipedia.org/wiki/
 
 <!-- termynal -->
 ```bash
-$ uv run --with homeassistant-repl ha-repl --token=<insert token here>
+$ uvx --from homeassistant-repl ha-repl --token=<insert token here>
 Home Assistant REPL (API client mode) connected to ws://homeassistant.local:8123/api/websocket. `obj` only, read-only - no `hass`. Ctrl-D to exit.
 >>> obj["/mqtt/binary_sensor/kitchen_terrace_window_tilt"].state
 'off'
