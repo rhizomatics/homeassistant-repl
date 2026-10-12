@@ -18,7 +18,7 @@ It is an opinionated REPL ([Read-Eval-Print-Loop](https://en.wikipedia.org/wiki/
 - Debugging code (but see note below)
 - Hotfixing issues that don't have built in support to do so from existing components.
 
-uv run --with homeassistant-repl ha-repl --token=<insert token here>Home Assistant REPL (API client mode) connected to ws://homeassistant.local:8123/api/websocket. `obj` only, read-only - no `hass`. Ctrl-D to exit.obj["/mqtt/binary_sensor/kitchen_terrace_window_tilt"].state'off'\[o.name for o in obj["/rflink/binary_sensor"].values() if o.state=='unavailable'\]['Shed Intruder Alarm', 'Panic Keyfob']{(o.entity_id, o.state) for o in obj.find(domain="binary_sensor",platform="mqtt")}{\
+uvx --from homeassistant-repl ha-repl --token=<insert token here>Home Assistant REPL (API client mode) connected to ws://homeassistant.local:8123/api/websocket. `obj` only, read-only - no `hass`. Ctrl-D to exit.obj["/mqtt/binary_sensor/kitchen_terrace_window_tilt"].state'off'\[o.name for o in obj["/rflink/binary_sensor"].values() if o.state=='unavailable'\]['Shed Intruder Alarm', 'Panic Keyfob']{(o.entity_id, o.state) for o in obj.find(domain="binary_sensor",platform="mqtt")}{\
 ('binary_sensor.terrace_pir_occupancy', 'unavailable'),\
 ('binary_sensor.scullery_smoke_alarm_battery_low', 'off'),\
 ('binary_sensor.kitchen_terrace_window_tweaked', 'off'),\
