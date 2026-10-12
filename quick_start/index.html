@@ -1440,7 +1440,11 @@
 <p>Use the <code>api</code> mode with <code>uv</code> (traditional install also available via <code>pip install homeassistant-repl</code>).</p>
 <p>If Home Assistant is available via <code>http://homeassistant.local:8123</code> then you can skip the <code>--server</code> argument. </p>
 <p>If not running inside a Home Assistant add-on, like <a href="https://github.com/hassio-addons/app-vscode">Studio Code Server</a> or <a href="https://github.com/hassio-addons/app-ssh">Advanced SSH &amp; Web Terminal</a>,you will also need to create a <a href="https://developers.home-assistant.io/docs/auth_api/#long-lived-access-token">Long Lived Access Token</a> by going to the personal settings on your Home Assistant mobile or desktop app.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uv<span class="w"> </span>run<span class="w"> </span>--with<span class="w"> </span>homeassistant-repl<span class="w"> </span>ha-repl<span class="w"> </span>--token<span class="w"> </span><span class="o">&lt;&lt;&lt;</span>my<span class="w"> </span>long<span class="w"> </span>lived<span class="w"> </span>access<span class="w"> </span>token&gt;&gt;&gt;
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uvx<span class="w"> </span>--from<span class="w"> </span>homeassistant-repl<span class="w"> </span>ha-repl<span class="w"> </span>--token<span class="w"> </span><span class="o">&lt;&lt;&lt;</span>my<span class="w"> </span>long<span class="w"> </span>lived<span class="w"> </span>access<span class="w"> </span>token&gt;&gt;&gt;
+</span></code></pre></div>
+<p>Or install the command so all you have to type is <code>ha-repl</code> in future:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>uv<span class="w"> </span>tool<span class="w"> </span>install<span class="w"> </span>homeassistant-repl
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>ha-repl
 </span></code></pre></div>
 <h2 id="first-steps-with-the-shell">First Steps with the Shell<a class="headerlink" href="#first-steps-with-the-shell" title="Permanent link">&para;</a></h2>
 <p>The shell is a full Python REPL shell, with multi-line editing, history etc, living inside an asyncio loop that exposes the live Home Assistant instance as:</p>
@@ -1455,13 +1459,13 @@
 <li><code>show(thing)</code> - <a href="../modes/live_mode/#looking-inside-objects">looks inside</a> any <code>hass</code> object, with its attributes and their values in colour</li>
 </ul>
 <p>So I can write code at the command line like:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">pir</span> <span class="o">=</span> <span class="n">obj</span><span class="p">[</span><span class="s2">"/rflink/binary_sensor/hall_pir"</span><span class="p">]</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">pir</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="s2">"on"</span>  <span class="c1"># non-strict mode, sets entity state with repl as context</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">pir</span> <span class="o">=</span> <span class="n">obj</span><span class="p">[</span><span class="s2">"/rflink/binary_sensor/hall_pir"</span><span class="p">]</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">pir</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="s2">"on"</span>  <span class="c1"># non-strict mode, sets entity state with repl as context</span>
 </span></code></pre></div>
 <p>The return value of the object is returned to the shell, value printed and available to Python code as <code>_</code>. Tracebacks are printed also, as if they were local (in general everything feels like its local)</p>
 <p>The <code>homeassistant-api</code> integration can be used like:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="o">&gt;&gt;&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">hass_api</span><span class="o">.</span><span class="n">get_domain</span><span class="p">(</span><span class="s1">'cover'</span><span class="p">))</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="mi">12</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="o">&gt;&gt;&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">hass_api</span><span class="o">.</span><span class="n">get_domain</span><span class="p">(</span><span class="s1">'cover'</span><span class="p">))</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="mi">12</span>
 </span></code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1471,10 +1475,10 @@
 <h2 id="starting-the-shell">Starting the Shell<a class="headerlink" href="#starting-the-shell" title="Permanent link">&para;</a></h2>
 <p>Use the <code>HASS_SERVER</code> environment variable, exported or in a local <code>.env</code> file, or the <code>--server</code> command line argument if the Home Assistant server is not running locally at usual address( i.e. <code>http://homeassistant.local:8123</code>). A <a href="https://developers.home-assistant.io/docs/auth_api/#long-lived-access-token">long lived access token</a> is needed at <code>--token</code> or in an <code>HASS_TOKEN</code> environment variable.</p>
 <p>The quickest way to run the shell is using <em>uv</em>, which you can do without cloning this repo or making any other downloads.</p>
-<p><div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>uv<span class="w"> </span>run<span class="w"> </span>--with<span class="w"> </span>homeassistant-repl<span class="w"> </span>ha-repl<span class="w">         </span>
+<p><div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>uv<span class="w"> </span>run<span class="w"> </span>--with<span class="w"> </span>homeassistant-repl<span class="w"> </span>ha-repl<span class="w">         </span>
 </span></code></pre></div>
 Get help on the arguments in the usual way,</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>uv<span class="w"> </span>run<span class="w"> </span>--with<span class="w"> </span>homeassistant-repl<span class="w"> </span>ha-repl<span class="w"> </span>--help<span class="w">       </span>,
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>uv<span class="w"> </span>run<span class="w"> </span>--with<span class="w"> </span>homeassistant-repl<span class="w"> </span>ha-repl<span class="w"> </span>--help<span class="w">       </span>,
 </span></code></pre></div>
 
 
