@@ -9,7 +9,14 @@ If Home Assistant is available via `http://homeassistant.local:8123` then you ca
 If not running inside a Home Assistant add-on, like [Studio Code Server](https://github.com/hassio-addons/app-vscode) or [Advanced SSH & Web Terminal](https://github.com/hassio-addons/app-ssh),you will also need to create a [Long Lived Access Token](https://developers.home-assistant.io/docs/auth_api/#long-lived-access-token) by going to the personal settings on your Home Assistant mobile or desktop app.
 
 ```bash
-uv run --with homeassistant-repl ha-repl --token <<<my long lived access token>>>
+uvx --from homeassistant-repl ha-repl --token <<<my long lived access token>>>
+```
+
+Or install the command so all you have to type is `ha-repl` in future:
+
+```bash
+uv tool install homeassistant-repl
+ha-repl
 ```
 
 ## First Steps with the Shell
