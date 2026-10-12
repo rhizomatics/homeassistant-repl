@@ -11,7 +11,6 @@ package-lock.json
 junit/
 .real-env
 .*env
-
 .venv/
 .DS_Store
 dev/.env
@@ -19,6 +18,8 @@ dev/config/*
 !dev/config/configuration.yaml
 .venv-ha/
 throwaway/
+docs/changelog.md
+docs/index.md
 
 # Distribution / packaging
 .Python
