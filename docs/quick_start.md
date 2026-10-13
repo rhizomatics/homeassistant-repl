@@ -62,10 +62,10 @@ Use the `HASS_SERVER` environment variable, exported or in a local `.env` file, 
 The quickest way to run the shell is using *uv*, which you can do without cloning this repo or making any other downloads.
 
 ```bash
-uv run --with homeassistant-repl ha-repl         
+uvx --from homeassistant-repl ha-repl         
 ```
 Get help on the arguments in the usual way,
 
 ```bash
-uv run --with homeassistant-repl ha-repl --help       ,
+uvx --from homeassistant-repl ha-repl --help       ,
 ```

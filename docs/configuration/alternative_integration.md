@@ -58,7 +58,7 @@ $ ipython
 [ttyd](https://tsl0922.github.io/ttyd/) is available easily via Mise, Homebrew or `opkg`. The http port will be logged at startup. It can be a dangerous security hole if not carefully used.
 
 ```bash
-ttyd uv run --with homeassistant-repl ha-repl api
+ttyd uvx --from homeassistant-repl ha-repl api
 ```
 
 Recent versions of ttyd are read-only unless started with `--writable`, and have no login unless given `--credential user:password`. Anyone who can reach the port can use the shell, and in `live` mode that means running any Python inside Home Assistant.
@@ -126,7 +126,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 Its Python is also older than `ha-repl` needs, so ask `uv` for a newer one when running the shell:
 
 ```bash
-uv run --python 3.14 --with homeassistant-repl ha-repl live
+uvx --python 3.14 --from homeassistant-repl ha-repl live
 ```
 
 To have `uv` there each time the add-on starts, put the install command in the add-on's `init_commands` configuration.

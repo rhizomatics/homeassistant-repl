@@ -13,8 +13,9 @@ devcontainer, unless the user has said the target instance is fine to change.
 
 ## Before the first call
 
-- `ha-repl` must be on the path, or run it as `uv run --with homeassistant-repl ha-repl`.
-  It needs Python 3.14.
+- `ha-repl` must be on the path, or run it as `uvx --from homeassistant-repl ha-repl`.
+  It needs Python 3.14. To install it for good, the user can run
+  `uv tool install homeassistant-repl`; don't install it yourself.
 - `HASS_SERVER` and `HASS_TOKEN` must be set in the environment or in a `.env` file in the
   working directory, or a default server set in `~/.config/ha-repl/config.toml` -
   `ha-repl servers` lists what is configured. If none of these is there, ask the user; don't
