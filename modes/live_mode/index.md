@@ -13,7 +13,7 @@ Run `ha-repl` with the `live` argument
 The quickest way to run the shell is using *uv*, which you can do without cloning this repo or making any other downloads.
 
 ```bash
-uv run --with homeassistant-repl ha-repl live
+uvx --from homeassistant-repl ha-repl live
 ```
 
 Once you're in, `hass` gives you direct access to the running instance of the [HomeAssistant](https://developers.home-assistant.io/docs/dev_101_hass) class, from which everything else is accessible, its the ultimate god object for the platform.

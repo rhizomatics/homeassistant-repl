@@ -1579,7 +1579,7 @@
 <p><img alt="Example Marimo Import and Usage" src="../../assets/screenshots/marimo.png" width="500" /></p>
 <h2 id="web-based-terminal">Web Based Terminal<a class="headerlink" href="#web-based-terminal" title="Permanent link">&para;</a></h2>
 <p><a href="https://tsl0922.github.io/ttyd/">ttyd</a> is available easily via Mise, Homebrew or <code>opkg</code>. The http port will be logged at startup. It can be a dangerous security hole if not carefully used.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>ttyd<span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>--with<span class="w"> </span>homeassistant-repl<span class="w"> </span>ha-repl<span class="w"> </span>api
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>ttyd<span class="w"> </span>uvx<span class="w"> </span>--from<span class="w"> </span>homeassistant-repl<span class="w"> </span>ha-repl<span class="w"> </span>api
 </span></code></pre></div>
 <p>Recent versions of ttyd are read-only unless started with <code>--writable</code>, and have no login unless given <code>--credential user:password</code>. Anyone who can reach the port can use the shell, and in <code>live</code> mode that means running any Python inside Home Assistant.</p>
 <h3 id="in-a-docker-container">In a Docker Container<a class="headerlink" href="#in-a-docker-container" title="Permanent link">&para;</a></h3>
@@ -1621,7 +1621,7 @@
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>curl<span class="w"> </span>-LsSf<span class="w"> </span>https://astral.sh/uv/install.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh
 </span></code></pre></div>
 <p>Its Python is also older than <code>ha-repl</code> needs, so ask <code>uv</code> for a newer one when running the shell:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>uv<span class="w"> </span>run<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.14<span class="w"> </span>--with<span class="w"> </span>homeassistant-repl<span class="w"> </span>ha-repl<span class="w"> </span>live
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>uvx<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.14<span class="w"> </span>--from<span class="w"> </span>homeassistant-repl<span class="w"> </span>ha-repl<span class="w"> </span>live
 </span></code></pre></div>
 <p>To have <code>uv</code> there each time the add-on starts, put the install command in the add-on's <code>init_commands</code> configuration.</p>
 

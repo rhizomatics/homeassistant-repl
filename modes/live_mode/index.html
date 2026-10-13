@@ -1701,7 +1701,7 @@
 <p><img alt="HACS Component Direct Access" src="../../assets/screenshots/hacs_comp_live.png" /></p>
 <p>Run <code>ha-repl</code> with the <code>live</code> argument</p>
 <p>The quickest way to run the shell is using <em>uv</em>, which you can do without cloning this repo or making any other downloads.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uv<span class="w"> </span>run<span class="w"> </span>--with<span class="w"> </span>homeassistant-repl<span class="w"> </span>ha-repl<span class="w"> </span>live<span class="w">     </span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uvx<span class="w"> </span>--from<span class="w"> </span>homeassistant-repl<span class="w"> </span>ha-repl<span class="w"> </span>live<span class="w">     </span>
 </span></code></pre></div>
 <p>Once you're in, <code>hass</code> gives you direct access to the running instance of the <a href="https://developers.home-assistant.io/docs/dev_101_hass">HomeAssistant</a> class, from which everything else is accessible, its the ultimate god object for the platform.</p>
 <p>Also, <code>sql</code> gives you query access to the primary HomeAssistant database.</p>
