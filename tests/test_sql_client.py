@@ -491,11 +491,13 @@ def test_arrow_is_a_struct_array_other_libraries_can_import():
     assert array.to_pylist() == [{"a": 1, "b": "x"}, {"a": 2, "b": "y"}]
 
 
-def test_arrow_feeds_polars_from_arrow():
+def test_arrow_feeds_polars_dataframe():
+    # pl.DataFrame rather than pl.from_arrow, which on polars 2 turns a
+    # struct array into a struct Series instead of unnesting it
     pl = pytest.importorskip("polars")
     result = _result(a=[1, 2], b=["x", "y"])
 
-    df = pl.from_arrow(result.arrow())
+    df = pl.DataFrame(result.arrow())
 
     assert df.to_dicts() == [{"a": 1, "b": "x"}, {"a": 2, "b": "y"}]
 
