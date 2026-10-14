@@ -132,7 +132,7 @@ def main():
         finish_onboarding(tokens["access_token"])
     token = asyncio.run(long_lived_token(tokens["access_token"]))
     ENV_FILE.write_text(f"HASS_SERVER={BASE}\nHASS_TOKEN={token}\n")
-    print(f"Wrote {ENV_FILE} (login: {USER}/{PASSWORD} at {BASE})")
+    print(f"Wrote {ENV_FILE} (login user: {USER} at {BASE})")
 
 
 if __name__ == "__main__":
