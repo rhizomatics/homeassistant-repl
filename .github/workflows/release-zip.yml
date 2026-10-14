@@ -1,0 +1,23 @@
+name: HACS Release Zip
+
+on:
+  release:
+    # edited too, so the zip is rebuilt when a release is moved to a new tag
+    types: [published, edited]
+
+jobs:
+  release-zip:
+    # separate from the PyPI publish so HACS can download the zip as soon as possible
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v7.0.1
+    - name: Package release zip
+      run: |
+        cd custom_components/ha_repl_server
+        zip -r "${{ github.workspace }}/ha_repl_server.zip" . -x "__pycache__/*" "*/__pycache__/*"
+    - name: Upload release zip asset
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: gh release upload "${{ github.event.release.tag_name }}" ha_repl_server.zip --clobber
