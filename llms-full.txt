@@ -876,8 +876,12 @@ In this example the dataframe-neutral [narwhals](https://narwhals-dev.github.io/
 ```python
 import narwhals as nw
 import polars as pl
->>> df=nw.from_arrow(sql('select * from events',backend=pl).arrow())
+>>> df=nw.from_arrow(sql('select * from events').arrow(),backend=pl)
 ```
+
+Polars 2
+
+`arrow()` returns a single Arrow *struct* array, one field per column. Since polars 2.0, `pl.from_arrow()` turns a struct array into a struct `Series` rather than a `DataFrame`, so go via `pl.DataFrame(r.arrow())` (or `r.to_polars()`) instead. narwhals' `from_arrow` is unaffected, and still gives a dataframe with one column per field.
 
 ### More Help
 
