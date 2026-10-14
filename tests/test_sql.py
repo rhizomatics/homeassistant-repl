@@ -353,8 +353,9 @@ async def test_sql_gives_recorder_columns_what_db_schema_says_they_hold(
         "Type.STRING",
     ]
     (row,) = batch.to_pylist()
-    # TIMESTAMP_TYPE: seconds since the epoch, sent as a time in UTC
-    assert row["last_updated_ts"] == state.last_updated
+    # TIMESTAMP_TYPE: seconds since the epoch, sent as a time in UTC. The
+    # recorder stores it as a float, so it can come back 1µs adrift
+    assert abs(row["last_updated_ts"] - state.last_updated) <= timedelta(microseconds=1)
     assert row["last_updated_ts"].tzinfo is not None
     assert row["last_updated_ts"] > before
     # a context id is a ULID - all but the user's, which is a UUID
