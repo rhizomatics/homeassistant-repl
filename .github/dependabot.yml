@@ -37,6 +37,9 @@ updates:
       uv-security:
         applies-to: security-updates
         patterns: ["*"]
+    ignore:
+      # pinned exactly by homeassistant; bumps fail until HA moves
+      - dependency-name: "pyjwt"
 
   - package-ecosystem: docker
     directory: /
