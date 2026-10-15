@@ -37,7 +37,14 @@ updates:
       uv-security:
         applies-to: security-updates
         patterns: ["*"]
+    allow:
+      - dependency-type: direct
     ignore:
       # pinned exactly by homeassistant; bumps fail until HA moves
       - dependency-name: "pyjwt"
+        # Inherited from Home Assistant / its test harness: follow the platform, don't bump.
+      - dependency-name: homeassistant
+      - dependency-name: pytest-homeassistant-custom-component
+      - dependency-name: pytest
+      - dependency-name: zeroconf
 
