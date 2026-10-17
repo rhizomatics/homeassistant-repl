@@ -76,7 +76,7 @@ class HaReplServerConfigFlow(ConfigFlow, domain=DOMAIN):
             errors["base"] = "ack_required"
         return self.async_show_form(
             step_id="user",
-            data_schema=_ACK_SCHEMA,  # type: ignore[arg-type]
+            data_schema=_ACK_SCHEMA,  # type: ignore[arg-type] #ty: ignore[invalid-argument-type]
             errors=errors,
         )
 
@@ -131,4 +131,4 @@ class HaReplServerOptionsFlow(OptionsFlowWithReload):
                     f"expose_{name}_minutes", description={"suggested_value": left}
                 )
             ] = vol.All(vol.Coerce(int), vol.Range(min=1))
-        return self.async_show_form(step_id="init", data_schema=vol.Schema(fields))  # type: ignore[arg-type]
+        return self.async_show_form(step_id="init", data_schema=vol.Schema(fields))  # type: ignore[arg-type] # ty: ignore[invalid-argument-type]
