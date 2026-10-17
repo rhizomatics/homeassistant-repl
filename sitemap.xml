@@ -2,112 +2,112 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
         <loc>https://homeassistant-repl.rhizomatics.org.uk/</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-17</lastmod>
         <changefreq>daily</changefreq>
     </url>
     <url>
         <loc>https://homeassistant-repl.rhizomatics.org.uk/changelog/</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-17</lastmod>
         <changefreq>daily</changefreq>
     </url>
     <url>
         <loc>https://homeassistant-repl.rhizomatics.org.uk/examples/</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-17</lastmod>
         <changefreq>daily</changefreq>
     </url>
     <url>
         <loc>https://homeassistant-repl.rhizomatics.org.uk/obj_tree/</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-17</lastmod>
         <changefreq>daily</changefreq>
     </url>
     <url>
         <loc>https://homeassistant-repl.rhizomatics.org.uk/quick_start/</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-17</lastmod>
         <changefreq>daily</changefreq>
     </url>
     <url>
         <loc>https://homeassistant-repl.rhizomatics.org.uk/sql/</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-17</lastmod>
         <changefreq>daily</changefreq>
     </url>
     <url>
         <loc>https://homeassistant-repl.rhizomatics.org.uk/configuration/</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-17</lastmod>
         <changefreq>daily</changefreq>
     </url>
     <url>
         <loc>https://homeassistant-repl.rhizomatics.org.uk/configuration/alternative_integration/</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-17</lastmod>
         <changefreq>daily</changefreq>
     </url>
     <url>
         <loc>https://homeassistant-repl.rhizomatics.org.uk/configuration/client_configuration/</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-17</lastmod>
         <changefreq>daily</changefreq>
     </url>
     <url>
         <loc>https://homeassistant-repl.rhizomatics.org.uk/configuration/plugins/</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-17</lastmod>
         <changefreq>daily</changefreq>
     </url>
     <url>
         <loc>https://homeassistant-repl.rhizomatics.org.uk/configuration/server_install/</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-17</lastmod>
         <changefreq>daily</changefreq>
     </url>
     <url>
         <loc>https://homeassistant-repl.rhizomatics.org.uk/developer/</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-17</lastmod>
         <changefreq>daily</changefreq>
     </url>
     <url>
         <loc>https://homeassistant-repl.rhizomatics.org.uk/developer/design/</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-17</lastmod>
         <changefreq>daily</changefreq>
     </url>
     <url>
         <loc>https://homeassistant-repl.rhizomatics.org.uk/developer/design/design_principles/</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-17</lastmod>
         <changefreq>daily</changefreq>
     </url>
     <url>
         <loc>https://homeassistant-repl.rhizomatics.org.uk/developer/design/roadmap/</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-17</lastmod>
         <changefreq>daily</changefreq>
     </url>
     <url>
         <loc>https://homeassistant-repl.rhizomatics.org.uk/developer/design/rfcs/</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-17</lastmod>
         <changefreq>daily</changefreq>
     </url>
     <url>
         <loc>https://homeassistant-repl.rhizomatics.org.uk/developer/design/rfcs/0001-persistent-config/</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-17</lastmod>
         <changefreq>daily</changefreq>
     </url>
     <url>
         <loc>https://homeassistant-repl.rhizomatics.org.uk/modes/</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-17</lastmod>
         <changefreq>daily</changefreq>
     </url>
     <url>
         <loc>https://homeassistant-repl.rhizomatics.org.uk/modes/api_mode/</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-17</lastmod>
         <changefreq>daily</changefreq>
     </url>
     <url>
         <loc>https://homeassistant-repl.rhizomatics.org.uk/modes/exec_mode/</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-17</lastmod>
         <changefreq>daily</changefreq>
     </url>
     <url>
         <loc>https://homeassistant-repl.rhizomatics.org.uk/modes/live_mode/</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-17</lastmod>
         <changefreq>daily</changefreq>
     </url>
     <url>
         <loc>https://homeassistant-repl.rhizomatics.org.uk/developer/coverage/</loc>
-        <lastmod>2026-10-16</lastmod>
+        <lastmod>2026-10-17</lastmod>
         <changefreq>daily</changefreq>
     </url>
 </urlset>
