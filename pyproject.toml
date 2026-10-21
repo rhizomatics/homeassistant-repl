@@ -95,7 +95,7 @@ compile-bytecode = true
 managed = true
 prerelease = "disallow"
 exclude-newer = "7 days"
-exclude-newer-package = {"uv_build"="2 days",homeassistant_repl=false}
+exclude-newer-package = {certifi=false, "uv_build"="2 days",homeassistant_repl=false}
 add-bounds = "major"
 
 [tool.uv.build-backend]
