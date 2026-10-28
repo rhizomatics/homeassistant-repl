@@ -145,7 +145,7 @@ This switch controls trade-off between shell convenience and ability to trial wo
 - NOT a debugger, but may do more to complement one
 - NOT pyscript, focuses on actual python even at expense of general usability or home assistance access, no script execution support outside of the repl
 
-## MVP
+## MVP [DONE]
 
 - Basic REPL
   - strict mode only
