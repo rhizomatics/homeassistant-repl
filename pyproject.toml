@@ -95,7 +95,7 @@ compile-bytecode = true
 managed = true
 prerelease = "disallow"
 exclude-newer = "7 days"
-exclude-newer-package = {certifi=false, "uv_build"="2 days",homeassistant_repl=false,uv=false}
+exclude-newer-package = {certifi=false, virtualenv=false,"uv_build"="2 days",homeassistant_repl=false,uv=false}
 add-bounds = "major"
 # Home Assistant pins uv exactly, and under `uv run` the venv's uv comes first on PATH,
 # shadowing the mise-managed one. Floor at the latest uv security fix (GHSA-hq85-5cpj-mr62).
