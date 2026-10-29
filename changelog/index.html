@@ -1472,7 +1472,9 @@ with each other for point releases</p>
 </ul>
 <h3 id="live-server">Live Server<a class="headerlink" href="#live-server" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Completion's limits, 500 items and 500 milliseconds an answer by default, are options on the <em>Configure</em> form</li>
+<li>If <code>nanoarrow</code> can't be installed or loaded, only <code>sql</code> is switched off, with the reason in the log and the shell, rather than the whole integration failing to load</li>
+<li><code>nanoarrow</code> and <code>sqlparse</code> are installed when the integration starts, no longer as its manifest requirements</li>
+<li>Completion's limits, 500 items and 500 milliseconds an answer by default, are options in a <strong>Limits</strong> section of the <em>Configure</em> form</li>
 <li>New <strong>Stop running code</strong> button on the integration's device, stopping whatever is running in every live session</li>
 <li>New <code>ha_repl_server/cancel</code> websocket command, which Ctrl-C in the shell sends</li>
 <li>Every command is written to the Home Assistant log at <code>warning</code>, so it shows by default, with the user who sent it</li>
