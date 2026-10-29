@@ -1,11 +1,18 @@
-"""Websocket commands: ha_repl_server/exec, ha_repl_server/reset,
-ha_repl_server/sessions, ha_repl_server/info, ha_repl_server/sql and
-ha_repl_server/sql_tables (all admin only)."""
+"""Websocket commands: ha_repl_server/exec, ha_repl_server/cancel,
+ha_repl_server/reset, ha_repl_server/sessions, ha_repl_server/info,
+ha_repl_server/sql and ha_repl_server/sql_tables (all admin only).
+
+Every command that runs or stops something - exec, cancel, reset and sql - is
+logged at INFO, with the user who sent it, and how it went with its timing.
+"""
 
 from __future__ import annotations
 
+import asyncio
 import base64
 import contextlib
+import logging
+import time
 from typing import Any, cast
 
 import probatio as vol
@@ -18,10 +25,13 @@ from .objtree import async_load_action_descriptions
 from .session import SessionManager
 from .sql import DEFAULT_MAX_ROWS, SqlError, sql, table_schemas
 
+_LOGGER = logging.getLogger(__package__)
+
 
 @callback
 def async_register(hass: HomeAssistant) -> None:
     websocket_api.async_register_command(hass, ws_exec)
+    websocket_api.async_register_command(hass, ws_cancel)
     websocket_api.async_register_command(hass, ws_reset)
     websocket_api.async_register_command(hass, ws_sessions)
     websocket_api.async_register_command(hass, ws_info)
@@ -37,6 +47,11 @@ def _manager(
             msg["id"], "not_loaded", "Home Assistant REPL integration is not loaded"
         )
     return manager
+
+
+def _who(connection: websocket_api.ActiveConnection) -> str:
+    user = connection.user
+    return user.name or user.id if user else "unknown user"
 
 
 @websocket_api.require_admin
@@ -73,15 +88,51 @@ async def ws_exec(
     # can be waited for. The code runs without it, just less well described.
     with contextlib.suppress(Exception):
         await async_load_action_descriptions(hass)
-    result = await manager.get(msg["session"]).run(
-        msg["code"],
-        msg.get("timeout"),
-        color=msg["color"],
-        width=msg["width"],
-        auto_await=msg["auto_await"],
-        fetch=msg["fetch"],
-    )
+    who, session = _who(connection), msg["session"]
+    _LOGGER.info("%s runs in session %r:\n%s", who, session, msg["code"])
+    try:
+        result = await manager.get(session).run(
+            msg["code"],
+            msg.get("timeout"),
+            color=msg["color"],
+            width=msg["width"],
+            auto_await=msg["auto_await"],
+            fetch=msg["fetch"],
+        )
+    except asyncio.CancelledError:
+        _LOGGER.info("%s's run in session %r stopped: connection closed", who, session)
+        raise
+    _LOGGER.info("%s's run in session %r %s", who, session, result.summary())
     connection.send_result(msg["id"], result.as_dict())
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command(
+    cast(
+        Any,
+        {
+            vol.Required("type"): "ha_repl_server/cancel",
+            vol.Optional("session"): str,
+        },
+    )
+)
+@callback
+def ws_cancel(
+    hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """Stop the code running in a session, or in every session if none is
+    given - what the shell sends on Ctrl-C. The stopped run still answers its
+    own exec, with a CancelledError."""
+    if (manager := _manager(hass, connection, msg)) is None:
+        return
+    who = _who(connection)
+    stopped = manager.cancel(msg.get("session"), f"Stopped by {who}")
+    _LOGGER.info(
+        "%s stopped %s",
+        who,
+        ", ".join(f"session {name!r}" for name in stopped) or "nothing (none running)",
+    )
+    connection.send_result(msg["id"], {"stopped": stopped})
 
 
 @websocket_api.require_admin
@@ -100,7 +151,9 @@ def ws_reset(
 ) -> None:
     if (manager := _manager(hass, connection, msg)) is None:
         return
-    connection.send_result(msg["id"], {"reset": manager.reset(msg["session"])})
+    reset = manager.reset(msg["session"])
+    _LOGGER.info("%s reset session %r", _who(connection), msg["session"])
+    connection.send_result(msg["id"], {"reset": reset})
 
 
 @websocket_api.require_admin
@@ -172,14 +225,27 @@ async def ws_sql(
     download (show(), dataframes, CSV) happens on the client's machine."""
     if _sql_manager(hass, connection, msg) is None:
         return
+    who = _who(connection)
+    _LOGGER.info("%s queries:\n%s", who, msg["query"])
+    start = time.perf_counter()
     try:
         result = await sql(hass, msg["query"], max_rows=msg["max_rows"], raw=msg["raw"])
-    except SqlError as err:
-        connection.send_error(msg["id"], "sql_error", str(err))
-        return
     except Exception as err:  # noqa: BLE001 - a bad query is the caller's to see, whatever the driver raised
-        connection.send_error(msg["id"], "sql_error", f"{type(err).__name__}: {err}")
+        message = (
+            str(err) if isinstance(err, SqlError) else f"{type(err).__name__}: {err}"
+        )
+        _LOGGER.info(
+            "%s's query failed in %.3fs: %s", who, time.perf_counter() - start, message
+        )
+        connection.send_error(msg["id"], "sql_error", message)
         return
+    _LOGGER.info(
+        "%s's query returned %d rows in %.3fs%s",
+        who,
+        result.rowcount,
+        time.perf_counter() - start,
+        ", truncated" if result.truncated else "",
+    )
     connection.send_result(
         msg["id"],
         {

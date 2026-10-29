@@ -35,7 +35,7 @@ from rich.console import Console
 from .cli import display_options, print_result
 from .client import Client, HaReplError, client_version
 from .config import display_path
-from .editor import python_prompt
+from .editor import python_prompt, run_interruptibly
 from .local_session import LocalSession, format_error
 from .plugins import bind_context, bind_rebind, run_plugins
 from .render import decode_value
@@ -120,6 +120,9 @@ class LiveSession:
     capture: Captured | None = None
     # Seconds the server allows each of its own statements, if any.
     timeout: float | None = None
+    # A statement is running in Home Assistant now.
+    _remote_busy: bool = field(default=False, init=False)
+    _sends: set[asyncio.Task[None]] = field(default_factory=set, init=False)
 
     async def refresh_remote_names(self) -> None:
         """Pick up what an existing server session already holds (it
@@ -310,7 +313,11 @@ class LiveSession:
             # Escape codes inside a JSON string are just noise for a consumer
             # that asked for machine-readable output.
             payload["color"] = False
-        result = await self.client.call("ha_repl_server/exec", **payload)
+        self._remote_busy = True
+        try:
+            result = await self.client.call("ha_repl_server/exec", **payload)
+        finally:
+            self._remote_busy = False
         if not echo:
             result = {**result, "value": None}
         if self.capture is None:
@@ -330,6 +337,19 @@ class LiveSession:
             }
             self.capture.truncated |= bool(result.get("truncated"))
         return None if result["error"] else result.get("names") or {}
+
+    def interrupt(self) -> bool:
+        """Ctrl-C: if a statement is running in Home Assistant, ask the
+        server to stop it there, and say so. Its exec then answers as
+        usual, with where it stopped."""
+        if not self._remote_busy:
+            return False
+        send = asyncio.ensure_future(
+            self.client.send("ha_repl_server/cancel", session=self.session_name)
+        )
+        self._sends.add(send)
+        send.add_done_callback(self._sends.discard)
+        return True
 
     def _refuse(self, message: str) -> None:
         if self.capture is None:
@@ -544,7 +564,7 @@ async def run_repl(
             continue
         if is_quit_call(source):
             return 0
-        await live.run(source)
+        await run_interruptibly(live.run(source), live.interrupt)
 
 
 def banner_address(url: str, server_name: str | None) -> str:

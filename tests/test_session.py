@@ -733,3 +733,59 @@ async def test_show_as_text_is_an_attribute_to_a_line(manager):
         "{\n    'a': [\n        1,\n        (\n            2,\n        ),\n    ],\n"
         "    'b': {},\n}"
     )
+
+
+async def test_cancel_stops_running_code_and_reports_where(manager):
+    s = manager.get("default")
+    run_ = asyncio.ensure_future(s.run("import asyncio\nawait asyncio.sleep(10)"))
+    await asyncio.sleep(0.01)
+    assert s.busy
+    assert manager.cancel("default", "Stopped by tester") == ["default"]
+    result = await run_
+    assert result.error["type"] == "CancelledError"
+    assert result.error["message"] == "Stopped by tester"
+    assert "asyncio.sleep(10)" in result.error["traceback"]
+    assert not s.busy
+    # The session carries on as before.
+    assert (await s.run("1 + 1")).value == "2"
+
+
+async def test_cancel_with_no_session_named_stops_every_session(manager):
+    runs = [
+        asyncio.ensure_future(
+            run(manager, "import asyncio\nawait asyncio.sleep(10)", name)
+        )
+        for name in ("a", "b")
+    ]
+    manager.get("idle")
+    await asyncio.sleep(0.01)
+    assert sorted(manager.cancel(None, "all")) == ["a", "b"]
+    assert [(await r).error["type"] for r in runs] == ["CancelledError"] * 2
+
+
+async def test_cancel_with_nothing_running_stops_nothing(manager):
+    await run(manager, "x = 1")
+    assert manager.cancel("default", "x") == []
+    assert manager.cancel("missing", "x") == []
+
+
+async def test_cancelling_the_caller_still_propagates(manager):
+    run_ = asyncio.ensure_future(
+        run(manager, "import asyncio\nawait asyncio.sleep(10)")
+    )
+    await asyncio.sleep(0.01)
+    run_.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await run_
+    assert not manager.get("default").busy
+
+
+async def test_summary_says_how_a_run_went(manager):
+    assert (await run(manager, "40 + 2")).summary().startswith("returned 42 in ")
+    assert (await run(manager, "x = 1")).summary().startswith("finished in ")
+    failed = (await run(manager, "1 / 0")).summary()
+    assert failed.startswith("raised ZeroDivisionError: division by zero in ")
+    printed = (await run(manager, "print('hi')")).summary()
+    assert printed.endswith("s, 3 chars of output")
+    long = (await run(manager, "'x' * 1000")).summary()
+    assert len(long) < 300 and "\n" not in long

@@ -151,6 +151,11 @@ class ApiRegistryEntry(dict[str, Any]):  # noqa: FURB189 - has to be a real dict
         except KeyError:
             raise AttributeError(name) from None
 
+    def __dir__(self) -> list[str]:
+        """Its keys too, so they complete as attributes."""
+        keys = {k for k in self if isinstance(k, str) and k.isidentifier()}
+        return sorted(set(super().__dir__()) | keys)
+
 
 @dataclass(frozen=True)
 class ApiEntity:
@@ -694,6 +699,26 @@ class ApiObjTree(Mapping[str, "ApiEntity | ApiAction | ApiObjTree"]):
 
     def __len__(self) -> int:
         return sum(1 for _ in self)
+
+    def _ipython_key_completions_(self) -> list[str]:
+        """What `obj["` completes to in IPython, Jupyter and Marimo: every
+        path below this level, and at the root every entity id as well."""
+        scope = tuple(p for p in (self.integration, self.domain) if p is not None)
+        below = [
+            (entity.platform, entity.domain, entity.object_id)[len(scope) :]
+            for entity in self._entries(scope)
+        ] + [
+            (action.domain, ACTION, action.service)[len(scope) :]
+            for action in self._actions(scope)
+        ]
+        paths = {
+            "/" + "/".join(parts[:n])
+            for parts in below
+            for n in range(1, len(parts) + 1)
+        }
+        if self.integration is None:
+            paths |= set(self.cache.entities)
+        return sorted(paths)
 
     def keys(self) -> OrderedKeysView:
         return OrderedKeysView(self)

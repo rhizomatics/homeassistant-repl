@@ -25,12 +25,12 @@ Use **`ha-repl`** to work from a terminal or a coding agent, to work on data wit
 | Looking inside objects | Expandable results, with properties only evaluated when clicked | [`show()`](./modes/live_mode.md#looking-inside-objects), printed in colour as text |
 | Completion and signatures | Yes, static | Not yet - see [RFC 0002](./developer/design/rfcs/0002-auto-completed.md) |
 | Multi-line input and history | Yes, recalled with the arrow keys | Yes, a whole block per history entry, kept across sessions in a history file |
-| Stopping running code | *Stop* button or Ctrl-C | `ha-repl exec --timeout` |
+| Stopping running code | *Stop* button or Ctrl-C | Ctrl-C in the shell, a *Stop running code* button in Home Assistant, or `ha-repl exec --timeout` |
 | Waiting code | Doesn't block the console | Blocks the prompt until it finishes |
 | Database | Through `hass` like anything else | [`sql`](./sql.md), with results downloaded as Arrow for local dataframes or CSV |
 | Entities and actions | Through `hass` | Also the [object tree](./obj_tree.md), `obj`, the same in live and API modes |
 | Sessions | One per browser tab. Deleted 30 minutes after the tab disconnects, or on restart | Named, and kept until Home Assistant restarts, so `ha-repl exec` calls can share one |
-| Audit trail | Each run is logged with the user who ran it | Logged when the server is enabled, not each command |
+| Audit trail | Each run is logged with the user who ran it | Each command is logged with the user who sent it, its outcome and timing - at `info`, so it needs [a `logger:` setting](./configuration/server_install.md#stopping-code-and-the-log) to show |
 | Paste protection | Pasting blocked until you type `allow pasting` | None - the terminal's own paste is used |
 | Extending | No | [Plugins](./configuration/plugins.md), which a component can ship for its developers |
 

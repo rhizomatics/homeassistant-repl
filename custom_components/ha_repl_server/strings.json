@@ -32,5 +32,12 @@
         "description": "Either can be given a time limit, after which it is switched off again. Leave the limit empty to keep it on."
       }
     }
+  },
+  "entity": {
+    "button": {
+      "stop": {
+        "name": "Stop running code"
+      }
+    }
   }
 }

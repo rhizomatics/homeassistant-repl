@@ -13,7 +13,27 @@
   - A block is ended by an empty line, as before. Alt-Enter (Esc then Enter) runs what's there straight away
   - Entries already in the history file from earlier versions are still there, a line each
 
+### Live Mode
+- Ctrl-C while a command runs stops it, rather than the shell
+  - Code running inside Home Assistant is stopped there, and its traceback shows where it had got to. A second Ctrl-C stops waiting for it
+  - Local code stuck in a blocking call is interrupted by a second Ctrl-C
+  - Also in API mode, for its local code
+  - Stopping code inside Home Assistant needs the server component at this version
+
+### Live Server
+- New **Stop running code** button on the integration's device, stopping whatever is running in every live session
+- New `ha_repl_server/cancel` websocket command, which Ctrl-C in the shell sends
+- Every command is written to the Home Assistant log at `info`, with the user who sent it
+  - The code run, then its outcome: the value or error, how much output, and how long it took
+  - Each SQL query, and its row count and time, or its error
+  - Each stop and reset
+
+### Object Tree
+- `obj["` completes paths, and entity ids at the root, in IPython, Jupyter and Marimo, for `obj` from `connect()` as well as in live mode (step 1 of [RFC 0002](https://homeassistant-repl.rhizomatics.org.uk/developer/design/rfcs/0002-auto-completed/))
+- A registry entry's keys complete as attributes there too: `entity.registry_entry.uni<TAB>`
+
 ### Docs
+- [RFC 0002](https://homeassistant-repl.rhizomatics.org.uk/developer/design/rfcs/0002-auto-completed/) has the results of its step 0 spike, and where `ha-repl` would still differ from the Debug console once it's done
 - New [Debug Console](https://homeassistant-repl.rhizomatics.org.uk/debug_console/) page, comparing `ha-repl` with the Debug console that Home Assistant 2026.11 adds
 
 # 0.13.0

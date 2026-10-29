@@ -1,0 +1,9 @@
+{
+  "entity": {
+    "button": {
+      "stop": {
+        "default": "mdi:stop-circle-outline"
+      }
+    }
+  }
+}

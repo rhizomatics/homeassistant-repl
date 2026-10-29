@@ -3,7 +3,8 @@
 | | |
 | --- | --- |
 | Status | Draft |
-| Date | 2026-10-28 |
+| Date | 2026-10-28, updated 2026-10-29 |
+| Progress | Step 0 done, see [Step 0 Findings](#step-0-findings). Step 1 done in 0.14.0 |
 | Affects | Live and API modes, `homeassistant_repl.connect()`, a new server command for live mode |
 
 ## Summary
@@ -248,6 +249,43 @@ Each step is releasable on its own.
 
 The VSCode work follows separately: first the terminal link provider and source command, which need only the `source` kind; then `ha-repl serve --stdio` and the REPL editor.
 
+### Step 0 Findings
+
+A spike with jedi 0.20.1 on Python 3.14.7, completing against an object that records every property, `__getattr__`, `__getitem__`, `__dir__` and call made on it, with `allow_unsafe_interpreter_executions = False`:
+
+| Typed | Completed | Touched |
+| ----- | --------- | ------- |
+| `w.` | from `__dir__` | `__getattr__("__wrapped__")` twice, `__dir__` |
+| `w.prop.` | `int`'s members, from the property's annotation | `__getattr__("__wrapped__")` |
+| `w.method().` | from the return annotation | `__getattr__("__wrapped__")` |
+| `w['a'].` | nothing | `__getattr__("__wrapped__")` |
+| `d['sensor'].` (a plain dict) | from `__dir__` | `__getattr__("__objclass__")`, `__dir__` |
+| `w.method(` | signature `method(a: int, b: str='x')` | `__getattr__("__wrapped__")` |
+| `f(w).`, `f` defined with an annotated parameter | from the annotation | nothing |
+
+What that means for the design:
+
+- jedi never ran a property, a `__getitem__` or a call. Annotations are followed, as [Safety](#safety-idempotent-unless-explicitly-not) needs
+- It does call `__getattr__` on any object, looking for `__wrapped__` and `__objclass__`, and `__dir__` on any object, whatever the setting. Both break the rule that a completion runs nothing: a proxy or lazy object can do anything in either
+- The first completion took 300ms and the first signature 650ms, loading typeshed. Later ones took 1 to 30ms
+- Home Assistant's own [Debug console](../../../debug_console.md) answered the same question without jedi: going by the review of its [pull request](https://github.com/home-assistant/core/pull/186547), it matches names statically against the class's MRO and `__dict__`, replacing `rlcompleter`'s inspection of live objects
+
+So for the server, the standard library walk listed under [Alternatives Considered](#alternatives-considered) becomes the default, not the fallback, answering [Open Question](#open-questions) 1. jedi could still be used on the client, where what it might run is your own local code, if the loss of the rule there is acceptable - or behind objects wrapped so that `__getattr__` and `__dir__` can't be reached.
+
+## Gaps with Home Assistant's Debug Console
+
+Even with everything in this RFC, the [Debug console](../../../debug_console.md) in Home Assistant 2026.11 does some things `ha-repl` won't:
+
+- **Inspecting a result by clicking through it.** The console shows a value as a tree to expand, and runs a property only when it's opened. In a terminal, `show()` prints the attributes it reads, and `?` gives the documentation, not the value. Neither is lazy in that way, and this RFC's completion only names attributes, it doesn't show their values
+- **Typing while code runs.** The console takes new input while earlier code is waiting, and runs it alongside. `ha-repl`'s prompt waits for each command, and a server session runs one command at a time. This RFC lets completion answer during an `exec`, but nothing else runs alongside one
+- **Completion inside Home Assistant itself.** The console's completion is in the same process as the objects. A remote completion here is a websocket round trip, with a time limit after which it shows nothing, made up for in part by the cache
+- **No dependency added to Home Assistant.** The console needs nothing beyond core. If the server's completion used jedi, it would be a requirement installed into Home Assistant's own environment, which other integrations share. Step 0 makes this a choice rather than a given
+- **Installing nothing, from any device.** The console is a browser page. `ha-repl` needs a terminal, a token, and for live mode a HACS component
+- **Safeguards at the point of use.** The console has every administrator accept a warning before first use, and blocks pasting until `allow pasting` is typed. `ha-repl`'s warning is given once, to whoever adds the integration, and pasting is never blocked
+- **An audit trail out of the box.** The console is documented as logging every run with its user. `ha-repl` logs every command too, but at `info`, which Home Assistant hides unless `logger:` says otherwise
+
+And some this RFC would give `ha-repl` that the console's documentation doesn't mention, so may not have: entity id, action, `obj` path and `hass.data` key completion inside strings, `sql` table and column completion, a marker showing where a statement will run before it's run, the source of an object with `??`, and `ha-repl inspect` for agents.
+
 ## Security
 
 - `complete` is admin-only, like every other command.
@@ -272,7 +310,7 @@ The VSCode work follows separately: first the terminal link provider and source 
 
 ## Open Questions
 
-1. Is jedi acceptable as a requirement of the server component, given step 0's results, or should the standard library fallback be the default with jedi optional?
+1. ~~Is jedi acceptable as a requirement of the server component, given step 0's results, or should the standard library fallback be the default with jedi optional?~~ Proposed answer, from [Step 0 Findings](#step-0-findings): the standard library walk on the server. Still open: jedi on the client, or the same walk on both sides
 2. Which key binding shows the docstring of the name under the cursor? F1 is often taken by the terminal.
 3. Should `ha-repl inspect` route like `exec`, or require the expression to say which side it means?
 4. Should the server's time budget and item cap be options of the integration, or constants?

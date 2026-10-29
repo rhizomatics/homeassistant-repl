@@ -593,3 +593,27 @@ async def test_find_can_be_kept_to_one_object_type(actions: ApiObjTree):
     assert list(actions.find(object_type="device")) == []
     with pytest.raises(ValueError, match="object_type must be one of"):
         actions.find(object_type="helper")
+
+
+async def test_key_completions_are_paths_below_and_entity_ids_at_the_root(
+    tree: ApiObjTree,
+):
+    keys = tree._ipython_key_completions_()
+    assert {"/hue", "/hue/light", "/hue/light/kitchen_lights"} <= set(keys)
+    assert "light.kitchen_lights" in keys
+    hue = tree["/hue"]
+    assert isinstance(hue, ApiObjTree)
+    assert hue._ipython_key_completions_() == [
+        "/light",
+        "/light/kitchen_lights",
+        "/light/lounge_lamp",
+    ]
+    # Each one is a key that works.
+    for key in keys:
+        tree[key]
+
+
+async def test_registry_entry_keys_complete_as_attributes(tree: ApiObjTree):
+    entry = tree["light.kitchen_lights"].registry_entry
+    assert "unique_id" in dir(entry)
+    assert "items" in dir(entry)

@@ -188,6 +188,14 @@ class Client:
             raise HaReplError("Connection closed")
         return json.loads(payload)
 
+    async def send(self, type_: str, **payload: Any) -> None:
+        """Send a command without waiting for its reply, which call()'s own
+        loop drops - for one that has to go out while a call() is still
+        waiting, such as stopping the code that call() is waiting on."""
+        await self._ws.send_payload(
+            json.dumps({"id": next(self._ids), "type": type_, **payload})
+        )
+
     async def call(self, type_: str, **payload: Any) -> Any:
         async with self._call_lock:
             msg_id = next(self._ids)

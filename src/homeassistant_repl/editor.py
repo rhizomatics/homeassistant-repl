@@ -8,13 +8,20 @@ once it's a complete statement and the cursor is at the end, otherwise it
 starts a new line, indented to match (one level deeper after a `:`). As in
 the classic REPL, a block is finished by an empty line; Alt-Enter (Esc then
 Enter) runs whatever is there straight away.
+
+Ctrl-C while code runs stops it - see run_interruptibly().
 """
 
 from __future__ import annotations
 
 import ast
+import asyncio
 import codeop
+import signal
+import sys
+from collections.abc import Awaitable, Callable
 from pathlib import Path
+from typing import Any
 
 from prompt_toolkit import PromptSession
 from prompt_toolkit.history import FileHistory
@@ -93,3 +100,48 @@ def _accept(event: KeyPressEvent) -> None:
     buffer = event.current_buffer
     buffer.text = buffer.text.rstrip()
     buffer.validate_and_handle()
+
+
+async def run_interruptibly(
+    run: Awaitable[Any], interrupt: Callable[[], bool] | None = None
+) -> None:
+    """Await `run`, with Ctrl-C stopping it instead of the shell.
+
+    The first Ctrl-C goes to `interrupt`, if given: True means it has asked
+    for the code to stop some other way (code running in Home Assistant,
+    told to stop there) and `run` is left to finish with that code's own
+    report of where it stopped. Otherwise, or on the next Ctrl-C, `run` is
+    cancelled. Code that never gives the event loop back - a blocking call
+    in local code - can't be cancelled, so a Ctrl-C arriving while the last
+    one is still waiting for the loop raises KeyboardInterrupt in it instead.
+    """
+    loop = asyncio.get_running_loop()
+    task = asyncio.ensure_future(run)
+    pending = False
+    interrupted = False
+
+    def stop() -> None:
+        nonlocal pending, interrupted
+        pending = False
+        if interrupt is not None and not interrupted and interrupt():
+            interrupted = True
+        else:
+            task.cancel()
+
+    def on_sigint(_signum: int, _frame: Any) -> None:
+        nonlocal pending
+        if pending:
+            raise KeyboardInterrupt
+        pending = True
+        loop.call_soon_threadsafe(stop)
+
+    previous = signal.signal(signal.SIGINT, on_sigint)
+    try:
+        await task
+    except asyncio.CancelledError:
+        current = asyncio.current_task()
+        if current is not None and current.cancelling():
+            raise
+        print("Stopped", file=sys.stderr)
+    finally:
+        signal.signal(signal.SIGINT, previous)

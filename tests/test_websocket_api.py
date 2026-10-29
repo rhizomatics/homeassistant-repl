@@ -4,7 +4,10 @@ registration/schema validation, not just the handler functions directly."""
 
 from __future__ import annotations
 
+import asyncio
 import base64
+import logging
+import re
 
 from homeassistant.core import HomeAssistant
 from homeassistant.loader import async_get_integration
@@ -144,3 +147,98 @@ async def test_ws_sql_commands_honour_expose_sql_off(
         response = await client.receive_json()
         assert not response["success"]
         assert response["error"]["code"] == "sql_disabled"
+
+
+async def test_ws_cancel_stops_a_running_exec_and_both_are_logged(
+    recorder_mock,
+    hass: HomeAssistant,
+    enable_custom_integrations: None,
+    hass_ws_client,
+    caplog,
+):
+    caplog.set_level(logging.INFO, logger="custom_components.ha_repl_server")
+    await _setup(hass)
+    client = await hass_ws_client(hass)
+    await client.send_json({
+        "id": 1,
+        "type": "ha_repl_server/exec",
+        "code": "import asyncio\nawait asyncio.sleep(30)",
+    })
+    await asyncio.sleep(0.05)
+    await client.send_json({
+        "id": 2,
+        "type": "ha_repl_server/cancel",
+        "session": "default",
+    })
+    replies = {}
+    while len(replies) < 2:
+        reply = await client.receive_json()
+        replies[reply["id"]] = reply
+    assert replies[2]["result"] == {"stopped": ["default"]}
+    error = replies[1]["result"]["error"]
+    assert error["type"] == "CancelledError"
+    assert error["message"].startswith("Stopped by ")
+
+    logged = caplog.text
+    assert (
+        "runs in session 'default':\nimport asyncio\nawait asyncio.sleep(30)" in logged
+    )
+    assert "run in session 'default' raised CancelledError: Stopped by" in logged
+    assert "stopped session 'default'" in logged
+
+
+async def test_ws_exec_logs_the_outcome_with_its_timing(
+    recorder_mock,
+    hass: HomeAssistant,
+    enable_custom_integrations: None,
+    hass_ws_client,
+    caplog,
+):
+    caplog.set_level(logging.INFO, logger="custom_components.ha_repl_server")
+    await _setup(hass)
+    client = await hass_ws_client(hass)
+    await client.send_json({"id": 1, "type": "ha_repl_server/exec", "code": "6 * 7"})
+    assert (await client.receive_json())["success"]
+    assert re.search(
+        r"run in session 'default' returned 42 in \d+\.\d{3}s", caplog.text
+    )
+
+
+async def test_ws_sql_logs_the_query_and_its_rows(
+    recorder_mock,
+    hass: HomeAssistant,
+    enable_custom_integrations: None,
+    hass_ws_client,
+    caplog,
+):
+    caplog.set_level(logging.INFO, logger="custom_components.ha_repl_server")
+    await _setup(hass)
+    client = await hass_ws_client(hass)
+    await client.send_json({
+        "id": 1,
+        "type": "ha_repl_server/sql",
+        "query": "select 1 as n",
+    })
+    assert (await client.receive_json())["success"]
+    assert "queries:\nselect 1 as n" in caplog.text
+    assert re.search(r"query returned 1 rows in \d+\.\d{3}s", caplog.text)
+
+
+async def test_stop_button_stops_every_session(
+    recorder_mock, hass: HomeAssistant, enable_custom_integrations: None, hass_ws_client
+):
+    await _setup(hass)
+    client = await hass_ws_client(hass)
+    await client.send_json({
+        "id": 1,
+        "type": "ha_repl_server/exec",
+        "code": "import asyncio\nawait asyncio.sleep(30)",
+    })
+    await asyncio.sleep(0.05)
+    (entity_id,) = hass.states.async_entity_ids("button")
+    await hass.services.async_call(
+        "button", "press", {"entity_id": entity_id}, blocking=True
+    )
+    error = (await client.receive_json())["result"]["error"]
+    assert error["type"] == "CancelledError"
+    assert error["message"].endswith("from the Stop button")

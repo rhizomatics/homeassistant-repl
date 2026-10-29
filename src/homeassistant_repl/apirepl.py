@@ -20,7 +20,7 @@ from pathlib import Path
 
 from .api_objtree import ApiObjTree, Cache
 from .client import Client, HaReplError, client_version
-from .editor import python_prompt
+from .editor import python_prompt, run_interruptibly
 from .local_session import LocalSession
 from .plugins import bind_context, bind_rebind, local_runner, run_plugins
 from .repl import banner_address, banner_plugins, is_quit_call
@@ -72,4 +72,4 @@ async def run_api_repl(
             return 0
         if cache.is_stale():
             await cache.refresh()
-        await session.run(source)
+        await run_interruptibly(session.run(source))

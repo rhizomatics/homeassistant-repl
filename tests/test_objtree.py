@@ -294,3 +294,18 @@ async def test_find_can_be_kept_to_one_object_type(
     assert list(obj.find(object_type="device")) == []
     with pytest.raises(ValueError, match="object_type must be one of"):
         obj.find(object_type="helper")
+
+
+async def test_key_completions_are_paths_below_and_entity_ids_at_the_root(
+    obj: ObjTree,
+):
+    keys = obj._ipython_key_completions_()
+    assert {"/test", "/test/sensor", "/test/sensor/test_one"} <= set(keys)
+    assert {"sensor.test_one", "sensor.test_two"} <= set(keys)
+    assert obj["/test"]._ipython_key_completions_() == [
+        "/sensor",
+        "/sensor/test_one",
+        "/sensor/test_two",
+    ]
+    for key in keys:
+        obj[key]

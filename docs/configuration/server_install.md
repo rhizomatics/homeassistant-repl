@@ -29,3 +29,15 @@ Each switch has a time limit beside it, in minutes. Enter one and that capabilit
 - The limit is counted from when the form is saved, and carries on through a restart of Home Assistant
 - Opening **Configure** again shows the minutes left, to change, or to clear for no limit
 - Saving the form, or a limit running out, reloads the integration, which ends any live sessions' server-side state
+
+### Stopping Code and the Log
+
+The integration's device has a **Stop running code** button. Pressing it stops whatever is running in every live session - for when the shell that started it has gone, or from a dashboard or automation. Ctrl-C in the shell does the same for its own session.
+
+Every command a shell sends is written to the Home Assistant log, with the user who sent it: the code run and how it went (its value or error, and how long it took), each SQL query and how many rows it returned, and each stop and reset. They're logged at `info`, below Home Assistant's default level of `warning`, so to see them add this to `configuration.yaml`:
+
+```yaml
+logger:
+  logs:
+    custom_components.ha_repl_server: info
+```

@@ -12,6 +12,7 @@ from datetime import datetime
 from typing import Any
 
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.event import async_track_point_in_utc_time
@@ -26,6 +27,9 @@ from .session import SessionManager
 _LOGGER = logging.getLogger(__name__)
 
 CONFIG_SCHEMA = cv.empty_config_schema(DOMAIN)
+
+# The Stop button, see button.py.
+PLATFORMS = [Platform.BUTTON]
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
@@ -99,6 +103,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     features = {"sql"} if entry.options.get("expose_sql", True) else set()
 
     hass.data[DOMAIN] = SessionManager(bindings, frozenset(features))
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     _LOGGER.warning(
         "Home Assistant REPL is enabled: admin users can execute arbitrary Python in this instance"
     )
@@ -106,5 +111,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    hass.data.pop(DOMAIN, None)
+    if not await hass.config_entries.async_unload_platforms(entry, PLATFORMS):
+        return False
+    if manager := hass.data.pop(DOMAIN, None):
+        manager.cancel(None, "Stopped: Home Assistant REPL unloaded")
     return True

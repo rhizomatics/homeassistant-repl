@@ -4,6 +4,7 @@ Assistant is involved."""
 
 from __future__ import annotations
 
+import asyncio
 from typing import Any
 
 from homeassistant_repl.local_session import LocalSession
@@ -18,12 +19,19 @@ class FakeClient:
         self.executed: list[str] = []
         self.variables = variables or ["hass", "obj", "sql", "hass_api"]
         self.fail_on: str | None = None
+        self.sent: list[tuple[str, dict[str, Any]]] = []
+        self.release = asyncio.Event()
+        self.release.set()
+
+    async def send(self, type_: str, **payload: Any) -> None:
+        self.sent.append((type_, payload))
 
     async def call(self, type_: str, **payload: Any) -> Any:
         if type_ == "ha_repl_server/sessions":
             return {"sessions": [{"name": "default", "variables": self.variables}]}
         assert type_ == "ha_repl_server/exec"
         self.executed.append(payload["code"])
+        await self.release.wait()
         error = None
         if self.fail_on and self.fail_on in payload["code"]:
             error = {"traceback": "ImportError: nope\n"}
@@ -466,3 +474,19 @@ async def test_iterator_that_came_back_is_copied_over_without_being_used_up():
         "[hass.states.get(n) for n in names]",
     ]
     assert list(live.local.globals_["names"]) == ["a", "b"]
+
+
+async def test_interrupt_asks_the_server_to_stop_only_while_it_runs_something():
+    client = FakeClient()
+    live = _live(client)
+    assert not live.interrupt()  # nothing running there
+
+    client.release.clear()
+    running = asyncio.ensure_future(live.run("hass.states"))
+    await asyncio.sleep(0)
+    assert live.interrupt()
+    await asyncio.sleep(0)
+    assert client.sent == [("ha_repl_server/cancel", {"session": "default"})]
+    client.release.set()
+    await running
+    assert not live.interrupt()

@@ -91,6 +91,19 @@ class ExecResult:
             "truncated": self.truncated,
         }
 
+    def summary(self, limit: int = 200) -> str:
+        """One line saying how a run went, for the log."""
+        if self.error is not None:
+            outcome = f"raised {self.error['type']}: {self.error['message']}"
+        elif self.value is not None:
+            outcome = f"returned {self.value}"
+        else:
+            outcome = "finished"
+        outcome = reprlib.Repr(maxstring=limit).repr(outcome)[1:-1]
+        output = f", {len(self.stdout)} chars of output" if self.stdout else ""
+        cut = ", truncated" if self.truncated else ""
+        return f"{outcome} in {self.duration:.3f}s{output}{cut}"
+
 
 @dataclass
 class Session:
@@ -103,6 +116,19 @@ class Session:
     last_used: float = field(default_factory=time.time)
     executions: int = 0
     _lock: asyncio.Lock = field(default_factory=asyncio.Lock)
+    _running: asyncio.Future[Any] | None = None
+
+    @property
+    def busy(self) -> bool:
+        return self._running is not None and not self._running.done()
+
+    def cancel(self, reason: str) -> bool:
+        """Stop the code running now, if any - reported to whoever ran it as
+        a CancelledError carrying `reason`. False if nothing was running."""
+        if not self.busy:
+            return False
+        assert self._running is not None
+        return self._running.cancel(reason)
 
     async def run(
         self,
@@ -132,20 +158,31 @@ class Session:
             self.globals_["unawait"] = unawait
             result = ExecResult()
             start = time.perf_counter()
+            # Its own task, so cancel() can stop it without cancelling the caller.
+            self._running = asyncio.ensure_future(
+                _outcome(self._execute(source, auto_await=auto_await))
+            )
             try:
-                coro = self._execute(source, auto_await=auto_await)
-                value = await (asyncio.wait_for(coro, timeout) if timeout else coro)
+                async with asyncio.timeout(timeout):
+                    value, raised = await self._running
+                if raised is not None:
+                    raise raised
                 if value is not None:
                     self.globals_["_"] = value
                     result.value = _plain_text(value, width=width)
                     result.value_tree = _encode_value(value)
                     result.shown = type(value) is Shown
-            except asyncio.CancelledError:
-                # Cancellation of the caller must propagate, not be reported as a result.
-                raise
+            except asyncio.CancelledError as err:
+                # Cancellation of the caller must propagate, not be reported as
+                # a result; cancel() stopping the code itself is reported.
+                current = asyncio.current_task()
+                if current is not None and current.cancelling():
+                    raise
+                result.error = _format_error(err)
             except BaseException as err:  # noqa: BLE001 - report everything, incl. SystemExit
                 result.error = _format_error(err)
             finally:
+                self._running = None
                 result.duration = time.perf_counter() - start
             result.stdout = out.getvalue()
             for name in fetch:
@@ -668,6 +705,18 @@ class _AutoAwait(ast.NodeTransformer):
         return ast.Await(value=wrapped)
 
 
+async def _outcome(run: Any) -> tuple[Any, BaseException | None]:
+    """What `run` returned, or what it raised. A task raising SystemExit or
+    KeyboardInterrupt would take them out of the event loop rather than to
+    whoever awaits it - out of Home Assistant itself."""
+    try:
+        return await run, None
+    except asyncio.CancelledError:
+        raise
+    except BaseException as err:  # noqa: BLE001 - handed back, to be reported
+        return None, err
+
+
 async def _run_code(code: Any, globals_: dict[str, Any]) -> Any:
     # No separate "bare coroutine" backstop here: when auto_await is on, the
     # _AutoAwait rewrite already resolves every call site, and NOT doing so
@@ -1011,6 +1060,15 @@ class SessionManager:
 
     def reset(self, name: str) -> bool:
         return self._sessions.pop(name, None) is not None
+
+    def cancel(self, name: str | None, reason: str) -> list[str]:
+        """Stop what's running in session `name`, or in every session if
+        None, returning the names of those that had something to stop."""
+        if name is None:
+            sessions = list(self._sessions.values())
+        else:
+            sessions = [s] if (s := self._sessions.get(name)) else []
+        return [s.name for s in sessions if s.cancel(reason)]
 
     def describe(self) -> list[dict[str, Any]]:
         return [
