@@ -15,6 +15,7 @@ Home Assistant REPL is a Python shell for developers of Home Assistant custom co
 - [Live Mode](https://homeassistant-repl.rhizomatics.org.uk/modes/live_mode/index.md): Installing the server component, the live shell, and which statements run locally or inside Home Assistant
 - [The Object Tree](https://homeassistant-repl.rhizomatics.org.uk/obj_tree/index.md): The `obj` object tree - path and entity id lookup, `find()` filters and `show()`
 - [SQL Access](https://homeassistant-repl.rhizomatics.org.uk/sql/index.md): The `sql` object for querying the Recorder database, and its result and table objects
+- [Home Assistant's Debug Console](https://homeassistant-repl.rhizomatics.org.uk/debug_console/index.md): How `ha-repl` compares with Home Assistant 2026.11's own browser Debug console, and which suits what
 - [Alternative Integration](https://homeassistant-repl.rhizomatics.org.uk/configuration/alternative_integration/index.md): Using `homeassistant_repl.connect()` from plain Python, ipython or Marimo instead of the shell
 
 ## Optional

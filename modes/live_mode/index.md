@@ -209,6 +209,16 @@ def shout(text):
 shout(hass.states.get("sun.sun").state)
 ```
 
+## Stopping Code
+
+Ctrl-C while something runs stops it, and leaves the shell and everything in it as it was.
+
+- Code running inside Home Assistant is stopped there, and its traceback shows the line it had got to. A second Ctrl-C stops waiting for it, for a server older than 0.14.0
+- Local code is stopped straight away if it's waiting on something. Code stuck in a blocking call, such as `time.sleep()`, needs a second Ctrl-C
+- Code inside Home Assistant blocking its event loop can't be stopped by anything, Ctrl-C included - `await` asynchronous calls, and run blocking ones with `await hass.async_add_executor_job(...)`
+
+Home Assistant itself has a [Stop button](https://homeassistant-repl.rhizomatics.org.uk/configuration/server_install/#stopping-code-and-the-log) too, for when the shell that started something has gone.
+
 ## One-Shot Snippets and Agents
 
 `ha-repl exec` runs a snippet exactly as the live shell would, then exits - see [Exec Mode](https://homeassistant-repl.rhizomatics.org.uk/modes/exec_mode/index.md), which covers its JSON output and use by coding agents.

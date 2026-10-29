@@ -38,7 +38,7 @@ This is primarily for developers of custom components, and their LLM agents, tho
 - Integrated with `rich` and `pygments` for pretty object printouts and stack traces
 - Reuses session and history features from `prompt-toolkit`
 - Access to all entities via an [Object Tree](https://homeassistant-repl.rhizomatics.org.uk/obj_tree/index.md) dictionary like interface
-- Usual multi-line editing support and history of Python
+- Multi-line editing, with a whole statement or block per history entry - Up brings back the complete `for` loop, to edit any line of it
 - Integrated with [homeassistant-api](https://pypi.org/project/HomeAssistant-API/) as `hass_api` object
 - Auto-awaits coroutines for easy shell use (can be switched off or overridden)
 - Dedicated shell that can be run without installation with `uv`
@@ -68,6 +68,10 @@ Note
 
 It is not intended to ever be a replacement for a Python debugger, although it may complement one. It also does not intend to replicate [PyScript](https://pyscript.net), instead focusing on standard python (PyScript uses MicroPython) even at expense of general usability or home assistance access, and not a general automation script execution service. For most non-developer cases, [homeassistant-cli](https://pypi.org/project/homeassistant-cli/) is a better choice, with pre-packaged access to devices, entities, services etc.
 
+## Home Assistant's Debug Console
+
+Home Assistant 2026.11 added its own browser-based Python console, the [Debug console](https://www.home-assistant.io/integrations/debug_console/). See [Debug Console](https://homeassistant-repl.rhizomatics.org.uk/debug_console/index.md) for how it compares, and which suits what.
+
 ## Agent Support
 
 For coding agents, there is [Exec Mode](https://homeassistant-repl.rhizomatics.org.uk/modes/exec_mode/index.md) and a [marketplace skill](https://homeassistant-repl.rhizomatics.org.uk/modes/exec_mode/#agent-skill).
@@ -78,6 +82,7 @@ These are all current with Python v3, there are others like dreampie that didn't
 
 ### Out of the Box
 
+- [Home Assistant Debug console](https://www.home-assistant.io/integrations/debug_console/) - browser console inside Home Assistant itself, from 2026.11 - see [comparison](https://homeassistant-repl.rhizomatics.org.uk/debug_console/index.md)
 - [Python Interactive Mode](https://docs.python.org/3/tutorial/appendix.html#tut-interac) - Core python REPL, greatly enhanced in v3.13 with PyPi code, and now the default Python terminal experience.
 - [VSCode Python REPL](https://code.visualstudio.com/docs/python/run#_native-repl) - Notebook style with Intellisense, bundled with the standard Microsoft VSCode Python bundle
 
@@ -467,6 +472,16 @@ def shout(text):
     return text.upper()
 shout(hass.states.get("sun.sun").state)
 ```
+
+## Stopping Code
+
+Ctrl-C while something runs stops it, and leaves the shell and everything in it as it was.
+
+- Code running inside Home Assistant is stopped there, and its traceback shows the line it had got to. A second Ctrl-C stops waiting for it, for a server older than 0.14.0
+- Local code is stopped straight away if it's waiting on something. Code stuck in a blocking call, such as `time.sleep()`, needs a second Ctrl-C
+- Code inside Home Assistant blocking its event loop can't be stopped by anything, Ctrl-C included - `await` asynchronous calls, and run blocking ones with `await hass.async_add_executor_job(...)`
+
+Home Assistant itself has a [Stop button](https://homeassistant-repl.rhizomatics.org.uk/configuration/server_install/#stopping-code-and-the-log) too, for when the shell that started something has gone.
 
 ## One-Shot Snippets and Agents
 
@@ -890,6 +905,52 @@ Polars 2
 ### More Help
 
 Use `help(sql)`, or call `help(..)` on a result, row or table object, to get reminded of the API. It gives a short summary of the methods, properties and attributes; add `full=True` for Python's own full help page.
+
+# Home Assistant's Debug Console
+
+Home Assistant 2026.11 adds its own Python console, the [Debug console](https://www.home-assistant.io/integrations/debug_console/) integration, described in the [developer blog](https://contributors.home-assistant.io/blog/2026/10/17/debug-console/) a couple of weeks afer this component was first announced.
+
+Once `debug_console:` is added to `configuration.yaml` and Home Assistant restarted, administrators find it under *Settings > Tools > Debug console*: a browser console with `hass` available, top-level `await`, and the last result in `_`.
+
+It covers some of the same ground as `ha-repl`'s [live mode](https://homeassistant-repl.rhizomatics.org.uk/modes/live_mode/index.md), so this page sets out which suits what. The two don't conflict, and can both be enabled on the same instance.
+
+## In Short
+
+Use the **Debug console** to poke around a running instance from a browser - on any machine, a tablet, with nothing to install or configure beyond one line of YAML.
+
+Use **`ha-repl`** to work from a terminal or a coding agent, to work on data with your own local Python libraries, to query the Recorder database, or against a Home Assistant older than 2026.11 - or with nothing installed on Home Assistant at all, in [API mode](https://homeassistant-repl.rhizomatics.org.uk/modes/api_mode/index.md).
+
+## Side by Side
+
+|                              | Debug console                                                                    | `ha-repl`                                                                                                                                                                                                                              |
+| ---------------------------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Where it runs                | Browser, in Home Assistant's own UI                                              | Terminal, `ha-repl exec` for scripts and agents, or from plain Python, ipython or Marimo                                                                                                                                               |
+| Home Assistant version       | 2026.11 or later                                                                 | Live mode: see [Server Installation](https://homeassistant-repl.rhizomatics.org.uk/configuration/server_install/index.md). API mode works with any version                                                                             |
+| Installed on Home Assistant  | Part of core                                                                     | Live mode: the `ha_repl_server` HACS component. API mode: nothing                                                                                                                                                                      |
+| Enabling                     | YAML only, then restart                                                          | Requires a custom Marketplace install, then added from *Devices & services* after a risk acknowledgement, or YAML. `hass` and `sql` can be switched on separately, with a time limit                                                   |
+| Where your code runs         | All of it inside Home Assistant                                                  | Locally, except statements using `hass` or `obj`, which are sent to Home Assistant - see [What Runs Where](https://homeassistant-repl.rhizomatics.org.uk/modes/live_mode/#what-runs-where)                                             |
+| Libraries you can import     | Only what Home Assistant's Python has installed                                  | Anything installed locally, such as polars or pandas                                                                                                                                                                                   |
+| Looking inside objects       | Expandable results, with properties only evaluated when clicked                  | [`show()`](https://homeassistant-repl.rhizomatics.org.uk/modes/live_mode/#looking-inside-objects), printed in colour as text                                                                                                           |
+| Completion and signatures    | Yes, static                                                                      | Not yet - see [RFC 0002](https://homeassistant-repl.rhizomatics.org.uk/developer/design/rfcs/0002-auto-completed/index.md)                                                                                                             |
+| Multi-line input and history | Yes, recalled with the arrow keys                                                | Yes, a whole block per history entry, kept across sessions in a history file                                                                                                                                                           |
+| Stopping running code        | *Stop* button or Ctrl-C                                                          | Ctrl-C in the shell, a *Stop running code* button in Home Assistant, or `ha-repl exec --timeout`                                                                                                                                       |
+| Waiting code                 | Doesn't block the console                                                        | Blocks the prompt until it finishes                                                                                                                                                                                                    |
+| Database                     | Through `hass` like anything else                                                | [`sql`](https://homeassistant-repl.rhizomatics.org.uk/sql/index.md), with results downloaded as Arrow for local dataframes or CSV                                                                                                      |
+| Entities and actions         | Through `hass`                                                                   | Also the [object tree](https://homeassistant-repl.rhizomatics.org.uk/obj_tree/index.md), `obj`, the same in live and API modes                                                                                                         |
+| Sessions                     | One per browser tab. Deleted 30 minutes after the tab disconnects, or on restart | Named, and kept until Home Assistant restarts, so `ha-repl exec` calls can share one                                                                                                                                                   |
+| Audit trail                  | Each run is logged with the user who ran it                                      | Each command is logged with the user who sent it, its outcome and timing - at `info`, so it needs [a `logger:` setting](https://homeassistant-repl.rhizomatics.org.uk/configuration/server_install/#stopping-code-and-the-log) to show |
+| Paste protection             | Pasting blocked until you type `allow pasting`                                   | None - the terminal's own paste is used                                                                                                                                                                                                |
+| Extending                    | No                                                                               | [Plugins](https://homeassistant-repl.rhizomatics.org.uk/configuration/plugins/index.md), which a component can ship for its developers                                                                                                 |
+
+## Things in Common
+
+- Both are for developers, not everyday use, and are admin only.
+- Code inside Home Assistant runs on its event loop in both. A blocking call such as `time.sleep()` freezes Home Assistant, and nothing can interrupt it. `await` asynchronous calls, and run blocking work with `await hass.async_add_executor_job(...)`.
+- Both give full access to everything Home Assistant holds, including passwords and tokens. Never run code you don't understand.
+
+## Security Choices
+
+The Debug console can only be enabled in YAML: the Home Assistant team chose that so code in an administrator's browser, such as a custom card, can't switch it on. `ha-repl`'s server component can be added from the UI as well as YAML, as most integrations can. If that matters for your instance, add it with `ha_repl_server:` in YAML, and use the [time limits](https://homeassistant-repl.rhizomatics.org.uk/configuration/server_install/#limiting-what-is-exposed) on `hass` and `sql` so they don't stay on.
 
 # Alternative Integration
 

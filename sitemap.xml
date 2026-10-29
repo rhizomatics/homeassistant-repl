@@ -11,6 +11,11 @@
         <changefreq>daily</changefreq>
     </url>
     <url>
+        <loc>https://homeassistant-repl.rhizomatics.org.uk/debug_console/</loc>
+        <lastmod>2026-10-29</lastmod>
+        <changefreq>daily</changefreq>
+    </url>
+    <url>
         <loc>https://homeassistant-repl.rhizomatics.org.uk/examples/</loc>
         <lastmod>2026-10-29</lastmod>
         <changefreq>daily</changefreq>
