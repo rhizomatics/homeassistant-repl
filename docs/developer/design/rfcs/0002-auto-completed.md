@@ -4,7 +4,7 @@
 | --- | --- |
 | Status | Draft |
 | Date | 2026-10-28, updated 2026-10-29 |
-| Progress | Steps 0 to 3 done in 0.14.0, and most of 5 and 6 - see [Step 0 Findings](#step-0-findings) and [As Built](#as-built) |
+| Progress | Steps 0 to 3 and 6 done in 0.14.0, and most of 5 - see [Step 0 Findings](#step-0-findings) and [As Built](#as-built) |
 | Affects | Live and API modes, `homeassistant_repl.connect()`, a new server command for live mode |
 
 ## Summary
@@ -283,8 +283,9 @@ Steps 1 to 3 went in as planned, except:
 - **A bare name** completes from both sides without a round trip: the client already knows the names the server session holds
 - **`evaluate`** in `config.toml` waits for step 7, since `static` is the only setting until then
 - **Step 5** shows the signature under the prompt only inside a call's brackets, cut to fit with the argument being typed kept in view, and adds `name=` completion of the parameters not given yet. The marker for where a statement runs, and the routing and syntax warnings, are still to do
-- **Step 6** is `?` and `??`, but differently: `thing?` runs the shell's own `help(thing)` where `thing` lives, refusing any expression with a call in it, rather than a new `doc` kind. `thing??` gives the file and line, and a GitHub link at the version running, rather than the source text, since what runs in Home Assistant may be any version. `?` alone shows the shell's own help for its mode. `ha-repl inspect` is still to do
+- **Step 6** is `?` and `??`, but differently: `thing?` runs the shell's own `help(thing)` where `thing` lives, refusing any expression with a call in it, rather than a new `doc` kind. `thing??` gives the file and line, and a GitHub link at the version running, rather than the source text, since what runs in Home Assistant may be any version. `?` alone shows the shell's own help for its mode. For an attribute its class declares or documents, `thing?` shows the declared type and the paragraphs of the class's docstring that mention it, rather than `help()` on the value's type. Ctrl-Space describes the name under the cursor, or the call it's in, statically, with the new `doc` kind of `ha_repl_server/complete`. `ha-repl inspect` gives the same description and source location, routed as `exec` is, with `--json`
 - What's typed matches anywhere in a name, case-insensitively, names starting with it first - prefix matching hid what was wanted behind `async_` and `get_`
+- The item cap and time budget are options on the live server's *Configure* form, 500 items and 500ms by default, as Open Question 4 settled. The budget is checked while going through keys and members, and an answer cut short is `incomplete`
 - `ha_repl_server/complete` runs on the event loop, takes no lock, and is logged at `debug` only, since it runs nothing. Its answer has `resolved: false` when the expression couldn't be followed
 
 ## Gaps with Home Assistant's Debug Console

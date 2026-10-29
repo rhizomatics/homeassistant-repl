@@ -27,6 +27,7 @@ This release brings auto-complete for code and the object tree, integrated help/
 - A connection lost while the shell is open - Home Assistant restarting, say - is reported as `Connection closed`, rather than a traceback from the HTTP library, and leaving the shell still works
 
 ### Live Server
+- Completion's limits, 500 items and 500 milliseconds an answer by default, are options on the *Configure* form
 - New **Stop running code** button on the integration's device, stopping whatever is running in every live session
 - New `ha_repl_server/cancel` websocket command, which Ctrl-C in the shell sends
 - Every command is written to the Home Assistant log at `warning`, so it shows by default, with the user who sent it
@@ -49,6 +50,9 @@ This release brings auto-complete for code and the object tree, integrated help/
   - `?` on its own: what the shell offers in its mode, and its keys
   - `thing?`: `help(thing)`, run where `thing` lives, so `hass?` is answered by Home Assistant. Never calls anything to get there
   - `thing??`: file and line of its source, and a link to that line on GitHub at the version running - Home Assistant's release or beta tag, this project's, or Python's
+  - For an attribute its class declares or documents, `thing?` gives its declared type and what the class's docstring says about it, rather than help on the value's type - `sql.tables?` no longer describes `list`
+  - Ctrl-Space (or Ctrl-Shift-Space) describes the name under the cursor, or the call it's in - signature and docstring - above the prompt, without running anything
+- New `ha-repl inspect EXPR`, the same description for an agent, routed as `exec` is: `--json` gives it with the source location, `--source` adds the location to plain text
 - New `ha_repl_server/complete` websocket command, for completions, signatures (`kind: "signature"`) and source locations (`kind: "source"`), and `ha_repl_server/info` lists the commands a server has
 
 ### Object Tree

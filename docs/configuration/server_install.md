@@ -30,6 +30,10 @@ Each switch has a time limit beside it, in minutes. Enter one and that capabilit
 - Opening **Configure** again shows the minutes left, to change, or to clear for no limit
 - Saving the form, or a limit running out, reloads the integration, which ends any live sessions' server-side state
 
+### Completion's Limits
+
+**Configure** also sets how much one completion answer can hold, and how long it may take to find it: 500 items and 500 milliseconds unless changed. They keep completing through something very large - every path of a big `obj`, say - from holding up Home Assistant. An answer cut short by either still shows what it found, and narrows as more is typed.
+
 ### Stopping Code and the Log
 
 The integration's device has a **Stop running code** button. Pressing it stops whatever is running in every live session - for when the shell that started it has gone, or from a dashboard or automation. Ctrl-C in the shell does the same for its own session.

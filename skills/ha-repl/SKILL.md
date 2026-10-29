@@ -297,6 +297,18 @@ PY
 - An object held by the one shown appears as its `repr()`. `depth=2` opens those up as well.
 - It only produces output as the last expression. It needs server component 0.12.0 or later.
 
+To find out what something is without running anything - a method's signature and docstring, an
+attribute's declared type - use `inspect` rather than `exec`:
+
+```bash
+ha-repl --json inspect 'hass.states.async_set'
+```
+
+The output is `doc` (`name`, `kind`, `type`, `signature`, `doc`, `value`, `owner`) and `source`
+(`name`, `file`, `line`, and `url`, a GitHub link to that line at the version running), either
+`null` if it can't be followed. Exit status `1` then. It needs server component 0.14.0 or later
+for anything living in Home Assistant.
+
 ## Without the server component
 
 Only read access through the standard Home Assistant API is available, and not through `exec`.
