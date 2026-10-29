@@ -6,7 +6,7 @@ from typing import Any
 
 import pytest
 
-from homeassistant_repl.complete import Source
+from homeassistant_repl.complete import Doc, Source
 from homeassistant_repl.shellhelp import answer, help_request, shell_help
 
 
@@ -37,7 +37,9 @@ def test_shell_help_is_for_the_mode():
     assert "thing??" in api
 
 
-async def _answer(request, located: Source | None = None) -> list[str]:
+async def _answer(
+    request, located: Source | None = None, described: Doc | None = None
+) -> list[str]:
     ran: list[str] = []
 
     async def run(code: str) -> Any:
@@ -46,7 +48,10 @@ async def _answer(request, located: Source | None = None) -> list[str]:
     async def locate(expr: str) -> Source | None:
         return located
 
-    await answer(request, "live", run, locate)
+    async def describe(expr: str) -> Doc | None:
+        return described
+
+    await answer(request, "live", run, locate, describe)
     return ran
 
 
@@ -72,3 +77,23 @@ async def test_thing_double_question_prints_where_its_source_is(capsys):
     assert "blob/2026.11.0b0/homeassistant/core.py#L412" in out
     await _answer(("??", "len"), Source("builtins.len", "", 0, ""))
     assert "built in" in capsys.readouterr().out
+
+
+async def test_an_attribute_its_class_documents_is_described_not_helped(capsys):
+    found = Doc(
+        "sql.tables",
+        "instance",
+        "list[SqlTable]",
+        doc="`.tables` the recorder's tables, real and virtual",
+        value="12 items",
+        owner="homeassistant_repl.sql.SqlTool",
+    )
+    assert await _answer(("?", "sql.tables"), described=found) == []
+    out = capsys.readouterr().out
+    assert (
+        "instance of list[SqlTable], attribute of homeassistant_repl.sql.SqlTool" in out
+    )
+    assert "12 items" in out and "recorder's tables" in out
+    # Anything else is help() as before.
+    plain = Doc("x", "instance", "list")
+    assert await _answer(("?", "x"), described=plain) == ["help(x)"]

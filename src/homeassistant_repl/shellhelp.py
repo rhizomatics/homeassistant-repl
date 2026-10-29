@@ -80,9 +80,11 @@ async def answer(
     mode: str,
     run: Callable[[str], Awaitable[Any]],
     locate: Callable[[str], Awaitable[Source | None]],
+    describe: Callable[[str], Awaitable[Doc | None]],
 ) -> None:
     """Answer a help_request(): `run` runs code where the shell would,
-    `locate` finds a source as `thing??` wants."""
+    `locate` finds a source as `thing??` wants, `describe` what `thing` is
+    without running it."""
     kind, expr = request
     if not expr:
         console.print(shell_help(mode))
@@ -100,6 +102,12 @@ async def answer(
         )
         return
     if kind == "?":
+        found = await describe(expr)
+        if found is not None and found.owner:
+            # An attribute its class declares or documents: help() would
+            # only describe the value's type - `list`, say.
+            console.print(doc_text(found))
+            return
         await run(f"help({expr})")
         return
     found = await locate(expr)
@@ -157,6 +165,8 @@ def doc_text(found: Doc) -> Text:
         text.append(f" of {found.type}", style="dim")
     elif found.kind == "property" and found.type:
         text.append(f" -> {found.type}", style="dim")
+    if found.owner:
+        text.append(f", attribute of {found.owner}", style="dim")
     if found.value:
         text.append(f"\n{found.value}")
     if found.doc:

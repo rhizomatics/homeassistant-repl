@@ -72,7 +72,9 @@ async def run_api_repl(
         if not source.strip():
             continue
         if (asked := help_request(source)) is not None:
-            await answer(asked, "api", session.run, completer.locate)
+            await answer(
+                asked, "api", session.run, completer.locate, completer.describe
+            )
             continue
         if is_quit_call(source):
             return 0

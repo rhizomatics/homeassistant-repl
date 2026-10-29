@@ -824,7 +824,10 @@ class Doc:
     type: str  # qualified, `homeassistant.core.StateMachine`
     signature: str = ""
     doc: str = ""
-    value: str = ""  # a plain value's repr, which can't run anything
+    value: str = ""  # a plain value's repr, or a container's size
+    # The class that declares or documents this attribute, when that's
+    # what describes it - its docstring says more than the value's type's.
+    owner: str = ""
 
     def as_dict(self) -> dict[str, Any]:
         return vars(self).copy()
@@ -838,7 +841,15 @@ def describe(expression: str, namespace: Mapping[str, Any]) -> Doc | None:
     node = _parse(expression)
     if isinstance(node, ast.Attribute) and (prop := _property(node, namespace)):
         returns = _annotations(prop.fget).get("return", "") if prop.fget else ""
-        return Doc(expression, "property", returns, doc=_docstring(prop.fget))
+        owner = _owner(node, namespace)
+        doc = _docstring(prop.fget) or (_mentions(owner, node.attr) if owner else "")
+        return Doc(
+            expression,
+            "property",
+            returns,
+            doc=doc,
+            owner=_qualified(owner) if owner else "",
+        )
     found = None if node is None else _resolve(node, namespace)
     if isinstance(found, _Type):
         return Doc(
@@ -869,18 +880,45 @@ def describe(expression: str, namespace: Mapping[str, Any]) -> Doc | None:
         return Doc(
             expression, "module", vars(obj).get("__name__", ""), doc=_docstring(obj)
         )
-    value = reprlib.Repr(maxstring=200).repr(obj) if type(obj) in _PLAIN else ""
-    declared = ""
+    value = ""
+    if type(obj) in _PLAIN:
+        value = reprlib.Repr(maxstring=200).repr(obj)
+    elif type(obj) in _CONTAINERS:
+        value = f"{len(obj)} items"  # an exact built-in: len() runs nothing else
+    declared = mentions = owned_by = ""
     if isinstance(node, ast.Attribute) and (owner := _owner(node, namespace)):
-        # As the class declares it - `list[SqlTable]` says more than `list`.
+        # As the class declares it - `list[SqlTable]` says more than `list` -
+        # and what its docstring says about it.
         declared = _declared(owner).get(node.attr, "")
+        mentions = _mentions(owner, node.attr)
+        if declared or mentions:
+            owned_by = _qualified(owner)
     return Doc(
         expression,
         "instance",
         declared or _qualified(type(obj)),
-        doc=_docstring(type(obj)),
+        doc=mentions or _docstring(type(obj)),
         value=value,
+        owner=owned_by,
     )
+
+
+_CONTAINERS = (list, tuple, dict, set, frozenset)
+
+
+def _mentions(cls: type, name: str) -> str:
+    """The paragraphs of a class's docstring that mention its attribute
+    `name` - as `.name` or `name` in backticks - Python having no docstrings
+    for attributes themselves."""
+    mention = re.compile(rf"[`.]{re.escape(name)}\b")
+    for klass in cls.__mro__:
+        if klass.__module__ == "builtins":
+            break
+        paragraphs = _docstring(klass).split("\n\n")
+        found = [p for p in paragraphs if mention.search(p)]
+        if found:
+            return "\n\n".join(found)
+    return ""
 
 
 def _owner(node: ast.Attribute, namespace: Mapping[str, Any]) -> type | None:

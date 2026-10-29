@@ -379,3 +379,24 @@ def test_describe_a_property_by_its_own_docstring_and_annotation(ns):
     assert declared is not None and declared.type == "list[int]"
     assert describe("len", {}).type == "len"  # type: ignore[union-attr]
     assert describe("x", {"x": []}).type == "list"  # type: ignore[union-attr]
+
+
+def test_describe_an_attribute_by_what_its_class_says_about_it():
+    class Tool:
+        """A tool.
+
+        `.items` the things it holds - `.item(n)` picks one.
+
+        Nothing about anything else.
+        """
+
+        items: list[str]
+
+    tool = Tool()
+    tool.items = ["a", "b"]
+    found = describe("t.items", {"t": tool})
+    assert found is not None
+    assert (found.type, found.value) == ("list[str]", "2 items")
+    assert found.doc == "`.items` the things it holds - `.item(n)` picks one."
+    assert found.owner.endswith("Tool")
+    assert describe("t", {"t": tool}).owner == ""  # type: ignore[union-attr]
