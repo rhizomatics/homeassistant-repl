@@ -4,8 +4,6 @@ automation, when the shell that started it can't (gone, or stuck waiting)."""
 
 from __future__ import annotations
 
-import logging
-
 from homeassistant.components.button import ButtonEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -14,8 +12,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .const import DOMAIN
 from .session import SessionManager
-
-_LOGGER = logging.getLogger(__package__)
+from .websocket_api import COMMAND_LOG
 
 
 async def async_setup_entry(
@@ -47,7 +44,7 @@ class StopButton(ButtonEntity):
             user = await self.hass.auth.async_get_user(self._context.user_id)
             who = user.name or user.id if user else who
         stopped = manager.cancel(None, f"Stopped by {who}, from the Stop button")
-        _LOGGER.info(
+        COMMAND_LOG.warning(
             "%s stopped %s from the Stop button",
             who,
             ", ".join(f"session {name!r}" for name in stopped)

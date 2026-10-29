@@ -5,6 +5,9 @@
     with each other for point releases
 
 # 0.14.0
+
+This release brings auto-complete for code and the object tree, integrated help/source-code lookup, much improved CLI history and lots more.
+
 ## ✨ Enhancements
 ### Shell
 - A whole statement or block is edited and kept in history as one entry, in live and API modes alike
@@ -20,21 +23,33 @@
   - Also in API mode, for its local code
   - Stopping code inside Home Assistant needs the server component at this version
 
+### Fixes
+- A connection lost while the shell is open - Home Assistant restarting, say - is reported as `Connection closed`, rather than a traceback from the HTTP library, and leaving the shell still works
+
 ### Live Server
 - New **Stop running code** button on the integration's device, stopping whatever is running in every live session
 - New `ha_repl_server/cancel` websocket command, which Ctrl-C in the shell sends
-- Every command is written to the Home Assistant log at `info`, with the user who sent it
+- Every command is written to the Home Assistant log at `warning`, so it shows by default, with the user who sent it
+  - On a logger of its own, `custom_components.ha_repl_server.commands`, to quieten without hiding other warnings
   - The code run, then its outcome: the value or error, how much output, and how long it took
   - Each SQL query, and its row count and time, or its error
   - Each stop and reset
 
-### Completion
+### Auto-Completion
 - Tab completes names, attributes and keys in both shells, and a menu opens by itself after a `.`, in a key, and after two letters of a name ([RFC 0002](https://homeassistant-repl.rhizomatics.org.uk/developer/design/rfcs/0002-auto-completed/), steps 2 and 3)
   - Nothing is run to complete: no property, call, or lookup in anything but a plain `dict`, `list` or `tuple`, or the object tree - return and property annotations are followed instead
   - `obj["` completes paths, and entity ids at the root, and `obj.find("` paths
   - In live mode, a statement using `hass`, `obj` or a variable living in Home Assistant is completed by Home Assistant, from the session itself, even while code runs there. Needs the server component at this version
   - Local code the walk can't follow, such as a loop variable, is completed by [jedi](https://jedi.readthedocs.io), now a dependency
-- New `ha_repl_server/complete` websocket command, and `ha_repl_server/info` lists the commands a server has
+  - What's typed matches anywhere in a name, in any case - names starting with it first
+  - Inside a call, its signature is shown under the prompt with the argument being typed in bold, and its parameters not yet given complete as `name=` (step 5)
+
+### Help
+- IPython style help in both shells (step 6)
+  - `?` on its own: what the shell offers in its mode, and its keys
+  - `thing?`: `help(thing)`, run where `thing` lives, so `hass?` is answered by Home Assistant. Never calls anything to get there
+  - `thing??`: file and line of its source, and a link to that line on GitHub at the version running - Home Assistant's release or beta tag, this project's, or Python's
+- New `ha_repl_server/complete` websocket command, for completions, signatures (`kind: "signature"`) and source locations (`kind: "source"`), and `ha_repl_server/info` lists the commands a server has
 
 ### Object Tree
 - `obj["` completes paths, and entity ids at the root, in IPython, Jupyter and Marimo, for `obj` from `connect()` as well as in live mode (step 1 of [RFC 0002](https://homeassistant-repl.rhizomatics.org.uk/developer/design/rfcs/0002-auto-completed/))

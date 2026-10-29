@@ -1034,10 +1034,18 @@ class SessionManager:
     """Holds sessions by name; a session lives until reset or process restart."""
 
     def __init__(
-        self, bindings: dict[str, Any], features: frozenset[str] = frozenset()
+        self,
+        bindings: dict[str, Any],
+        features: frozenset[str] = frozenset(),
+        *,
+        complete_limit: int = 500,
+        complete_budget: float = 0.5,
     ) -> None:
         self._bindings = bindings
         self._features = features
+        # Most items, and seconds, ha_repl_server/complete spends on one answer.
+        self.complete_limit = complete_limit
+        self.complete_budget = complete_budget
         self._sessions: dict[str, Session] = {}
 
     def get(self, name: str) -> Session:

@@ -6,6 +6,7 @@ rather than pulling in the separate `websockets` library for this one job."""
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import functools
 import importlib.metadata
 import itertools
@@ -167,17 +168,23 @@ class Client:
         msg = await self._recv()
         if msg.get("type") != "auth_required":
             raise HaReplError(f"Unexpected greeting: {msg}")
-        await self._ws.send_payload(
-            json.dumps({"type": "auth", "access_token": self._token})
-        )
+        await self._send({"type": "auth", "access_token": self._token})
         msg = await self._recv()
         if msg.get("type") != "auth_ok":
             raise HaReplError(f"Authentication failed: {msg.get('message', msg)}")
         return self
 
     async def close(self) -> None:
-        await self._ws.close()
+        # Already gone - Home Assistant restarted, say - is closed enough.
+        with contextlib.suppress(niquests.exceptions.RequestException):
+            await self._ws.close()
         await self._session.close()
+
+    async def _send(self, msg: dict[str, Any]) -> None:
+        try:
+            await self._ws.send_payload(json.dumps(msg))
+        except niquests.exceptions.RequestException as err:
+            raise HaReplError(f"Connection closed: {err}") from err
 
     async def _recv(self) -> dict[str, Any]:
         try:
@@ -192,16 +199,12 @@ class Client:
         """Send a command without waiting for its reply, which call()'s own
         loop drops - for one that has to go out while a call() is still
         waiting, such as stopping the code that call() is waiting on."""
-        await self._ws.send_payload(
-            json.dumps({"id": next(self._ids), "type": type_, **payload})
-        )
+        await self._send({"id": next(self._ids), "type": type_, **payload})
 
     async def call(self, type_: str, **payload: Any) -> Any:
         async with self._call_lock:
             msg_id = next(self._ids)
-            await self._ws.send_payload(
-                json.dumps({"id": msg_id, "type": type_, **payload})
-            )
+            await self._send({"id": msg_id, "type": type_, **payload})
             while True:
                 msg = await self._recv()
                 if msg.get("id") != msg_id or msg.get("type") != "result":

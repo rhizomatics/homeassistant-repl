@@ -108,6 +108,38 @@ Plugins are also run by [`ha-repl exec`](../modes/exec_mode.md), so a snippet an
 
 ## Examples
 
+### Registries at Hand
+
+Short names for the registries and lists you look things up in most, in live mode:
+
+```python
+# ~/.config/ha-repl/plugins/10-registries.py
+if MODE != "api":
+    from homeassistant.helpers import device_registry, entity_registry
+
+    ent_reg = entity_registry.async_get(hass)  # ent_reg.async_get("light.shed")
+    dev_reg = device_registry.async_get(hass)  # dev_reg.async_get(device_id)
+    services = hass.services.async_services_internal()  # services["light"]["turn_on"]
+    components = hass.config.components  # "mqtt" in components
+```
+
+```python
+>>> ent_reg.async_get("light.shed").platform
+'hue'
+>>> [d.name for d in dev_reg.devices.values() if d.manufacturer == "Signify"]
+['Shed', 'Kitchen']
+>>> sorted(services["homeassistant"])[:3]
+['check_config', 'reload_all', 'reload_config_entry']
+```
+
+- The whole `if` is one statement, and it uses `hass`, so it runs inside Home Assistant, imports included, and leaves all four names there. It's a single round trip, so it costs `ha-repl exec` little
+- `ent_reg`, `dev_reg` and `services` are the registries themselves, not copies, so they stay current as entities, devices and actions come and go. Look things up in them, but change them only through their own methods - `ent_reg.async_update_entity(...)` - as an integration would
+- `components` is the set of integrations Home Assistant has loaded, and grows as more are
+- Completion follows them, since they live in Home Assistant: `ent_reg.async_` offers the registry's own methods, and `ent_reg.async_get(` shows its signature
+- Not `er` and `dr`, which Home Assistant's own code uses for the `entity_registry` and `device_registry` modules: a snippet copied from it, `from homeassistant.helpers import entity_registry as er`, would replace them
+
+### Shipped with a Component
+
 - [Supernotify](https://supernotify.rhizomatics.org.uk) comes with a [plugin](https://github.com/rhizomatics/supernotify/blob/main/.ha-repl/plugins/10-supernotify-internals.py) built-in.
 
 ## In Other Python Shells

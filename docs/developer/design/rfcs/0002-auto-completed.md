@@ -4,7 +4,7 @@
 | --- | --- |
 | Status | Draft |
 | Date | 2026-10-28, updated 2026-10-29 |
-| Progress | Steps 0 to 3 done in 0.14.0 - see [Step 0 Findings](#step-0-findings) and [As Built](#as-built) |
+| Progress | Steps 0 to 3 done in 0.14.0, and most of 5 and 6 - see [Step 0 Findings](#step-0-findings) and [As Built](#as-built) |
 | Affects | Live and API modes, `homeassistant_repl.connect()`, a new server command for live mode |
 
 ## Summary
@@ -187,7 +187,7 @@ IPython, Jupyter, Marimo and anything else built on jedi then complete `obj` fro
 
 ### Agents
 
-The `doc` and `source` kinds are the same information an agent wants when exploring, so they are offered as a command:
+The `doc` and `source` kinds are  same information an agent wants when exploring,the so they are offered as a command:
 
 ```bash
 ha-repl inspect 'hass.states.async_set' --json
@@ -282,6 +282,9 @@ Steps 1 to 3 went in as planned, except:
 - **Where a completion runs** is decided from the names in the input so far, found with `tokenize`, against the same remote names `LiveSession` keeps - not by moving `_Names` into a shared module, since `ast` can't parse unfinished input. If Home Assistant can't follow an expression, the client tries locally
 - **A bare name** completes from both sides without a round trip: the client already knows the names the server session holds
 - **`evaluate`** in `config.toml` waits for step 7, since `static` is the only setting until then
+- **Step 5** shows the signature under the prompt only inside a call's brackets, cut to fit with the argument being typed kept in view, and adds `name=` completion of the parameters not given yet. The marker for where a statement runs, and the routing and syntax warnings, are still to do
+- **Step 6** is `?` and `??`, but differently: `thing?` runs the shell's own `help(thing)` where `thing` lives, refusing any expression with a call in it, rather than a new `doc` kind. `thing??` gives the file and line, and a GitHub link at the version running, rather than the source text, since what runs in Home Assistant may be any version. `?` alone shows the shell's own help for its mode. `ha-repl inspect` is still to do
+- What's typed matches anywhere in a name, case-insensitively, names starting with it first - prefix matching hid what was wanted behind `async_` and `get_`
 - `ha_repl_server/complete` runs on the event loop, takes no lock, and is logged at `debug` only, since it runs nothing. Its answer has `resolved: false` when the expression couldn't be followed
 
 ## Gaps with Home Assistant's Debug Console
@@ -294,7 +297,6 @@ Even with everything in this RFC, the [Debug console](../../../debug_console.md)
 - **No dependency added to Home Assistant.** The console needs nothing beyond core. If the server's completion used jedi, it would be a requirement installed into Home Assistant's own environment, which other integrations share. Step 0 makes this a choice rather than a given
 - **Installing nothing, from any device.** The console is a browser page. `ha-repl` needs a terminal, a token, and for live mode a HACS component
 - **Safeguards at the point of use.** The console has every administrator accept a warning before first use, and blocks pasting until `allow pasting` is typed. `ha-repl`'s warning is given once, to whoever adds the integration, and pasting is never blocked
-- **An audit trail out of the box.** The console is documented as logging every run with its user. `ha-repl` logs every command too, but at `info`, which Home Assistant hides unless `logger:` says otherwise
 
 And some this RFC would give `ha-repl` that the console's documentation doesn't mention, so may not have: entity id, action, `obj` path and `hass.data` key completion inside strings, `sql` table and column completion, a marker showing where a statement will run before it's run, the source of an object with `??`, and `ha-repl inspect` for agents.
 
@@ -322,11 +324,11 @@ And some this RFC would give `ha-repl` that the console's documentation doesn't 
 
 ## Open Questions
 
-1. ~~Is jedi acceptable as a requirement of the server component, given step 0's results, or should the standard library fallback be the default with jedi optional?~~ Proposed answer, from [Step 0 Findings](#step-0-findings): the standard library walk on the server. Still open: jedi on the client, or the same walk on both sides
-2. Which key binding shows the docstring of the name under the cursor? F1 is often taken by the terminal.
-3. Should `ha-repl inspect` route like `exec`, or require the expression to say which side it means?
-4. Should the server's time budget and item cap be options of the integration, or constants?
-5. For VSCode: is the integrated terminal with links enough on its own, or is the REPL editor worth an extension that hosts `ha-repl serve`?
+1. ~~Is jedi acceptable as a requirement of the server component, given step 0's results, or should the standard library fallback be the default with jedi optional?~~ Answered by [Step 0 Findings](#step-0-findings): the standard library walk on the server, and on the client the same walk first, with jedi where it can't follow - see [As Built](#as-built)
+2. ~~Which key binding shows the docstring of the name under the cursor? F1 is often taken by the terminal.~~ Ctrl-Shift-Space, as VSCode's own *Trigger Parameter Hints*. Most terminals send it as Ctrl-Space, which prompt_toolkit leaves unbound, so binding Ctrl-Space takes both
+3. ~~Should `ha-repl inspect` route like `exec`, or require the expression to say which side it means?~~ Like `exec`: the same routing, plugins and options
+4. ~~Should the server's time budget and item cap be options of the integration, or constants?~~ Options, on the live server's *Configure* form beside the `hass` and `sql` switches
+5. ~~For VSCode: is the integrated terminal with links enough on its own, or is the REPL editor worth an extension that hosts `ha-repl serve`?~~ Left for a later release. Either an extension hosting `ha-repl serve`, or a language server that other editors and tools could use as well
 
 ## Out of Scope
 

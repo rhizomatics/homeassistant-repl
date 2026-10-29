@@ -27,9 +27,11 @@
           "expose_hass": "Expose `hass` in live sessions",
           "expose_hass_minutes": "Switch `hass` off after (minutes)",
           "expose_sql": "Expose `sql` in live sessions",
-          "expose_sql_minutes": "Switch `sql` off after (minutes)"
+          "expose_sql_minutes": "Switch `sql` off after (minutes)",
+          "complete_limit": "Completion: most items in one answer",
+          "complete_budget_ms": "Completion: most time to find them (milliseconds)"
         },
-        "description": "Either can be given a time limit, after which it is switched off again. Leave the limit empty to keep it on."
+        "description": "Either of `hass` and `sql` can be given a time limit, after which it is switched off again. Leave the limit empty to keep it on. Completion's limits keep a lookup through something very large from holding up Home Assistant; an answer cut short by either still shows what it has."
       }
     }
   },

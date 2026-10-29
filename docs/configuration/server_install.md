@@ -34,10 +34,10 @@ Each switch has a time limit beside it, in minutes. Enter one and that capabilit
 
 The integration's device has a **Stop running code** button. Pressing it stops whatever is running in every live session - for when the shell that started it has gone, or from a dashboard or automation. Ctrl-C in the shell does the same for its own session.
 
-Every command a shell sends is written to the Home Assistant log, with the user who sent it: the code run and how it went (its value or error, and how long it took), each SQL query and how many rows it returned, and each stop and reset. They're logged at `info`, below Home Assistant's default level of `warning`, so to see them add this to `configuration.yaml`:
+Every command a shell sends is written to the Home Assistant log, with the user who sent it: the code run and how it went (its value or error, and how long it took), each SQL query and how many rows it returned, and each stop and reset. They're logged at `warning`, so they show in the log with Home Assistant's default settings. They have a logger of their own, so to quieten them without hiding the integration's other warnings, add this to `configuration.yaml`:
 
 ```yaml
 logger:
   logs:
-    custom_components.ha_repl_server: info
+    custom_components.ha_repl_server.commands: error
 ```

@@ -118,6 +118,20 @@ def _parser() -> argparse.ArgumentParser:
         "--reset", action="store_true", help="reset the session before running"
     )
 
+    inspect_ = sub.add_parser(
+        "inspect",
+        help="what an expression names - its type, signature and docstring - found "
+        "without running it, and decided where as exec would (live mode only)",
+    )
+    inspect_.add_argument(
+        "expression", help="a name or attribute chain, e.g. hass.states"
+    )
+    inspect_.add_argument(
+        "--source",
+        action="store_true",
+        help="also where its source is, with a GitHub link at the version running",
+    )
+
     sub.add_parser(
         "api",
         help="interactive API client shell (the default): obj only, no HACS component needed",
@@ -201,6 +215,8 @@ async def _dispatch(args: argparse.Namespace, connection: Connection) -> int:
         match args.command:
             case "exec":
                 return await _exec(client, args)
+            case "inspect":
+                return await _inspect(client, args)
             case "reset":
                 result = await client.call("ha_repl_server/reset", session=args.session)
                 _emit(args, result, "reset" if result["reset"] else "no such session")
@@ -245,24 +261,10 @@ async def _exec(client: Client, args: argparse.Namespace) -> int:
     if args.reset:
         await client.call("ha_repl_server/reset", session=args.session)
 
-    from .plugins import bind_context, run_plugins
-    from .repl import Captured, bind_live_rebind, connect_live
+    from .repl import Captured
 
-    # The same local-plus-server session the interactive shell uses, so a
-    # snippet means the same thing here: `sql` and plain Python run in this
-    # process, statements using `hass`/`obj` inside Home Assistant.
     capture = Captured() if args.json else None
-    live = await connect_live(
-        client,
-        args.session,
-        auto_await=args.auto_await,
-        capture=capture,
-        timeout=args.timeout,
-    )
-    # So a snippet sees the same names the interactive shell would.
-    bind_context(live.local.globals_, "exec", args.server_name)
-    bind_live_rebind(live, args.plugins)
-    await run_plugins(args.plugins, live.run_quiet)
+    live = await _exec_session(client, args, capture=capture, timeout=args.timeout)
     start = time.perf_counter()
     try:
         ok = await asyncio.wait_for(live.run(code), args.timeout)
@@ -291,6 +293,72 @@ async def _exec(client: Client, args: argparse.Namespace) -> int:
             )
         )
     return 0 if ok else 1
+
+
+async def _exec_session(
+    client: Client,
+    args: argparse.Namespace,
+    *,
+    capture: Any = None,
+    timeout: float | None = None,
+) -> Any:
+    """The same local-plus-server session the interactive shell uses, so a
+    snippet means the same thing here: `sql` and plain Python run in this
+    process, statements using `hass`/`obj` inside Home Assistant - with the
+    same names, plugins included."""
+    from .plugins import bind_context, run_plugins
+    from .repl import bind_live_rebind, connect_live
+
+    live = await connect_live(
+        client,
+        args.session,
+        auto_await=args.auto_await,
+        capture=capture,
+        timeout=timeout,
+    )
+    bind_context(live.local.globals_, "exec", args.server_name)
+    bind_live_rebind(live, args.plugins)
+    await run_plugins(args.plugins, live.run_quiet)
+    return live
+
+
+async def _inspect(client: Client, args: argparse.Namespace) -> int:
+    """`ha-repl inspect`: Ctrl-Space's description, for an agent - and with
+    --source, `thing??`'s location. Nothing in the expression is run."""
+    from .completer import HaCompleter
+    from .shellhelp import doc_text, source_text
+
+    live = await _exec_session(client, args)
+    try:
+        info = await client.call("ha_repl_server/info")
+    except HaReplError:
+        info = {}
+    completer = HaCompleter(live.local.globals_, live)
+    completer.remote = "complete" in info.get("commands", ())
+    found = await completer.describe(args.expression)
+    where = (
+        await completer.locate(args.expression) if args.source or args.json else None
+    )
+    if args.json:
+        print(
+            json.dumps(
+                {
+                    "doc": found.as_dict() if found else None,
+                    "source": where.as_dict() if where else None,
+                },
+                indent=2,
+            )
+        )
+    elif found is None:
+        print(
+            f"ha-repl: can't tell what `{args.expression}` is without running it",
+            file=sys.stderr,
+        )
+    else:
+        console.print(doc_text(found))
+        if where is not None and where.file:
+            console.print(source_text(where), soft_wrap=True)
+    return 0 if found else 1
 
 
 def display_options() -> dict[str, Any]:

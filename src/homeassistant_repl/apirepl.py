@@ -26,6 +26,7 @@ from .local_session import LocalSession
 from .plugins import bind_context, bind_rebind, local_runner, run_plugins
 from .repl import banner_address, banner_plugins, is_quit_call
 from .rest import hass_api
+from .shellhelp import answer, help_request
 
 HISTORY = Path.home() / ".ha_repl_api_history"
 
@@ -50,7 +51,8 @@ async def run_api_repl(
         {"obj": ApiObjTree(cache), "hass_api": rest_client}, auto_await=auto_await
     )
 
-    prompt = python_prompt(HISTORY, HaCompleter(session.globals_))
+    completer = HaCompleter(session.globals_)
+    prompt = python_prompt(HISTORY, completer)
     bind_context(session.globals_, "api", server_name)
     bind_rebind(session.globals_, plugins, local_runner(session))
     loaded = await run_plugins(plugins, local_runner(session))
@@ -68,6 +70,9 @@ async def run_api_repl(
         except EOFError:
             return 0
         if not source.strip():
+            continue
+        if (asked := help_request(source)) is not None:
+            await answer(asked, "api", session.run, completer.locate)
             continue
         if is_quit_call(source):
             return 0

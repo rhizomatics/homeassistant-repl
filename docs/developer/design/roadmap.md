@@ -126,6 +126,8 @@ This switch controls trade-off between shell convenience and ability to trial wo
   - functions
     - add own bindings
     - common shortcuts, e.g. to a sensor or set of entities
+- Way to grep the method names or attributes to find where something is hidden
+  - Also hass.data which is the usual place to hide useful things
 - Notebook support, e.g. Marimo [DONE]
 - safe(r) mode - remove things like stop
 - Event subscription and visualization

@@ -24,17 +24,35 @@ from pathlib import Path
 from typing import Any
 
 from prompt_toolkit import PromptSession
+from prompt_toolkit.application import run_in_terminal
 from prompt_toolkit.completion import Completer
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.key_binding import KeyBindings, KeyPressEvent
 from prompt_toolkit.lexers import PygmentsLexer
+from prompt_toolkit.styles import Style
 from pygments.lexers.python import PythonLexer
+from rich.text import Text
+
+from .complete import expression_at
+from .completer import HaCompleter
+from .local_session import console
+from .shellhelp import doc_text
 
 INDENT = "    "
 
 # A statement starting with one of these ends its block, so the line after it
 # starts a level shallower.
 _DEDENT_AFTER = ("return", "pass", "break", "continue", "raise")
+
+# The toolbar holds only the signature of the call being typed: plain, not
+# the usual reversed bar.
+_STYLE = Style.from_dict({
+    "bottom-toolbar": "noreverse",
+    "signature": "",
+    "signature.active": "bold underline",
+    "signature.doc": "italic",
+    "signature.ha": "fg:ansicyan",
+})
 
 _compiler = codeop.CommandCompiler()
 _compiler.compiler.flags |= ast.PyCF_ALLOW_TOP_LEVEL_AWAIT
@@ -43,16 +61,21 @@ _compiler.compiler.flags |= ast.PyCF_ALLOW_TOP_LEVEL_AWAIT
 def python_prompt(
     history: Path, completer: Completer | None = None
 ) -> PromptSession[str]:
-    """A prompt reading one complete statement (or block) per call."""
-    return PromptSession(
+    """A prompt reading one complete statement (or block) per call - with
+    the signature of the call being typed under it, given an HaCompleter."""
+    session: PromptSession[str] = PromptSession(
         history=FileHistory(str(history)),
         lexer=PygmentsLexer(PythonLexer),
         multiline=True,
-        key_bindings=_key_bindings(),
+        key_bindings=_key_bindings(completer),
         prompt_continuation="... ",
         completer=completer,
         complete_while_typing=completer is not None,
+        style=_STYLE,
     )
+    if isinstance(completer, HaCompleter):
+        completer.signatures.attach(session)
+    return session
 
 
 def is_complete(source: str) -> bool:
@@ -80,8 +103,20 @@ def next_indent(line: str) -> str:
     return indent
 
 
-def _key_bindings() -> KeyBindings:
+def _key_bindings(completer: Completer | None = None) -> KeyBindings:
     kb = KeyBindings()
+
+    if isinstance(completer, HaCompleter):
+        # Ctrl-Shift-Space, as VSCode's Trigger Parameter Hints - most
+        # terminals send it as Ctrl-Space, so this takes both.
+        @kb.add("c-space")
+        def _describe(event: KeyPressEvent) -> None:
+            document = event.current_buffer.document
+            expression = expression_at(
+                document.text_before_cursor, document.text_after_cursor
+            )
+            if expression:
+                event.app.create_background_task(_show(completer, expression))
 
     @kb.add("enter")
     def _enter(event: KeyPressEvent) -> None:
@@ -101,6 +136,18 @@ def _key_bindings() -> KeyBindings:
         _accept(event)
 
     return kb
+
+
+async def _show(completer: HaCompleter, expression: str) -> None:
+    """What `expression` is, printed above the prompt, which keeps what's
+    typed."""
+    found = await completer.describe(expression)
+    text = (
+        doc_text(found)
+        if found
+        else Text(f"Can't tell what `{expression}` is without running it")
+    )
+    await run_in_terminal(lambda: console.print(text))
 
 
 def _accept(event: KeyPressEvent) -> None:

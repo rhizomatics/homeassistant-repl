@@ -1,8 +1,13 @@
-"""Tests for print_result() - how an exec result from the server is shown."""
+"""Tests for print_result() - how an exec result from the server is shown -
+and `ha-repl inspect`, against a fake server."""
 
 from __future__ import annotations
 
-from homeassistant_repl.cli import print_result
+import argparse
+import json
+from typing import Any
+
+from homeassistant_repl.cli import _inspect, print_result
 
 
 def _base_result(**overrides) -> dict:
@@ -80,3 +85,66 @@ def test_print_result_falls_back_to_the_plain_traceback(capsys):
     print_result(_base_result(error=error))
 
     assert capsys.readouterr().err == "SyntaxError: m\n"
+
+
+class _InspectClient:
+    """Enough of a live server for `ha-repl inspect`."""
+
+    async def call(self, type_: str, **payload: Any) -> Any:
+        if type_ == "ha_repl_server/sessions":
+            return {"sessions": []}
+        if type_ == "ha_repl_server/info":
+            return {"version": "0.14.0", "commands": ["complete"]}
+        assert type_ == "ha_repl_server/complete"
+        if payload["kind"] == "doc":
+            return {
+                "doc": {
+                    "name": payload["source"],
+                    "kind": "function",
+                    "type": "homeassistant.core.StateMachine.async_set",
+                    "signature": "(entity_id: str) -> None",
+                    "doc": "Set the state of an entity.",
+                }
+            }
+        return {
+            "source": {
+                "name": "homeassistant.core.StateMachine.async_set",
+                "file": "/usr/src/homeassistant/homeassistant/core.py",
+                "line": 1,
+                "url": "https://github.com/home-assistant/core/blob/2026.11.0b0/homeassistant/core.py#L1",
+            }
+        }
+
+
+def _inspect_args(**overrides) -> argparse.Namespace:
+    return argparse.Namespace(**{
+        "session": "default",
+        "auto_await": True,
+        "server_name": None,
+        "plugins": [],
+        "json": False,
+        "expression": "hass.states.async_set",
+        "source": False,
+        **overrides,
+    })
+
+
+async def test_inspect_describes_and_with_source_says_where(capsys):
+    assert await _inspect(_InspectClient(), _inspect_args(source=True)) == 0  # type: ignore[arg-type]
+    out = capsys.readouterr().out
+    assert "hass.states.async_set(entity_id: str) -> None" in out
+    assert "Set the state of an entity." in out
+    assert "blob/2026.11.0b0/homeassistant/core.py#L1" in out
+
+
+async def test_inspect_json_has_both(capsys):
+    assert await _inspect(_InspectClient(), _inspect_args(json=True)) == 0  # type: ignore[arg-type]
+    result = json.loads(capsys.readouterr().out)
+    assert result["doc"]["signature"] == "(entity_id: str) -> None"
+    assert result["source"]["line"] == 1
+
+
+async def test_inspect_something_unknown_fails(capsys):
+    args = _inspect_args(expression="nothing_here")
+    assert await _inspect(_InspectClient(), args) == 1  # type: ignore[arg-type]
+    assert "can't tell" in capsys.readouterr().err

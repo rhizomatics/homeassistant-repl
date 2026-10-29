@@ -5,9 +5,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import niquests
 import pytest
 
 from homeassistant_repl.client import (
+    Client,
     HaReplError,
     _dotenv,
     client_version,
@@ -96,3 +98,28 @@ def test_client_version_reads_installed_package_version():
     # thing, not the "dev" not-installed fallback.
     assert client_version() != "dev"
     assert client_version()[0].isdigit()
+
+
+class _ClosedSocket:
+    """The websocket extension once Home Assistant has gone away."""
+
+    async def send_payload(self, payload: str) -> None:
+        raise niquests.exceptions.ConnectionError("The HTTP extension is closed")
+
+    async def close(self) -> None:
+        raise niquests.exceptions.ConnectionError("The HTTP extension is closed")
+
+
+class _Session:
+    async def close(self) -> None:
+        pass
+
+
+async def test_a_lost_connection_is_a_ha_repl_error_and_still_closes():
+    client = Client("ws://example/api/websocket", "token")
+    client._ws, client._session = _ClosedSocket(), _Session()
+    with pytest.raises(HaReplError, match="Connection closed"):
+        await client.call("ha_repl_server/info")
+    with pytest.raises(HaReplError, match="Connection closed"):
+        await client.send("ha_repl_server/cancel")
+    await client.close()

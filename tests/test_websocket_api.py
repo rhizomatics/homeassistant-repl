@@ -157,7 +157,6 @@ async def test_ws_cancel_stops_a_running_exec_and_both_are_logged(
     hass_ws_client,
     caplog,
 ):
-    caplog.set_level(logging.INFO, logger="custom_components.ha_repl_server")
     await _setup(hass)
     client = await hass_ws_client(hass)
     await client.send_json({
@@ -195,7 +194,6 @@ async def test_ws_exec_logs_the_outcome_with_its_timing(
     hass_ws_client,
     caplog,
 ):
-    caplog.set_level(logging.INFO, logger="custom_components.ha_repl_server")
     await _setup(hass)
     client = await hass_ws_client(hass)
     await client.send_json({"id": 1, "type": "ha_repl_server/exec", "code": "6 * 7"})
@@ -212,7 +210,6 @@ async def test_ws_sql_logs_the_query_and_its_rows(
     hass_ws_client,
     caplog,
 ):
-    caplog.set_level(logging.INFO, logger="custom_components.ha_repl_server")
     await _setup(hass)
     client = await hass_ws_client(hass)
     await client.send_json({
@@ -297,3 +294,81 @@ async def test_ws_complete_answers_while_code_runs_and_sees_its_variables(
     assert reply["result"]["resolved"]
     assert "async_set" in [item["label"] for item in reply["result"]["items"]]
     await client.send_json({"id": 3, "type": "ha_repl_server/cancel"})
+
+
+async def test_commands_are_logged_at_warning_on_their_own_logger(
+    recorder_mock,
+    hass: HomeAssistant,
+    enable_custom_integrations: None,
+    hass_ws_client,
+    caplog,
+):
+    await _setup(hass)
+    client = await hass_ws_client(hass)
+    await client.send_json({"id": 1, "type": "ha_repl_server/exec", "code": "1"})
+    assert (await client.receive_json())["success"]
+    records = [r for r in caplog.records if "runs in session" in r.getMessage()]
+    assert [(r.name, r.levelno) for r in records] == [
+        ("custom_components.ha_repl_server.commands", logging.WARNING)
+    ]
+
+
+async def test_ws_complete_gives_the_signature_of_the_call_being_typed(
+    recorder_mock, hass: HomeAssistant, enable_custom_integrations: None, hass_ws_client
+):
+    await _setup(hass)
+    client = await hass_ws_client(hass)
+
+    async def signature_at(msg_id: int, source: str) -> dict | None:
+        await client.send_json({
+            "id": msg_id,
+            "type": "ha_repl_server/complete",
+            "kind": "signature",
+            "source": source,
+            "cursor": len(source),
+        })
+        return (await client.receive_json())["result"]["signature"]
+
+    found = await signature_at(1, "hass.states.async_set(")
+    assert found is not None
+    assert found["name"] == "async_set"
+    assert [p["name"] for p in found["params"]][:2] == ["entity_id", "new_state"]
+    assert await signature_at(2, "hass.states") is None
+
+
+async def test_ws_complete_finds_the_source_of_a_home_assistant_object(
+    recorder_mock, hass: HomeAssistant, enable_custom_integrations: None, hass_ws_client
+):
+    await _setup(hass)
+    client = await hass_ws_client(hass)
+    await client.send_json({
+        "id": 1,
+        "type": "ha_repl_server/complete",
+        "kind": "source",
+        "source": "hass.states.async_set",
+        "cursor": 21,
+    })
+    found = (await client.receive_json())["result"]["source"]
+    assert found["name"] == "homeassistant.core.StateMachine.async_set"
+    assert found["file"].endswith("homeassistant/core.py")
+    assert "github.com/home-assistant/core/blob/" in found["url"]
+    assert found["url"].endswith(f"/homeassistant/core.py#L{found['line']}")
+
+
+async def test_ws_complete_describes_without_running(
+    recorder_mock, hass: HomeAssistant, enable_custom_integrations: None, hass_ws_client
+):
+    await _setup(hass)
+    client = await hass_ws_client(hass)
+    await client.send_json({
+        "id": 1,
+        "type": "ha_repl_server/complete",
+        "kind": "doc",
+        "source": "hass.states.async_set",
+        "cursor": 21,
+    })
+    found = (await client.receive_json())["result"]["doc"]
+    assert found["kind"] == "function"
+    assert found["type"] == "homeassistant.core.StateMachine.async_set"
+    assert found["signature"].startswith("(entity_id: str, new_state: str")
+    assert found["doc"]

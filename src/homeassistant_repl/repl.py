@@ -42,6 +42,7 @@ from .local_session import LocalSession, format_error
 from .plugins import bind_context, bind_rebind, run_plugins
 from .render import decode_value
 from .rest import hass_api
+from .shellhelp import answer, help_request
 from .sql import SqlResult, SqlRow, SqlTool
 
 HISTORY = Path.home() / ".ha_repl_history"
@@ -580,6 +581,9 @@ async def run_repl(
         except EOFError:
             return 0
         if not source.strip():
+            continue
+        if (asked := help_request(source)) is not None:
+            await answer(asked, "live", live.run, completer.locate)
             continue
         if is_quit_call(source):
             return 0

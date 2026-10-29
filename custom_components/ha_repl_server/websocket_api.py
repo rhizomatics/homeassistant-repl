@@ -3,7 +3,9 @@ ha_repl_server/complete, ha_repl_server/reset, ha_repl_server/sessions, ha_repl_
 ha_repl_server/sql and ha_repl_server/sql_tables (all admin only).
 
 Every command that runs or stops something - exec, cancel, reset and sql - is
-logged at INFO, with the user who sent it, and how it went with its timing.
+logged at WARNING, so it shows in Home Assistant's log by default, with the
+user who sent it, and how it went with its timing - on its own logger,
+COMMAND_LOG, to be quietened without hiding the integration's other warnings.
 complete runs nothing, so is logged at DEBUG only.
 """
 
@@ -21,13 +23,14 @@ from homeassistant.components import websocket_api
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.loader import async_get_integration
 
-from .complete import complete
+from .complete import complete, describe, signature, source
 from .const import DEFAULT_SESSION, DOMAIN
 from .objtree import async_load_action_descriptions
 from .session import SessionManager
 from .sql import DEFAULT_MAX_ROWS, SqlError, sql, table_schemas
 
 _LOGGER = logging.getLogger(__package__)
+COMMAND_LOG = logging.getLogger(f"{__package__}.commands")
 
 
 # What a client can ask this server for, given in ha_repl_server/info so a
@@ -106,7 +109,7 @@ async def ws_exec(
     with contextlib.suppress(Exception):
         await async_load_action_descriptions(hass)
     who, session = _who(connection), msg["session"]
-    _LOGGER.info("%s runs in session %r:\n%s", who, session, msg["code"])
+    COMMAND_LOG.warning("%s runs in session %r:\n%s", who, session, msg["code"])
     try:
         result = await manager.get(session).run(
             msg["code"],
@@ -117,9 +120,11 @@ async def ws_exec(
             fetch=msg["fetch"],
         )
     except asyncio.CancelledError:
-        _LOGGER.info("%s's run in session %r stopped: connection closed", who, session)
+        COMMAND_LOG.warning(
+            "%s's run in session %r stopped: connection closed", who, session
+        )
         raise
-    _LOGGER.info("%s's run in session %r %s", who, session, result.summary())
+    COMMAND_LOG.warning("%s's run in session %r %s", who, session, result.summary())
     connection.send_result(msg["id"], result.as_dict())
 
 
@@ -144,7 +149,7 @@ def ws_cancel(
         return
     who = _who(connection)
     stopped = manager.cancel(msg.get("session"), f"Stopped by {who}")
-    _LOGGER.info(
+    COMMAND_LOG.warning(
         "%s stopped %s",
         who,
         ", ".join(f"session {name!r}" for name in stopped) or "nothing (none running)",
@@ -161,22 +166,60 @@ def ws_cancel(
             vol.Required("source"): str,
             vol.Required("cursor"): vol.Coerce(int),
             vol.Optional("session", default=DEFAULT_SESSION): str,
+            vol.Optional("kind", default="completions"): vol.In([
+                "completions",
+                "signature",
+                "source",
+                "doc",
+            ]),
         },
     )
 )
-@callback
-def ws_complete(
+@websocket_api.async_response
+async def ws_complete(
     hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]
 ) -> None:
     """What can go at the cursor, from the session's own namespace - see
     complete.py. Runs nothing, so it takes no lock and answers while an
     exec is running, and on the event loop, where the registries the
     object tree reads can be read. `resolved` is False when the expression
-    before the cursor couldn't be followed without running something."""
+    before the cursor couldn't be followed without running something.
+
+    With `kind: "signature"`, the signature of the call the cursor is in
+    instead, or None. With `kind: "source"`, where the source of what
+    `source` names is, with a GitHub link at the version running, or None -
+    for `thing??`. With `kind: "doc"`, what `source` names: its type,
+    signature and docstring - for Ctrl-Space and `ha-repl inspect`."""
     if (manager := _manager(hass, connection, msg)) is None:
         return
     namespace = manager.namespace(msg["session"])
-    result = complete(msg["source"], msg["cursor"], namespace)
+    if msg["kind"] == "source":
+        integration = await async_get_integration(hass, DOMAIN)
+        versions = {"custom_components.ha_repl_server": str(integration.version)}
+        found_source = source(msg["source"], namespace, versions)
+        connection.send_result(
+            msg["id"], {"source": found_source.as_dict() if found_source else None}
+        )
+        return
+    if msg["kind"] == "doc":
+        found_doc = describe(msg["source"], namespace)
+        connection.send_result(
+            msg["id"], {"doc": found_doc.as_dict() if found_doc else None}
+        )
+        return
+    if msg["kind"] == "signature":
+        found = signature(msg["source"], msg["cursor"], namespace)
+        connection.send_result(
+            msg["id"], {"signature": found.as_dict() if found else None}
+        )
+        return
+    result = complete(
+        msg["source"],
+        msg["cursor"],
+        namespace,
+        limit=manager.complete_limit,
+        budget=manager.complete_budget,
+    )
     _LOGGER.debug("%s completes %r", _who(connection), msg["source"][: msg["cursor"]])
     if result is None:
         connection.send_result(
@@ -203,7 +246,7 @@ def ws_reset(
     if (manager := _manager(hass, connection, msg)) is None:
         return
     reset = manager.reset(msg["session"])
-    _LOGGER.info("%s reset session %r", _who(connection), msg["session"])
+    COMMAND_LOG.warning("%s reset session %r", _who(connection), msg["session"])
     connection.send_result(msg["id"], {"reset": reset})
 
 
@@ -279,7 +322,7 @@ async def ws_sql(
     if _sql_manager(hass, connection, msg) is None:
         return
     who = _who(connection)
-    _LOGGER.info("%s queries:\n%s", who, msg["query"])
+    COMMAND_LOG.warning("%s queries:\n%s", who, msg["query"])
     start = time.perf_counter()
     try:
         result = await sql(hass, msg["query"], max_rows=msg["max_rows"], raw=msg["raw"])
@@ -287,12 +330,12 @@ async def ws_sql(
         message = (
             str(err) if isinstance(err, SqlError) else f"{type(err).__name__}: {err}"
         )
-        _LOGGER.info(
+        COMMAND_LOG.warning(
             "%s's query failed in %.3fs: %s", who, time.perf_counter() - start, message
         )
         connection.send_error(msg["id"], "sql_error", message)
         return
-    _LOGGER.info(
+    COMMAND_LOG.warning(
         "%s's query returned %d rows in %.3fs%s",
         who,
         result.rowcount,

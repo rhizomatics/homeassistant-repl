@@ -19,14 +19,18 @@ import builtins
 import inspect
 import keyword
 import re
+import reprlib
 import sys
+import time
 import types
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Iterator, Mapping
 from dataclasses import dataclass, field
 from typing import Any
 
-# At most this many items in one answer; more makes it `incomplete`.
+# At most this many items in one answer, and this many seconds spent
+# finding them; more of either makes it `incomplete`.
 LIMIT = 500
+BUDGET = 0.5
 
 # The methods whose first argument is a path in the tree they're called on.
 _PATH_METHODS = frozenset({"find", "find_paths", "find_names"})
@@ -61,6 +65,53 @@ class Completions:
             "replace": self.replace,
             "incomplete": self.incomplete,
         }
+
+
+@dataclass
+class Param:
+    name: str
+    text: str  # as written: `path: str = '/'`, `*args`
+    kind: str  # inspect.Parameter's kind, by name
+
+
+@dataclass
+class Signature:
+    """The signature of the call the cursor is in."""
+
+    name: str
+    params: list[Param]
+    returns: str = ""
+    doc: str = ""  # the docstring's first line
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "name": self.name,
+            "params": [vars(p) for p in self.params],
+            "returns": self.returns,
+            "doc": self.doc,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> Signature:
+        return cls(**{**data, "params": [Param(**p) for p in data["params"]]})
+
+    def active(self, position: int, keyword: str | None) -> int | None:
+        """Which parameter an argument at `position`, or given as
+        `keyword`, goes to."""
+        kinds = [p.kind for p in self.params]
+        if keyword is not None:
+            for i, param in enumerate(self.params):
+                if param.name == keyword and param.kind != "POSITIONAL_ONLY":
+                    return i
+            return kinds.index("VAR_KEYWORD") if "VAR_KEYWORD" in kinds else None
+        positional = [
+            i
+            for i, kind in enumerate(kinds)
+            if kind in ("POSITIONAL_ONLY", "POSITIONAL_OR_KEYWORD")
+        ]
+        if position < len(positional):
+            return positional[position]
+        return kinds.index("VAR_POSITIONAL") if "VAR_POSITIONAL" in kinds else None
 
 
 @dataclass(frozen=True)
@@ -107,14 +158,47 @@ def kind_at(text: str) -> str:
 
 
 def complete(
-    source: str, cursor: int, namespace: Mapping[str, Any], *, limit: int = LIMIT
+    source: str,
+    cursor: int,
+    namespace: Mapping[str, Any],
+    *,
+    limit: int = LIMIT,
+    budget: float | None = BUDGET,
 ) -> Completions | None:
     """The completions at `cursor` in `source`, against `namespace`. None
     when the expression before the cursor can't be followed without running
     something, for a caller with another way to try."""
-    text = source[:cursor]
+    clock = _Budget(budget)
+    found = _complete(source[:cursor], namespace, limit, clock)
+    if found is not None:
+        found.incomplete |= clock.ran_out
+    return found
+
+
+class _Budget:
+    """Stops going through something big once the time's up."""
+
+    def __init__(self, seconds: float | None) -> None:
+        self.deadline = None if seconds is None else time.monotonic() + seconds
+        self.ran_out = False
+
+    def take[T](self, items: Iterable[T]) -> Iterator[T]:
+        for n, item in enumerate(items):
+            if (
+                self.deadline is not None
+                and n % 64 == 0
+                and time.monotonic() > self.deadline
+            ):
+                self.ran_out = True
+                return
+            yield item
+
+
+def _complete(
+    text: str, namespace: Mapping[str, Any], limit: int, clock: _Budget
+) -> Completions | None:
     if (quote := _open_string(text)) is not None:
-        return _complete_string(text, quote, namespace, limit)
+        return _complete_string(text, quote, namespace, limit, clock)
     prefix = _IDENTIFIER_END.search(text).group()  # type: ignore[union-attr]
     before = text[: len(text) - len(prefix)]
     if before.endswith("."):
@@ -125,14 +209,131 @@ def complete(
             return None
         if isinstance(found, _Absent):
             return Completions()
-        return _matching(_members(found), prefix, limit)
+        return _matching(_members(found), prefix, limit, clock)
     if _IMPORTING.search(before.rsplit("\n", 1)[-1]):
         return None
-    return _matching(_names(namespace), prefix, limit)
+    names = _keywords(text, namespace) | _names(namespace)
+    return _matching(names, prefix, limit, clock)
+
+
+def call_at(text: str) -> tuple[int, int, str | None] | None:
+    """The innermost call the end of `text` is inside: where its `(` is,
+    which argument is being typed (counting from 0), and the keyword it's
+    being given as, if any. None outside a call's brackets."""
+    stack: list[list[Any]] = []  # bracket, where, commas, last comma
+    quote = ""
+    i = 0
+    while i < len(text):
+        ch = text[i]
+        if quote:
+            if ch == "\\":
+                i += 1
+            elif text.startswith(quote, i):
+                i += len(quote) - 1
+                quote = ""
+        elif ch == "#":
+            while i < len(text) and text[i] != "\n":
+                i += 1
+        elif ch in "'\"":
+            quote = ch * 3 if text.startswith(ch * 3, i) else ch
+            i += len(quote) - 1
+        elif ch in "([{":
+            stack.append([ch, i, 0, i])
+        elif ch in ")]}" and stack:
+            stack.pop()
+        elif ch == "," and stack:
+            stack[-1][2] += 1
+            stack[-1][3] = i
+        i += 1
+    if not stack or stack[-1][0] != "(":
+        return None
+    _, paren, commas, last = stack[-1]
+    named = re.match(r"\s*(\w+)\s*=(?!=)", text[last + 1 :])
+    return paren, commas, named.group(1) if named else None
+
+
+def signature(
+    source: str, cursor: int, namespace: Mapping[str, Any]
+) -> Signature | None:
+    """The signature of the call `cursor` is inside, if it can be found
+    without running anything."""
+    text = source[:cursor]
+    if (call := call_at(text)) is None:
+        return None
+    if (callee := _expression_before(text[: call[0]])) is None:
+        return None
+    found = _resolve(callee, namespace)
+    if not isinstance(found, _Value):
+        return None
+    obj = found.obj
+    func = obj
+    if isinstance(obj, type):
+        func = inspect.getattr_static(obj, "__init__", None)
+        if func is None or func is object.__init__:
+            return None
+    if (inspected := _inspect_signature(func)) is None:
+        return None
+    # As called: the name a function has for itself is a descriptor away.
+    name = ast.unparse(callee).rsplit(".", 1)[-1].split("(", 1)[0]
+    doc = _doc(obj)
+    returns = inspected.return_annotation
+    return Signature(
+        name,
+        [_param(p) for p in inspected.parameters.values()],
+        "" if returns is inspect.Signature.empty else str(returns),
+        next((line.strip() for line in doc.splitlines() if line.strip()), "")[:120]
+        if isinstance(doc, str)
+        else "",
+    )
+
+
+def _doc(obj: Any) -> str | None:
+    """A docstring, read only where reading it can't run anything."""
+    if isinstance(obj, type):
+        doc = vars(obj).get("__doc__")
+    elif isinstance(
+        obj, (types.FunctionType, types.BuiltinFunctionType, types.MethodType)
+    ):
+        doc = obj.__doc__
+    else:
+        doc = inspect.getattr_static(obj, "__doc__", None)
+    return doc if isinstance(doc, str) else None
+
+
+def _param(param: inspect.Parameter) -> Param:
+    text = param.name
+    if param.kind is param.VAR_POSITIONAL:
+        text = "*" + text
+    elif param.kind is param.VAR_KEYWORD:
+        text = "**" + text
+    if param.annotation is not param.empty:
+        text += f": {param.annotation}"
+    if param.default is not param.empty:
+        default = param.default
+        # Only a value whose repr can't run anything is shown as itself.
+        plain = default is None or type(default) in (str, int, float, bool, bytes)
+        text += f" = {default!r}" if plain else f" = <{type(default).__name__}>"
+    return Param(param.name, text, param.kind.name)
+
+
+def _keywords(text: str, namespace: Mapping[str, Any]) -> dict[str, Item]:
+    """Inside a call, its parameters not given yet, as `name=`."""
+    if (call := call_at(text)) is None or call[2] is not None:
+        return {}
+    found = signature(text, len(text), namespace)
+    if found is None:
+        return {}
+    given = set(re.findall(r"(\w+)\s*=(?!=)", text[call[0] + 1 :]))
+    return {
+        f"{param.name}=": Item(f"{param.name}=", "parameter", param.text)
+        for param in found.params
+        if param.kind in ("POSITIONAL_OR_KEYWORD", "KEYWORD_ONLY")
+        and param.name not in given
+    }
 
 
 def _complete_string(
-    text: str, quote: int, namespace: Mapping[str, Any], limit: int
+    text: str, quote: int, namespace: Mapping[str, Any], limit: int, clock: _Budget
 ) -> Completions:
     """Keys inside `x["`, and paths inside `obj.find("`. Nothing anywhere
     else in a string - not file names, say."""
@@ -152,8 +353,9 @@ def _complete_string(
             target = _resolve(call.value, namespace)
             if isinstance(target, _Value) and _inspectable(target.obj):
                 keys = (k for k in _keys(target.obj) if k.startswith("/"))
-    items = [Item(k, "key") for k in keys if k.startswith(partial)]
-    result = Completions(sorted(items, key=lambda i: i.label)[:limit], len(partial))
+    items = [Item(k, "key") for k in clock.take(keys) if partial.lower() in k.lower()]
+    items.sort(key=lambda i: rank(i.label, partial))
+    result = Completions(items[:limit], len(partial))
     result.incomplete = len(items) > limit
     return result
 
@@ -181,8 +383,33 @@ def _open_string(text: str) -> int | None:
     return start if quote is not None else None
 
 
+def expression_at(text: str, after: str = "") -> str:
+    """The name or attribute chain the cursor is on - `text` is before it,
+    `after` after it - or, between a call's brackets, the callee. "" if
+    neither."""
+    word = re.match(r"\w*", after).group()  # type: ignore[union-attr]
+    full = text + word
+    if (found := _expression_start(full)) is not None and full[found:].strip():
+        return full[found:]
+    if (call := call_at(text)) is not None:
+        callee = text[: call[0]]
+        if (found := _expression_start(callee)) is not None:
+            return callee[found:]
+    return ""
+
+
+def _expression_start(text: str) -> int | None:
+    i = _scan_back(text)
+    return i if i is not None and _parse(text[i:]) is not None else None
+
+
 def _expression_before(text: str) -> ast.expr | None:
     """The name, attribute, call or subscript chain that `text` ends with."""
+    i = _scan_back(text)
+    return None if i is None else _parse(text[i:])
+
+
+def _scan_back(text: str) -> int | None:
     i = len(text)
     depth = 0
     while i > 0:
@@ -199,7 +426,7 @@ def _expression_before(text: str) -> ast.expr | None:
         elif depth == 0 and not (ch.isalnum() or ch in "_."):
             break
         i -= 1
-    return _parse(text[i:]) if depth == 0 else None
+    return i if depth == 0 else None
 
 
 def _parse(expr: str) -> ast.expr | None:
@@ -432,28 +659,260 @@ def _item(name: str, raw: Any) -> Item:
     return Item(name, "variable", type(raw).__name__)
 
 
-def _signature(func: Any) -> str:
+def _signature(func: Any, *, full: bool = False) -> str:
+    if (inspected := _inspect_signature(func)) is None:
+        return ""
+    text = inspected.format(quote_annotation_strings=False)
+    return text if full or len(text) <= 80 else text[:77] + "..."
+
+
+def _inspect_signature(func: Any) -> inspect.Signature | None:
     try:
         # As written: evaluating annotations could run code.
-        signature = inspect.signature(
-            func, annotation_format=annotationlib.Format.STRING
-        )
-        params = list(signature.parameters.values())
-        if params and params[0].name in ("self", "cls"):
-            # Completed on an instance or class, it's never typed.
-            signature = signature.replace(parameters=params[1:])
-        text = signature.format(quote_annotation_strings=False)
+        found = inspect.signature(func, annotation_format=annotationlib.Format.STRING)
     except TypeError, ValueError:
-        return ""
-    return text if len(text) <= 80 else text[:77] + "..."
+        return None
+    params = list(found.parameters.values())
+    if params and params[0].name in ("self", "cls"):
+        # Called on an instance or class, it's never given.
+        found = found.replace(parameters=params[1:])
+    return found
 
 
-def _matching(members: dict[str, Item], prefix: str, limit: int) -> Completions:
-    items = [
-        item
-        for name, item in members.items()
-        if name.startswith(prefix)
-        and (prefix.startswith("_") or not name.startswith("_"))
-    ]
-    items.sort(key=lambda i: (i.label.startswith("__"), i.label.lower()))
+def matches(name: str, typed: str) -> bool:
+    """`typed` anywhere in `name`, in any case - so `state` finds
+    `async_set_state` - leaving out private names until a `_` is typed."""
+    if name.startswith("_") and not typed.startswith("_"):
+        return False
+    return typed.lower() in name.lower()
+
+
+def rank(name: str, typed: str) -> tuple[bool, bool, str]:
+    """Sorting `matches()`: names starting with what's typed first."""
+    return (
+        not name.lower().startswith(typed.lower()),
+        name.startswith("__"),
+        name.lower(),
+    )
+
+
+def _matching(
+    members: dict[str, Item], prefix: str, limit: int, clock: _Budget | None = None
+) -> Completions:
+    pairs = members.items() if clock is None else clock.take(members.items())
+    items = [item for name, item in pairs if matches(name, prefix)]
+    # A call's own parameters first.
+    items.sort(key=lambda i: (i.kind != "parameter", *rank(i.label, prefix)))
     return Completions(items[:limit], len(prefix), len(items) > limit)
+
+
+@dataclass
+class Source:
+    """Where something's source is - for `thing??`."""
+
+    name: str  # qualified, `homeassistant.core.HomeAssistant`
+    file: str  # "" for something with no Python source, built in
+    line: int
+    url: str  # on GitHub, at the version running; "" if not known
+
+    def as_dict(self) -> dict[str, Any]:
+        return vars(self).copy()
+
+
+# Where a package's source is on GitHub: repository, the folder the package
+# is in there, and how a version is tagged ("dev" is the default branch).
+_REPOSITORIES = (
+    ("homeassistant_repl", "rhizomatics/homeassistant-repl", "src/", "v{}", "main"),
+    (
+        "custom_components.ha_repl_server",
+        "rhizomatics/homeassistant-repl",
+        "",
+        "v{}",
+        "main",
+    ),
+    ("homeassistant", "home-assistant/core", "", "{}", "dev"),
+)
+
+
+def source(
+    expression: str, namespace: Mapping[str, Any], versions: Mapping[str, str]
+) -> Source | None:
+    """Where the source of what `expression` names is, found without
+    running anything - for an instance, its class's. `versions` gives the
+    version of a package _REPOSITORIES knows that isn't in sys.modules to
+    ask, by its name there. None if it can't be followed."""
+    node = _parse(expression)
+    found = None if node is None else _resolve(node, namespace)
+    if isinstance(found, _Type):
+        target: Any = found.cls
+    elif isinstance(found, _Value):
+        target = found.obj
+    else:
+        return None
+    target = _defined(target)
+    if isinstance(target, types.FunctionType):
+        module = target.__module__ or ""
+        name = f"{module}.{target.__qualname__}"
+        file, line = target.__code__.co_filename, target.__code__.co_firstlineno
+    elif isinstance(target, types.ModuleType):
+        module = name = vars(target).get("__name__", "")
+        file, line = vars(target).get("__file__") or "", 1
+    elif isinstance(target, type):
+        module, name = target.__module__, _qualified(target)
+        line = vars(target).get("__firstlineno__", 1)
+        file = (
+            vars(sys.modules[module]).get("__file__") or ""
+            if module in sys.modules
+            else ""
+        )
+    else:
+        return None
+    return Source(name, file, line, _url(module, file, line, versions) if file else "")
+
+
+def _defined(obj: Any) -> Any:
+    """What holds the source of `obj`: the function behind a method,
+    property or decorator, an instance's class."""
+    if isinstance(obj, property) and obj.fget is not None:
+        obj = obj.fget
+    if isinstance(obj, (staticmethod, classmethod, types.MethodType)):
+        obj = obj.__func__
+    while isinstance(obj, types.FunctionType) and "__wrapped__" in vars(obj):
+        obj = vars(obj)["__wrapped__"]
+    if not isinstance(obj, (types.FunctionType, types.ModuleType, type)):
+        obj = type(obj)
+    return obj
+
+
+def _url(module: str, file: str, line: int, versions: Mapping[str, str]) -> str:
+    path = module.replace(".", "/")
+    rel = next(
+        (end for end in (f"{path}.py", f"{path}/__init__.py") if file.endswith(end)), ""
+    )
+    if not rel:
+        return ""
+    for package, repository, folder, tag, branch in _REPOSITORIES:
+        if module == package or module.startswith(package + "."):
+            version = versions.get(package) or _version(package)
+            if not version:
+                return ""
+            ref = branch if "dev" in version else tag.format(version)
+            return f"https://github.com/{repository}/blob/{ref}/{folder}{rel}#L{line}"
+    if module.split(".", maxsplit=1)[0] in sys.stdlib_module_names:
+        v = sys.version_info
+        ref = f"v{v.major}.{v.minor}.{v.micro}" if v.releaselevel == "final" else "main"
+        return f"https://github.com/python/cpython/blob/{ref}/Lib/{rel}#L{line}"
+    return ""
+
+
+def _version(package: str) -> str:
+    """Home Assistant's version, if it's running here."""
+    const = (
+        sys.modules.get("homeassistant.const") if package == "homeassistant" else None
+    )
+    version = vars(const).get("__version__") if const is not None else None
+    return version if isinstance(version, str) else ""
+
+
+@dataclass
+class Doc:
+    """What something is, found without running anything - for Ctrl-Space
+    and `ha-repl inspect`."""
+
+    name: str  # as asked about
+    kind: str  # "class", "function", "module", "property" or "instance"
+    type: str  # qualified, `homeassistant.core.StateMachine`
+    signature: str = ""
+    doc: str = ""
+    value: str = ""  # a plain value's repr, which can't run anything
+
+    def as_dict(self) -> dict[str, Any]:
+        return vars(self).copy()
+
+
+_PLAIN = (str, int, float, bool, bytes, type(None))
+
+
+def describe(expression: str, namespace: Mapping[str, Any]) -> Doc | None:
+    """What `expression` names. None if it can't be followed."""
+    node = _parse(expression)
+    if isinstance(node, ast.Attribute) and (prop := _property(node, namespace)):
+        returns = _annotations(prop.fget).get("return", "") if prop.fget else ""
+        return Doc(expression, "property", returns, doc=_docstring(prop.fget))
+    found = None if node is None else _resolve(node, namespace)
+    if isinstance(found, _Type):
+        return Doc(
+            expression, "instance", _qualified(found.cls), doc=_docstring(found.cls)
+        )
+    if not isinstance(found, _Value):
+        return None
+    obj = found.obj
+    if isinstance(obj, (staticmethod, classmethod)):
+        obj = obj.__func__
+    if isinstance(obj, type):
+        init = inspect.getattr_static(obj, "__init__", None)
+        signature = (
+            "" if init in (None, object.__init__) else _signature(init, full=True)
+        )
+        return Doc(expression, "class", _qualified(obj), signature, _docstring(obj))
+    if isinstance(
+        obj, (types.FunctionType, types.BuiltinFunctionType, types.MethodType)
+    ):
+        return Doc(
+            expression,
+            "function",
+            _qualified(obj),
+            _signature(obj, full=True),
+            _docstring(obj),
+        )
+    if isinstance(obj, types.ModuleType):
+        return Doc(
+            expression, "module", vars(obj).get("__name__", ""), doc=_docstring(obj)
+        )
+    value = reprlib.Repr(maxstring=200).repr(obj) if type(obj) in _PLAIN else ""
+    declared = ""
+    if isinstance(node, ast.Attribute) and (owner := _owner(node, namespace)):
+        # As the class declares it - `list[SqlTable]` says more than `list`.
+        declared = _declared(owner).get(node.attr, "")
+    return Doc(
+        expression,
+        "instance",
+        declared or _qualified(type(obj)),
+        doc=_docstring(type(obj)),
+        value=value,
+    )
+
+
+def _owner(node: ast.Attribute, namespace: Mapping[str, Any]) -> type | None:
+    """The class whose attribute `node` reads."""
+    owner = _resolve(node.value, namespace)
+    if isinstance(owner, _Value):
+        return owner.obj if isinstance(owner.obj, type) else type(owner.obj)
+    return owner.cls if isinstance(owner, _Type) else None
+
+
+def _property(node: ast.Attribute, namespace: Mapping[str, Any]) -> property | None:
+    """The property `node` reads, if it reads one - for its own docstring."""
+    owner = _resolve(node.value, namespace)
+    if isinstance(owner, _Value):
+        obj = owner.obj
+        cls = obj if isinstance(obj, type) else type(obj)
+    elif isinstance(owner, _Type):
+        cls = owner.cls
+    else:
+        return None
+    raw = inspect.getattr_static(cls, node.attr, None)
+    return raw if isinstance(raw, property) else None
+
+
+def _qualified(obj: Any) -> str:
+    """A class's or function's full name. Read off the object itself: a C
+    type keeps these out of its __dict__, and on a class or function they
+    run nothing of its own."""
+    module, name = obj.__module__, obj.__qualname__
+    return name if module in ("builtins", None) else f"{module}.{name}"
+
+
+def _docstring(obj: Any) -> str:
+    doc = vars(obj).get("__doc__") if isinstance(obj, types.ModuleType) else _doc(obj)
+    return inspect.cleandoc(doc)[:4000] if isinstance(doc, str) else ""

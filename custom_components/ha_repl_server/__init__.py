@@ -20,7 +20,12 @@ from homeassistant.helpers.typing import ConfigType
 from homeassistant.util import dt as dt_util
 
 from . import websocket_api
-from .const import CAPABILITIES, DOMAIN
+from .const import (
+    CAPABILITIES,
+    DEFAULT_COMPLETE_BUDGET_MS,
+    DEFAULT_COMPLETE_LIMIT,
+    DOMAIN,
+)
 from .objtree import ObjTree
 from .session import SessionManager
 
@@ -102,7 +107,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Arrow data through ha_repl_server/sql, which checks this feature.
     features = {"sql"} if entry.options.get("expose_sql", True) else set()
 
-    hass.data[DOMAIN] = SessionManager(bindings, frozenset(features))
+    hass.data[DOMAIN] = SessionManager(
+        bindings,
+        frozenset(features),
+        complete_limit=entry.options.get("complete_limit", DEFAULT_COMPLETE_LIMIT),
+        complete_budget=entry.options.get(
+            "complete_budget_ms", DEFAULT_COMPLETE_BUDGET_MS
+        )
+        / 1000,
+    )
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     _LOGGER.warning(
         "Home Assistant REPL is enabled: admin users can execute arbitrary Python in this instance"

@@ -25,6 +25,9 @@ _ALL_ACKS = {
     "ack_token": True,
 }
 
+# What the options form saves for completion's limits, left as they were.
+COMPLETE_DEFAULTS = {"complete_limit": 500, "complete_budget_ms": 500}
+
 
 async def test_user_flow_shows_a_form_first(
     recorder_mock, hass: HomeAssistant, enable_custom_integrations: None
@@ -99,7 +102,7 @@ async def test_options_flow_shows_current_values_as_defaults(
         for k in result["data_schema"].schema
         if not k.schema.endswith("_minutes")
     }
-    assert defaults == {"expose_hass": False, "expose_sql": True}
+    assert defaults == {"expose_hass": False, "expose_sql": True, **COMPLETE_DEFAULTS}
 
 
 async def test_options_flow_updates_entry_options_and_reloads(
@@ -118,7 +121,11 @@ async def test_options_flow_updates_entry_options_and_reloads(
     await hass.async_block_till_done()
 
     assert result["type"] is FlowResultType.CREATE_ENTRY
-    assert entry.options == {"expose_hass": True, "expose_sql": False}
+    assert entry.options == {
+        "expose_hass": True,
+        "expose_sql": False,
+        **COMPLETE_DEFAULTS,
+    }
     # OptionsFlowWithReload reloaded the entry - the session manager was
     # rebuilt with the new settings, not the old ones.
     assert not hass.data[DOMAIN].has_feature("sql")
@@ -128,7 +135,8 @@ async def _configure(hass: HomeAssistant, entry: MockConfigEntry, **user_input):
     result = await hass.config_entries.options.async_init(entry.entry_id)
     form = result
     result = await hass.config_entries.options.async_configure(
-        result["flow_id"], {"expose_hass": True, "expose_sql": True, **user_input}
+        result["flow_id"],
+        {"expose_hass": True, "expose_sql": True, **COMPLETE_DEFAULTS, **user_input},
     )
     await hass.async_block_till_done()
     assert result["type"] is FlowResultType.CREATE_ENTRY
@@ -159,7 +167,11 @@ async def test_a_time_limit_switches_just_that_capability_off_when_it_runs_out(
     assert not hass.data[DOMAIN].has_feature("sql")
     assert "hass" in hass.data[DOMAIN].get("default").globals_
     # as if it had been switched off from Configure
-    assert entry.options == {"expose_hass": True, "expose_sql": False}
+    assert entry.options == {
+        "expose_hass": True,
+        "expose_sql": False,
+        **COMPLETE_DEFAULTS,
+    }
 
 
 async def test_a_time_limit_that_ran_out_while_stopped_is_applied_at_setup(
@@ -202,8 +214,35 @@ async def test_options_form_shows_a_running_limit_and_keeps_or_clears_it(
 
     # with no value entered, it stays on
     await _configure(hass, entry)
-    assert entry.options == {"expose_hass": True, "expose_sql": True}
+    assert entry.options == {
+        "expose_hass": True,
+        "expose_sql": True,
+        **COMPLETE_DEFAULTS,
+    }
 
     # and a limit on something switched off is not kept
     await _configure(hass, entry, expose_sql=False, expose_sql_minutes=5)
-    assert entry.options == {"expose_hass": True, "expose_sql": False}
+    assert entry.options == {
+        "expose_hass": True,
+        "expose_sql": False,
+        **COMPLETE_DEFAULTS,
+    }
+
+
+async def test_completion_limits_are_options_the_session_manager_uses(
+    recorder_mock, hass: HomeAssistant, enable_custom_integrations: None
+) -> None:
+    entry = MockConfigEntry(domain=DOMAIN, data={}, options={})
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    assert (hass.data[DOMAIN].complete_limit, hass.data[DOMAIN].complete_budget) == (
+        500,
+        0.5,
+    )
+    await _configure(hass, entry, complete_limit=50, complete_budget_ms=200)
+    assert entry.options["complete_limit"] == 50
+    assert (hass.data[DOMAIN].complete_limit, hass.data[DOMAIN].complete_budget) == (
+        50,
+        0.2,
+    )

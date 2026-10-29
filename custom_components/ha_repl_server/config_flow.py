@@ -32,7 +32,12 @@ from homeassistant.config_entries import (
 )
 from homeassistant.util import dt as dt_util
 
-from .const import CAPABILITIES, DOMAIN
+from .const import (
+    CAPABILITIES,
+    DEFAULT_COMPLETE_BUDGET_MS,
+    DEFAULT_COMPLETE_LIMIT,
+    DOMAIN,
+)
 
 TITLE = "Home Assistant REPL Live Server"
 
@@ -93,8 +98,17 @@ def _minutes_left(options: Any, name: str, now: datetime) -> int | None:
     return math.ceil((until - now) / timedelta(minutes=1))
 
 
+# Completion's limits: how many items one answer has at most, and how long
+# it's given to find them.
+_COMPLETE_FIELDS = {
+    "complete_limit": (DEFAULT_COMPLETE_LIMIT, 10, 10_000),
+    "complete_budget_ms": (DEFAULT_COMPLETE_BUDGET_MS, 50, 10_000),
+}
+
+
 class HaReplServerOptionsFlow(OptionsFlowWithReload):
-    """`expose_hass`/`expose_sql`, and a time limit for each - editable
+    """`expose_hass`/`expose_sql`, a time limit for each, and completion's
+    limits - editable
     after setup; changing any reloads the entry automatically
     (OptionsFlowWithReload's own job) so async_setup_entry re-reads them
     immediately, no manual listener needed.
@@ -118,6 +132,8 @@ class HaReplServerOptionsFlow(OptionsFlowWithReload):
                 else:
                     until = now + timedelta(minutes=minutes)
                     data[f"expose_{name}_until"] = until.isoformat()
+            for field in _COMPLETE_FIELDS:
+                data[field] = user_input[field]
             return self.async_create_entry(title="", data=data)
         fields: dict[Any, Any] = {}
         for name in CAPABILITIES:
@@ -131,4 +147,8 @@ class HaReplServerOptionsFlow(OptionsFlowWithReload):
                     f"expose_{name}_minutes", description={"suggested_value": left}
                 )
             ] = vol.All(vol.Coerce(int), vol.Range(min=1))
+        for field, (default, low, high) in _COMPLETE_FIELDS.items():
+            fields[vol.Required(field, default=options.get(field, default))] = vol.All(
+                vol.Coerce(int), vol.Range(min=low, max=high)
+            )
         return self.async_show_form(step_id="init", data_schema=vol.Schema(fields))  # type: ignore[arg-type] # ty: ignore[invalid-argument-type]
