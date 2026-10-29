@@ -1610,11 +1610,13 @@
 <p>This is primarily for developers of custom components, and their LLM agents, though may be of interest for other folk tinkering with Home Assistant. It is a potentially sharp tool, so NOT appropriate for general Home Assistant users.</p>
 <h2 id="features">Features<a class="headerlink" href="#features" title="Permanent link">&para;</a></h2>
 <ul>
+<li>Easy <code>ipython</code> style help using <code>?</code> for help and <code>??</code> for source code, matched to the correct version tag</li>
 <li>Integrated with <code>rich</code> and <code>pygments</code> for pretty object printouts and stack traces</li>
 <li>Reuses session and history features from <code>prompt-toolkit</code></li>
 <li>Access to all entities via an <a href="obj_tree/">Object Tree</a> dictionary like interface</li>
 <li>Multi-line editing, with a whole statement or block per history entry - Up brings back the complete <code>for</code> loop, to edit any line of it</li>
-<li>Tab completion that runs nothing, including <code>obj</code> paths and entity ids, and in live mode what's inside Home Assistant</li>
+<li>Tab completion that runs nothing, including <code>obj</code> paths and entity ids, and in live mode what's inside Home Assistant, with the signature of the call being typed</li>
+<li>IPython style <code>thing?</code> help, and <code>thing??</code> for a link to its source on GitHub at the version running</li>
 <li>Integrated with <a href="https://pypi.org/project/HomeAssistant-API/">homeassistant-api</a> as <code>hass_api</code> object</li>
 <li>Auto-awaits coroutines for easy shell use (can be switched off or overridden)</li>
 <li>Dedicated shell that can be run without installation with <code>uv</code></li>

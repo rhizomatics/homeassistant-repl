@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Python REPL Shell for Home Assistant Developers">
+        <meta name="description" content="This release brings auto-complete for code and the object tree, integrated help/source-code lookup, much improved CLI history and lots more.">
       
       
       
@@ -1448,6 +1448,7 @@
 with each other for point releases</p>
 </div>
 <h1 id="0140">0.14.0<a class="headerlink" href="#0140" title="Permanent link">&para;</a></h1>
+<p>This release brings auto-complete for code and the object tree, integrated help/source-code lookup, much improved CLI history and lots more.</p>
 <h2 id="-enhancements">✨ Enhancements<a class="headerlink" href="#-enhancements" title="Permanent link">&para;</a></h2>
 <h3 id="shell">Shell<a class="headerlink" href="#shell" title="Permanent link">&para;</a></h3>
 <ul>
@@ -1465,23 +1466,37 @@ with each other for point releases</p>
 <li>Also in API mode, for its local code</li>
 <li>Stopping code inside Home Assistant needs the server component at this version</li>
 </ul>
+<h3 id="fixes">Fixes<a class="headerlink" href="#fixes" title="Permanent link">&para;</a></h3>
+<ul>
+<li>A connection lost while the shell is open - Home Assistant restarting, say - is reported as <code>Connection closed</code>, rather than a traceback from the HTTP library, and leaving the shell still works</li>
+</ul>
 <h3 id="live-server">Live Server<a class="headerlink" href="#live-server" title="Permanent link">&para;</a></h3>
 <ul>
 <li>New <strong>Stop running code</strong> button on the integration's device, stopping whatever is running in every live session</li>
 <li>New <code>ha_repl_server/cancel</code> websocket command, which Ctrl-C in the shell sends</li>
-<li>Every command is written to the Home Assistant log at <code>info</code>, with the user who sent it</li>
+<li>Every command is written to the Home Assistant log at <code>warning</code>, so it shows by default, with the user who sent it</li>
+<li>On a logger of its own, <code>custom_components.ha_repl_server.commands</code>, to quieten without hiding other warnings</li>
 <li>The code run, then its outcome: the value or error, how much output, and how long it took</li>
 <li>Each SQL query, and its row count and time, or its error</li>
 <li>Each stop and reset</li>
 </ul>
-<h3 id="completion">Completion<a class="headerlink" href="#completion" title="Permanent link">&para;</a></h3>
+<h3 id="auto-completion">Auto-Completion<a class="headerlink" href="#auto-completion" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Tab completes names, attributes and keys in both shells, and a menu opens by itself after a <code>.</code>, in a key, and after two letters of a name (<a href="https://homeassistant-repl.rhizomatics.org.uk/developer/design/rfcs/0002-auto-completed/">RFC 0002</a>, steps 2 and 3)</li>
 <li>Nothing is run to complete: no property, call, or lookup in anything but a plain <code>dict</code>, <code>list</code> or <code>tuple</code>, or the object tree - return and property annotations are followed instead</li>
 <li><code>obj["</code> completes paths, and entity ids at the root, and <code>obj.find("</code> paths</li>
 <li>In live mode, a statement using <code>hass</code>, <code>obj</code> or a variable living in Home Assistant is completed by Home Assistant, from the session itself, even while code runs there. Needs the server component at this version</li>
 <li>Local code the walk can't follow, such as a loop variable, is completed by <a href="https://jedi.readthedocs.io">jedi</a>, now a dependency</li>
-<li>New <code>ha_repl_server/complete</code> websocket command, and <code>ha_repl_server/info</code> lists the commands a server has</li>
+<li>What's typed matches anywhere in a name, in any case - names starting with it first</li>
+<li>Inside a call, its signature is shown under the prompt with the argument being typed in bold, and its parameters not yet given complete as <code>name=</code> (step 5)</li>
+</ul>
+<h3 id="help">Help<a class="headerlink" href="#help" title="Permanent link">&para;</a></h3>
+<ul>
+<li>IPython style help in both shells (step 6)</li>
+<li><code>?</code> on its own: what the shell offers in its mode, and its keys</li>
+<li><code>thing?</code>: <code>help(thing)</code>, run where <code>thing</code> lives, so <code>hass?</code> is answered by Home Assistant. Never calls anything to get there</li>
+<li><code>thing??</code>: file and line of its source, and a link to that line on GitHub at the version running - Home Assistant's release or beta tag, this project's, or Python's</li>
+<li>New <code>ha_repl_server/complete</code> websocket command, for completions, signatures (<code>kind: "signature"</code>) and source locations (<code>kind: "source"</code>), and <code>ha_repl_server/info</code> lists the commands a server has</li>
 </ul>
 <h3 id="object-tree">Object Tree<a class="headerlink" href="#object-tree" title="Permanent link">&para;</a></h3>
 <ul>
@@ -1603,7 +1618,7 @@ with each other for point releases</p>
 </ul>
 <h1 id="0100">0.10.0<a class="headerlink" href="#0100" title="Permanent link">&para;</a></h1>
 <h2 id="-enhancements_5">✨ Enhancements<a class="headerlink" href="#-enhancements_5" title="Permanent link">&para;</a></h2>
-<h3 id="help">Help<a class="headerlink" href="#help" title="Permanent link">&para;</a></h3>
+<h3 id="help_1">Help<a class="headerlink" href="#help_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>help()</code> on something local - <code>obj</code> in API mode, <code>sql</code> and its results, tables and rows - now gives a short summary of what it is for, its methods, properties and attributes, as it already did for objects inside Home Assistant. Special methods, inherited members, data descriptors and the method resolution order are left out</li>
 <li><code>help(thing, full=True)</code> gives Python's own full help page, on either side</li>

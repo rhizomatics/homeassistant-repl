@@ -908,6 +908,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#registries-at-hand" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Registries at Hand
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shipped-with-a-component" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shipped with a Component
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1688,6 +1716,32 @@
 <h2 id="in-exec-mode">In Exec Mode<a class="headerlink" href="#in-exec-mode" title="Permanent link">&para;</a></h2>
 <p>Plugins are also run by <a href="../../modes/exec_mode/"><code>ha-repl exec</code></a>, so a snippet and an agent see the same names as the interactive shell. Warnings go to standard error, so standard output, and the JSON object from <code>--json</code>, hold only the snippet's own result. Each statement that uses <code>hass</code> is a round trip to Home Assistant on every call, so keep those few, put them under <code>if MODE != "exec":</code>, or use <code>--no-plugins</code> where speed matters.</p>
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
+<h3 id="registries-at-hand">Registries at Hand<a class="headerlink" href="#registries-at-hand" title="Permanent link">&para;</a></h3>
+<p>Short names for the registries and lists you look things up in most, in live mode:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># ~/.config/ha-repl/plugins/10-registries.py</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">if</span> <span class="n">MODE</span> <span class="o">!=</span> <span class="s2">"api"</span><span class="p">:</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">homeassistant.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">device_registry</span><span class="p">,</span> <span class="n">entity_registry</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="n">ent_reg</span> <span class="o">=</span> <span class="n">entity_registry</span><span class="o">.</span><span class="n">async_get</span><span class="p">(</span><span class="n">hass</span><span class="p">)</span>  <span class="c1"># ent_reg.async_get("light.shed")</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="n">dev_reg</span> <span class="o">=</span> <span class="n">device_registry</span><span class="o">.</span><span class="n">async_get</span><span class="p">(</span><span class="n">hass</span><span class="p">)</span>  <span class="c1"># dev_reg.async_get(device_id)</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    <span class="n">services</span> <span class="o">=</span> <span class="n">hass</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">async_services_internal</span><span class="p">()</span>  <span class="c1"># services["light"]["turn_on"]</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    <span class="n">components</span> <span class="o">=</span> <span class="n">hass</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">components</span>  <span class="c1"># "mqtt" in components</span>
+</span></code></pre></div>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">ent_reg</span><span class="o">.</span><span class="n">async_get</span><span class="p">(</span><span class="s2">"light.shed"</span><span class="p">)</span><span class="o">.</span><span class="n">platform</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="s1">'hue'</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="o">&gt;&gt;&gt;</span> <span class="p">[</span><span class="n">d</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dev_reg</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">d</span><span class="o">.</span><span class="n">manufacturer</span> <span class="o">==</span> <span class="s2">"Signify"</span><span class="p">]</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="p">[</span><span class="s1">'Shed'</span><span class="p">,</span> <span class="s1">'Kitchen'</span><span class="p">]</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="o">&gt;&gt;&gt;</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">services</span><span class="p">[</span><span class="s2">"homeassistant"</span><span class="p">])[:</span><span class="mi">3</span><span class="p">]</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="p">[</span><span class="s1">'check_config'</span><span class="p">,</span> <span class="s1">'reload_all'</span><span class="p">,</span> <span class="s1">'reload_config_entry'</span><span class="p">]</span>
+</span></code></pre></div>
+<ul>
+<li>The whole <code>if</code> is one statement, and it uses <code>hass</code>, so it runs inside Home Assistant, imports included, and leaves all four names there. It's a single round trip, so it costs <code>ha-repl exec</code> little</li>
+<li><code>ent_reg</code>, <code>dev_reg</code> and <code>services</code> are the registries themselves, not copies, so they stay current as entities, devices and actions come and go. Look things up in them, but change them only through their own methods - <code>ent_reg.async_update_entity(...)</code> - as an integration would</li>
+<li><code>components</code> is the set of integrations Home Assistant has loaded, and grows as more are</li>
+<li>Completion follows them, since they live in Home Assistant: <code>ent_reg.async_</code> offers the registry's own methods, and <code>ent_reg.async_get(</code> shows its signature</li>
+<li>Not <code>er</code> and <code>dr</code>, which Home Assistant's own code uses for the <code>entity_registry</code> and <code>device_registry</code> modules: a snippet copied from it, <code>from homeassistant.helpers import entity_registry as er</code>, would replace them</li>
+</ul>
+<h3 id="shipped-with-a-component">Shipped with a Component<a class="headerlink" href="#shipped-with-a-component" title="Permanent link">&para;</a></h3>
 <ul>
 <li><a href="https://supernotify.rhizomatics.org.uk">Supernotify</a> comes with a <a href="https://github.com/rhizomatics/supernotify/blob/main/.ha-repl/plugins/10-supernotify-internals.py">plugin</a> built-in.</li>
 </ul>

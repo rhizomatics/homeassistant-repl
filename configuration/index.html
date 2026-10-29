@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="All modes require a Long Lived Access Token which can be provided via HASS_TOKEN enivironment variable, a HASS_TOKEN=xxxx line in an .env file, or the --token argument on ha-repl.">
+        <meta name="description" content="Python REPL Shell for Home Assistant Developers">
       
       
       
@@ -1476,10 +1476,19 @@
 
 <hr />
 <h1 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h1>
+<h2 id="tokens">Tokens<a class="headerlink" href="#tokens" title="Permanent link">&para;</a></h2>
 <p>All modes require a <a href="https://developers.home-assistant.io/docs/auth_api/#long-lived-access-token">Long Lived Access Token</a> which can be provided via <code>HASS_TOKEN</code> enivironment variable, a <code>HASS_TOKEN=xxxx</code> line in an <code>.env</code> file, or the <code>--token</code> argument on <code>ha-repl</code>.</p>
+<h2 id="server">Server<a class="headerlink" href="#server" title="Permanent link">&para;</a></h2>
 <p>The URL will default to <code>http://homeassistant.local:8123</code> or can be set using the <code>HASS_SERVER</code> enivironment variable, a <code>HASS_SERVER=xxxx</code> line in an <code>.env</code> file, or the <code>--server</code> argument on <code>ha-repl</code>.</p>
-<p>Note, although <code>homeassistant-api</code> itself has different env vars, when used within <code>ha-repl</code> it will be set up automatically using the same server and token as the main shell.</p>
-<p>If you work with more than one Home Assistant, name them in <code>~/.config/ha-repl/config.toml</code> and pick one with <code>--server NAME</code>. Python files in <code>~/.config/ha-repl/plugins/</code> are run at the start of every session, for helper functions and bookmarked expressions. See <a href="client_configuration/">Configuration</a></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although <code>homeassistant-api</code> itself has different env vars, when used within <code>ha-repl</code> it will be set up automatically using the same server and token as the main shell.</p>
+</div>
+<h2 id="configuration-file">Configuration File<a class="headerlink" href="#configuration-file" title="Permanent link">&para;</a></h2>
+<p>A configuration file makes it easy to work with more than one Home Assistant, for example a <code>beta</code> and <code>latest</code> Docker instance, or your real home server. </p>
+<p>Name them in <code>~/.config/ha-repl/config.toml</code> and pick one with <code>--server NAME</code>. </p>
+<p>This configuration setup also supports plugins, which are simply Python files in <code>~/.config/ha-repl/plugins/</code> and are run at the start of every session, for helper functions and bookmarked expressions. </p>
+<p>See <a href="client_configuration/">Client Configuration</a> for more info.</p>
 <p>
 <div class="pagetree-container">
     <div class="pagetree-functions"></div>

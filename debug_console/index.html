@@ -1583,7 +1583,12 @@
 <tr>
 <td>Completion and signatures</td>
 <td>Yes, static</td>
-<td>Completion, static, on both sides, including <code>obj</code> paths and dict keys. Signatures not yet - see <a href="../developer/design/rfcs/0002-auto-completed/">RFC 0002</a></td>
+<td>Yes, static, on both sides, including <code>obj</code> paths and dict keys, matching anywhere in a name - see <a href="../developer/design/rfcs/0002-auto-completed/">RFC 0002</a></td>
+</tr>
+<tr>
+<td>Help</td>
+<td>Expand a result to look inside it</td>
+<td><code>thing?</code> for help, <code>thing??</code> for a GitHub link to the source at the version running</td>
 </tr>
 <tr>
 <td>Multi-line input and history</td>
@@ -1618,7 +1623,7 @@
 <tr>
 <td>Audit trail</td>
 <td>Each run is logged with the user who ran it</td>
-<td>Each command is logged with the user who sent it, its outcome and timing - at <code>info</code>, so it needs <a href="../configuration/server_install/#stopping-code-and-the-log">a <code>logger:</code> setting</a> to show</td>
+<td>Each command is logged with the user who sent it, its outcome and timing, at <code>warning</code> so it shows by default - see <a href="../configuration/server_install/#stopping-code-and-the-log">the log</a></td>
 </tr>
 <tr>
 <td>Paste protection</td>

@@ -1585,10 +1585,10 @@
 </ul>
 <h3 id="stopping-code-and-the-log">Stopping Code and the Log<a class="headerlink" href="#stopping-code-and-the-log" title="Permanent link">&para;</a></h3>
 <p>The integration's device has a <strong>Stop running code</strong> button. Pressing it stops whatever is running in every live session - for when the shell that started it has gone, or from a dashboard or automation. Ctrl-C in the shell does the same for its own session.</p>
-<p>Every command a shell sends is written to the Home Assistant log, with the user who sent it: the code run and how it went (its value or error, and how long it took), each SQL query and how many rows it returned, and each stop and reset. They're logged at <code>info</code>, below Home Assistant's default level of <code>warning</code>, so to see them add this to <code>configuration.yaml</code>:</p>
+<p>Every command a shell sends is written to the Home Assistant log, with the user who sent it: the code run and how it went (its value or error, and how long it took), each SQL query and how many rows it returned, and each stop and reset. They're logged at <code>warning</code>, so they show in the log with Home Assistant's default settings. They have a logger of their own, so to quieten them without hiding the integration's other warnings, add this to <code>configuration.yaml</code>:</p>
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">logger</span><span class="p">:</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">logs</span><span class="p">:</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="nt">custom_components.ha_repl_server</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">info</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="nt">custom_components.ha_repl_server.commands</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">error</span>
 </span></code></pre></div>
 
 

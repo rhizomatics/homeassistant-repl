@@ -1639,6 +1639,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#help" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Help
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#stopping-code" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1969,11 +1980,24 @@
 <h2 id="completion">Completion<a class="headerlink" href="#completion" title="Permanent link">&para;</a></h2>
 <p>Tab completes names, attributes and keys, and a menu opens by itself after a <code>.</code>, inside <code>obj["</code> or <code>obj.find("</code>, and after two letters of a name.</p>
 <ul>
-<li>Completion follows the same rule as running: something typed in a statement that uses <code>hass</code>, <code>obj</code> or a variable living in Home Assistant is completed by Home Assistant, from the live session</li>
+<li>What's typed matches anywhere in a name, in any case, so <code>hass.states.set</code> finds <code>async_set</code> - names starting with it come first</li>
+<li>
+<p>Inside a call's brackets, its signature is shown under the prompt, with the argument being typed in bold, and its parameters not given yet complete as <code>name=</code></p>
+</li>
+<li>
+<p>Completion follows the same rule as running: something typed in a statement that uses <code>hass</code>, <code>obj</code> or a variable living in Home Assistant is completed by Home Assistant, from the live session</p>
+</li>
 <li>Nothing is run to find a completion - no property, call, or lookup in anything but a plain <code>dict</code>, <code>list</code> or <code>tuple</code>, or the object tree. <code>hass.states.get("sun.sun").</code> completes from what <code>get</code> is declared to return, a <code>State</code>, without calling it</li>
 <li><code>obj["</code> completes paths, and entity ids at the root. A key that isn't there completes nothing</li>
 <li>Enter on a completion picked from the menu just takes it, without running the line</li>
 <li>Completion inside Home Assistant needs the server at 0.14.0 or later. Without it, the shell completes only what's local, and says so when it starts</li>
+</ul>
+<h2 id="help">Help<a class="headerlink" href="#help" title="Permanent link">&para;</a></h2>
+<p>As in IPython:</p>
+<ul>
+<li><code>?</code> on its own shows what the shell offers in the mode it's in, and its keys</li>
+<li><code>thing?</code> (or <code>?thing</code>) is <code>help(thing)</code>, run where <code>thing</code> lives - <code>hass?</code> is answered inside Home Assistant. Nothing is called to get there: <code>hass.states.get("x")?</code> is refused, ask about <code>hass.states.get?</code> instead</li>
+<li><code>thing??</code> shows where its source is - file and line - and a link to that line on GitHub, at the version that's running: Home Assistant's own release or beta tag, this project's, or Python's. Found without running anything. A link rather than the source, since Home Assistant may be running any version, and its files aren't here to show</li>
 </ul>
 <h2 id="stopping-code">Stopping Code<a class="headerlink" href="#stopping-code" title="Permanent link">&para;</a></h2>
 <p>Ctrl-C while something runs stops it, and leaves the shell and everything in it as it was.</p>

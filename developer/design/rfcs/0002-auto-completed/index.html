@@ -1828,7 +1828,7 @@
 </tr>
 <tr>
 <td>Progress</td>
-<td>Steps 0 to 3 done in 0.14.0 - see <a href="#step-0-findings">Step 0 Findings</a> and <a href="#as-built">As Built</a></td>
+<td>Steps 0 to 3 done in 0.14.0, and most of 5 and 6 - see <a href="#step-0-findings">Step 0 Findings</a> and <a href="#as-built">As Built</a></td>
 </tr>
 <tr>
 <td>Affects</td>
@@ -2073,7 +2073,7 @@
 </ul>
 <p>IPython, Jupyter, Marimo and anything else built on jedi then complete <code>obj</code> from <code>connect()</code> with no further work.</p>
 <h3 id="agents">Agents<a class="headerlink" href="#agents" title="Permanent link">&para;</a></h3>
-<p>The <code>doc</code> and <code>source</code> kinds are the same information an agent wants when exploring, so they are offered as a command:</p>
+<p>The <code>doc</code> and <code>source</code> kinds are  same information an agent wants when exploring,the so they are offered as a command:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>ha-repl<span class="w"> </span>inspect<span class="w"> </span><span class="s1">'hass.states.async_set'</span><span class="w"> </span>--json
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>ha-repl<span class="w"> </span>inspect<span class="w"> </span><span class="s1">'hass.states.async_set'</span><span class="w"> </span>--source
 </span></code></pre></div>
@@ -2243,6 +2243,9 @@
 <li><strong>Where a completion runs</strong> is decided from the names in the input so far, found with <code>tokenize</code>, against the same remote names <code>LiveSession</code> keeps - not by moving <code>_Names</code> into a shared module, since <code>ast</code> can't parse unfinished input. If Home Assistant can't follow an expression, the client tries locally</li>
 <li><strong>A bare name</strong> completes from both sides without a round trip: the client already knows the names the server session holds</li>
 <li><strong><code>evaluate</code></strong> in <code>config.toml</code> waits for step 7, since <code>static</code> is the only setting until then</li>
+<li><strong>Step 5</strong> shows the signature under the prompt only inside a call's brackets, cut to fit with the argument being typed kept in view, and adds <code>name=</code> completion of the parameters not given yet. The marker for where a statement runs, and the routing and syntax warnings, are still to do</li>
+<li><strong>Step 6</strong> is <code>?</code> and <code>??</code>, but differently: <code>thing?</code> runs the shell's own <code>help(thing)</code> where <code>thing</code> lives, refusing any expression with a call in it, rather than a new <code>doc</code> kind. <code>thing??</code> gives the file and line, and a GitHub link at the version running, rather than the source text, since what runs in Home Assistant may be any version. <code>?</code> alone shows the shell's own help for its mode. <code>ha-repl inspect</code> is still to do</li>
+<li>What's typed matches anywhere in a name, case-insensitively, names starting with it first - prefix matching hid what was wanted behind <code>async_</code> and <code>get_</code></li>
 <li><code>ha_repl_server/complete</code> runs on the event loop, takes no lock, and is logged at <code>debug</code> only, since it runs nothing. Its answer has <code>resolved: false</code> when the expression couldn't be followed</li>
 </ul>
 <h2 id="gaps-with-home-assistants-debug-console">Gaps with Home Assistant's Debug Console<a class="headerlink" href="#gaps-with-home-assistants-debug-console" title="Permanent link">&para;</a></h2>
@@ -2254,7 +2257,6 @@
 <li><strong>No dependency added to Home Assistant.</strong> The console needs nothing beyond core. If the server's completion used jedi, it would be a requirement installed into Home Assistant's own environment, which other integrations share. Step 0 makes this a choice rather than a given</li>
 <li><strong>Installing nothing, from any device.</strong> The console is a browser page. <code>ha-repl</code> needs a terminal, a token, and for live mode a HACS component</li>
 <li><strong>Safeguards at the point of use.</strong> The console has every administrator accept a warning before first use, and blocks pasting until <code>allow pasting</code> is typed. <code>ha-repl</code>'s warning is given once, to whoever adds the integration, and pasting is never blocked</li>
-<li><strong>An audit trail out of the box.</strong> The console is documented as logging every run with its user. <code>ha-repl</code> logs every command too, but at <code>info</code>, which Home Assistant hides unless <code>logger:</code> says otherwise</li>
 </ul>
 <p>And some this RFC would give <code>ha-repl</code> that the console's documentation doesn't mention, so may not have: entity id, action, <code>obj</code> path and <code>hass.data</code> key completion inside strings, <code>sql</code> table and column completion, a marker showing where a statement will run before it's run, the source of an object with <code>??</code>, and <code>ha-repl inspect</code> for agents.</p>
 <h2 id="security">Security<a class="headerlink" href="#security" title="Permanent link">&para;</a></h2>
@@ -2274,11 +2276,11 @@
 <p><strong>Evaluating by default.</strong> Richer completion, at the cost of running code in Home Assistant on every keystroke. Rejected: completion must be idempotent unless the user has explicitly said otherwise.</p>
 <h2 id="open-questions">Open Questions<a class="headerlink" href="#open-questions" title="Permanent link">&para;</a></h2>
 <ol>
-<li>~~Is jedi acceptable as a requirement of the server component, given step 0's results, or should the standard library fallback be the default with jedi optional?~~ Proposed answer, from <a href="#step-0-findings">Step 0 Findings</a>: the standard library walk on the server. Still open: jedi on the client, or the same walk on both sides</li>
-<li>Which key binding shows the docstring of the name under the cursor? F1 is often taken by the terminal.</li>
-<li>Should <code>ha-repl inspect</code> route like <code>exec</code>, or require the expression to say which side it means?</li>
-<li>Should the server's time budget and item cap be options of the integration, or constants?</li>
-<li>For VSCode: is the integrated terminal with links enough on its own, or is the REPL editor worth an extension that hosts <code>ha-repl serve</code>?</li>
+<li>~~Is jedi acceptable as a requirement of the server component, given step 0's results, or should the standard library fallback be the default with jedi optional?~~ Answered by <a href="#step-0-findings">Step 0 Findings</a>: the standard library walk on the server, and on the client the same walk first, with jedi where it can't follow - see <a href="#as-built">As Built</a></li>
+<li>~~Which key binding shows the docstring of the name under the cursor? F1 is often taken by the terminal.~~ Ctrl-Shift-Space, as VSCode's own <em>Trigger Parameter Hints</em>. Most terminals send it as Ctrl-Space, which prompt_toolkit leaves unbound, so binding Ctrl-Space takes both</li>
+<li>~~Should <code>ha-repl inspect</code> route like <code>exec</code>, or require the expression to say which side it means?~~ Like <code>exec</code>: the same routing, plugins and options</li>
+<li>~~Should the server's time budget and item cap be options of the integration, or constants?~~ Options, on the live server's <em>Configure</em> form beside the <code>hass</code> and <code>sql</code> switches</li>
+<li>~~For VSCode: is the integrated terminal with links enough on its own, or is the REPL editor worth an extension that hosts <code>ha-repl serve</code>?~~ Left for a later release. Either an extension hosting <code>ha-repl serve</code>, or a language server that other editors and tools could use as well</li>
 </ol>
 <h2 id="out-of-scope">Out of Scope<a class="headerlink" href="#out-of-scope" title="Permanent link">&para;</a></h2>
 <ul>

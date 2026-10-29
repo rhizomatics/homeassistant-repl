@@ -213,11 +213,21 @@ shout(hass.states.get("sun.sun").state)
 
 Tab completes names, attributes and keys, and a menu opens by itself after a `.`, inside `obj["` or `obj.find("`, and after two letters of a name.
 
+- What's typed matches anywhere in a name, in any case, so `hass.states.set` finds `async_set` - names starting with it come first
+- Inside a call's brackets, its signature is shown under the prompt, with the argument being typed in bold, and its parameters not given yet complete as `name=`
 - Completion follows the same rule as running: something typed in a statement that uses `hass`, `obj` or a variable living in Home Assistant is completed by Home Assistant, from the live session
 - Nothing is run to find a completion - no property, call, or lookup in anything but a plain `dict`, `list` or `tuple`, or the object tree. `hass.states.get("sun.sun").` completes from what `get` is declared to return, a `State`, without calling it
 - `obj["` completes paths, and entity ids at the root. A key that isn't there completes nothing
 - Enter on a completion picked from the menu just takes it, without running the line
 - Completion inside Home Assistant needs the server at 0.14.0 or later. Without it, the shell completes only what's local, and says so when it starts
+
+## Help
+
+As in IPython:
+
+- `?` on its own shows what the shell offers in the mode it's in, and its keys
+- `thing?` (or `?thing`) is `help(thing)`, run where `thing` lives - `hass?` is answered inside Home Assistant. Nothing is called to get there: `hass.states.get("x")?` is refused, ask about `hass.states.get?` instead
+- `thing??` shows where its source is - file and line - and a link to that line on GitHub, at the version that's running: Home Assistant's own release or beta tag, this project's, or Python's. Found without running anything. A link rather than the source, since Home Assistant may be running any version, and its files aren't here to show
 
 ## Stopping Code
 
