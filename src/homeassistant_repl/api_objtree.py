@@ -145,6 +145,10 @@ class ApiRegistryEntry(dict[str, Any]):  # noqa: FURB189 - has to be a real dict
     live entity's `registry_entry` is - `registry_entry.unique_id` - so the
     same expression works on an ApiEntity and on a real Entity."""
 
+    # Its attributes, keys and dir() only look things up: completion may use
+    # them (complete.py).
+    _ha_repl_inspectable = True
+
     def __getattr__(self, name: str) -> Any:
         try:
             return self[name]
@@ -611,6 +615,10 @@ class ApiObjTree(Mapping[str, "ApiEntity | ApiAction | ApiObjTree"]):
     """
 
     # API client mode's view of the object tree - see the module docstring.
+
+    # Its attributes, keys and dir() only look things up: completion may use
+    # them (complete.py).
+    _ha_repl_inspectable = True
 
     cache: Cache
     integration: str | None = None

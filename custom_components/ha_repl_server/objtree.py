@@ -167,6 +167,10 @@ class ApiRegistryEntry(dict[str, Any]):  # noqa: FURB189 - has to be a real dict
     Duplicated from homeassistant_repl.api_objtree - see ApiEntity.
     """
 
+    # Its attributes, keys and dir() only look things up: completion may use
+    # them (complete.py).
+    _ha_repl_inspectable = True
+
     def __getattr__(self, name: str) -> Any:
         try:
             return self[name]
@@ -614,6 +618,10 @@ class ObjTree(Mapping[str, "Entity | ApiEntity | Action | ObjTree"]):
     hass: HomeAssistant
     integration: str | None = None
     domain: str | None = None
+    # Its attributes, keys and dir() only look things up: completion may use
+    # them (complete.py).
+    _ha_repl_inspectable = True
+
     # Shared by reference with every view derived from this one (see _Mode's
     # docstring) - not compared/hashed, since it's a toggle, not identity.
     _mode: _Mode = field(default_factory=_Mode, compare=False)

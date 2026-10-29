@@ -1052,6 +1052,13 @@ class SessionManager:
             )
         return session
 
+    def namespace(self, name: str) -> dict[str, Any]:
+        """A copy of what session `name` holds, or of the bindings alone if
+        there is no such session - without creating it."""
+        if (session := self._sessions.get(name)) is None:
+            return {"__builtins__": builtins, **self._bindings}
+        return {**session.globals_, **session.protected}
+
     def has_feature(self, name: str) -> bool:
         """Whether an optional capability that isn't a session binding is
         switched on - "sql" (the integration's expose_sql option) is served

@@ -80,7 +80,7 @@ This switch controls trade-off between shell convenience and ability to trial wo
 
 ### Enhancements
 - Drop down button to switch context between different Home Assistant instances
-  - Also implies some form of config more structured than env vats
+  - Defined in the `ha-repl/config.toml`
 - Read-only Mode
   - Control to switch it off in the toolbar of the REPL. 
   - Caveat about side-effects of supposedly read-only calls and difficulty of knowing what's really read-only. Possibly blanket ban on calling actions.

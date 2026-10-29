@@ -1,9 +1,10 @@
 """Websocket commands: ha_repl_server/exec, ha_repl_server/cancel,
-ha_repl_server/reset, ha_repl_server/sessions, ha_repl_server/info,
+ha_repl_server/complete, ha_repl_server/reset, ha_repl_server/sessions, ha_repl_server/info,
 ha_repl_server/sql and ha_repl_server/sql_tables (all admin only).
 
 Every command that runs or stops something - exec, cancel, reset and sql - is
 logged at INFO, with the user who sent it, and how it went with its timing.
+complete runs nothing, so is logged at DEBUG only.
 """
 
 from __future__ import annotations
@@ -20,6 +21,7 @@ from homeassistant.components import websocket_api
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.loader import async_get_integration
 
+from .complete import complete
 from .const import DEFAULT_SESSION, DOMAIN
 from .objtree import async_load_action_descriptions
 from .session import SessionManager
@@ -28,10 +30,25 @@ from .sql import DEFAULT_MAX_ROWS, SqlError, sql, table_schemas
 _LOGGER = logging.getLogger(__package__)
 
 
+# What a client can ask this server for, given in ha_repl_server/info so a
+# newer client can tell what an older server lacks.
+COMMANDS = frozenset({
+    "exec",
+    "cancel",
+    "complete",
+    "reset",
+    "sessions",
+    "info",
+    "sql",
+    "sql_tables",
+})
+
+
 @callback
 def async_register(hass: HomeAssistant) -> None:
     websocket_api.async_register_command(hass, ws_exec)
     websocket_api.async_register_command(hass, ws_cancel)
+    websocket_api.async_register_command(hass, ws_complete)
     websocket_api.async_register_command(hass, ws_reset)
     websocket_api.async_register_command(hass, ws_sessions)
     websocket_api.async_register_command(hass, ws_info)
@@ -140,6 +157,40 @@ def ws_cancel(
     cast(
         Any,
         {
+            vol.Required("type"): "ha_repl_server/complete",
+            vol.Required("source"): str,
+            vol.Required("cursor"): vol.Coerce(int),
+            vol.Optional("session", default=DEFAULT_SESSION): str,
+        },
+    )
+)
+@callback
+def ws_complete(
+    hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """What can go at the cursor, from the session's own namespace - see
+    complete.py. Runs nothing, so it takes no lock and answers while an
+    exec is running, and on the event loop, where the registries the
+    object tree reads can be read. `resolved` is False when the expression
+    before the cursor couldn't be followed without running something."""
+    if (manager := _manager(hass, connection, msg)) is None:
+        return
+    namespace = manager.namespace(msg["session"])
+    result = complete(msg["source"], msg["cursor"], namespace)
+    _LOGGER.debug("%s completes %r", _who(connection), msg["source"][: msg["cursor"]])
+    if result is None:
+        connection.send_result(
+            msg["id"], {"items": [], "replace": 0, "resolved": False}
+        )
+        return
+    connection.send_result(msg["id"], {**result.as_dict(), "resolved": True})
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command(
+    cast(
+        Any,
+        {
             vol.Required("type"): "ha_repl_server/reset",
             vol.Optional("session", default=DEFAULT_SESSION): str,
         },
@@ -182,7 +233,9 @@ async def ws_info(
     since the two are versioned and deployed independently (PyPI package vs
     HACS component) and can drift out of sync."""
     integration = await async_get_integration(hass, DOMAIN)
-    connection.send_result(msg["id"], {"version": integration.version})
+    connection.send_result(
+        msg["id"], {"version": integration.version, "commands": sorted(COMMANDS)}
+    )
 
 
 def _sql_manager(

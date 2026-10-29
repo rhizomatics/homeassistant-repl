@@ -24,6 +24,7 @@ from pathlib import Path
 from typing import Any
 
 from prompt_toolkit import PromptSession
+from prompt_toolkit.completion import Completer
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.key_binding import KeyBindings, KeyPressEvent
 from prompt_toolkit.lexers import PygmentsLexer
@@ -39,7 +40,9 @@ _compiler = codeop.CommandCompiler()
 _compiler.compiler.flags |= ast.PyCF_ALLOW_TOP_LEVEL_AWAIT
 
 
-def python_prompt(history: Path) -> PromptSession[str]:
+def python_prompt(
+    history: Path, completer: Completer | None = None
+) -> PromptSession[str]:
     """A prompt reading one complete statement (or block) per call."""
     return PromptSession(
         history=FileHistory(str(history)),
@@ -47,6 +50,8 @@ def python_prompt(history: Path) -> PromptSession[str]:
         multiline=True,
         key_bindings=_key_bindings(),
         prompt_continuation="... ",
+        completer=completer,
+        complete_while_typing=completer is not None,
     )
 
 
@@ -81,6 +86,10 @@ def _key_bindings() -> KeyBindings:
     @kb.add("enter")
     def _enter(event: KeyPressEvent) -> None:
         buffer = event.current_buffer
+        if buffer.complete_state and buffer.complete_state.current_completion:
+            # A completion picked from the menu is already in: just close it.
+            buffer.complete_state = None
+            return
         document = buffer.document
         if document.is_cursor_at_the_end and is_complete(document.text):
             _accept(event)

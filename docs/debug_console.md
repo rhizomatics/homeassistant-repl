@@ -23,7 +23,7 @@ Use **`ha-repl`** to work from a terminal or a coding agent, to work on data wit
 | Where your code runs | All of it inside Home Assistant | Locally, except statements using `hass` or `obj`, which are sent to Home Assistant - see [What Runs Where](./modes/live_mode.md#what-runs-where) |
 | Libraries you can import | Only what Home Assistant's Python has installed | Anything installed locally, such as polars or pandas |
 | Looking inside objects | Expandable results, with properties only evaluated when clicked | [`show()`](./modes/live_mode.md#looking-inside-objects), printed in colour as text |
-| Completion and signatures | Yes, static | Not yet - see [RFC 0002](./developer/design/rfcs/0002-auto-completed.md) |
+| Completion and signatures | Yes, static | Completion, static, on both sides, including `obj` paths and dict keys. Signatures not yet - see [RFC 0002](./developer/design/rfcs/0002-auto-completed.md) |
 | Multi-line input and history | Yes, recalled with the arrow keys | Yes, a whole block per history entry, kept across sessions in a history file |
 | Stopping running code | *Stop* button or Ctrl-C | Ctrl-C in the shell, a *Stop running code* button in Home Assistant, or `ha-repl exec --timeout` |
 | Waiting code | Doesn't block the console | Blocks the prompt until it finishes |

@@ -28,6 +28,14 @@
   - Each SQL query, and its row count and time, or its error
   - Each stop and reset
 
+### Completion
+- Tab completes names, attributes and keys in both shells, and a menu opens by itself after a `.`, in a key, and after two letters of a name ([RFC 0002](https://homeassistant-repl.rhizomatics.org.uk/developer/design/rfcs/0002-auto-completed/), steps 2 and 3)
+  - Nothing is run to complete: no property, call, or lookup in anything but a plain `dict`, `list` or `tuple`, or the object tree - return and property annotations are followed instead
+  - `obj["` completes paths, and entity ids at the root, and `obj.find("` paths
+  - In live mode, a statement using `hass`, `obj` or a variable living in Home Assistant is completed by Home Assistant, from the session itself, even while code runs there. Needs the server component at this version
+  - Local code the walk can't follow, such as a loop variable, is completed by [jedi](https://jedi.readthedocs.io), now a dependency
+- New `ha_repl_server/complete` websocket command, and `ha_repl_server/info` lists the commands a server has
+
 ### Object Tree
 - `obj["` completes paths, and entity ids at the root, in IPython, Jupyter and Marimo, for `obj` from `connect()` as well as in live mode (step 1 of [RFC 0002](https://homeassistant-repl.rhizomatics.org.uk/developer/design/rfcs/0002-auto-completed/))
 - A registry entry's keys complete as attributes there too: `entity.registry_entry.uni<TAB>`

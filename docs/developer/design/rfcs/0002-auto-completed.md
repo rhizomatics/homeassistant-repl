@@ -4,7 +4,7 @@
 | --- | --- |
 | Status | Draft |
 | Date | 2026-10-28, updated 2026-10-29 |
-| Progress | Step 0 done, see [Step 0 Findings](#step-0-findings). Step 1 done in 0.14.0 |
+| Progress | Steps 0 to 3 done in 0.14.0 - see [Step 0 Findings](#step-0-findings) and [As Built](#as-built) |
 | Affects | Live and API modes, `homeassistant_repl.connect()`, a new server command for live mode |
 
 ## Summary
@@ -271,6 +271,18 @@ What that means for the design:
 - Home Assistant's own [Debug console](../../../debug_console.md) answered the same question without jedi: going by the review of its [pull request](https://github.com/home-assistant/core/pull/186547), it matches names statically against the class's MRO and `__dict__`, replacing `rlcompleter`'s inspection of live objects
 
 So for the server, the standard library walk listed under [Alternatives Considered](#alternatives-considered) becomes the default, not the fallback, answering [Open Question](#open-questions) 1. jedi could still be used on the client, where what it might run is your own local code, if the loss of the rule there is acceptable - or behind objects wrapped so that `__getattr__` and `__dir__` can't be reached.
+
+### As Built
+
+Steps 1 to 3 went in as planned, except:
+
+- **The server uses the standard library, not jedi**, following step 0. `complete.py` follows the expression at the cursor with `inspect.getattr_static`, return and property annotations (read as strings, with `annotationlib`'s `STRING` format, never evaluated), and subscripts of a plain `dict`, `list` or `tuple`, or a class marked `_ha_repl_inspectable` - the object trees and registry entries. A missing key there completes nothing, rather than guessing
+- **The client uses the same walk first, and jedi only where it can't follow** - a loop or comprehension variable, an import. jedi also completes file names inside any string, so inside a string only the walk answers: keys after `[`, and tree paths in `obj.find("`. The same `complete.py` is in both packages, and a test keeps the two copies identical
+- **The `obj` paths and `hass.data` keys of step 4 came early**, since the walk completes keys of any subscript it can follow. Entity ids by parameter name, actions and config entries are still step 4
+- **Where a completion runs** is decided from the names in the input so far, found with `tokenize`, against the same remote names `LiveSession` keeps - not by moving `_Names` into a shared module, since `ast` can't parse unfinished input. If Home Assistant can't follow an expression, the client tries locally
+- **A bare name** completes from both sides without a round trip: the client already knows the names the server session holds
+- **`evaluate`** in `config.toml` waits for step 7, since `static` is the only setting until then
+- `ha_repl_server/complete` runs on the event loop, takes no lock, and is logged at `debug` only, since it runs nothing. Its answer has `resolved: false` when the expression couldn't be followed
 
 ## Gaps with Home Assistant's Debug Console
 

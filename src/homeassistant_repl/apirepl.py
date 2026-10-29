@@ -20,6 +20,7 @@ from pathlib import Path
 
 from .api_objtree import ApiObjTree, Cache
 from .client import Client, HaReplError, client_version
+from .completer import HaCompleter
 from .editor import python_prompt, run_interruptibly
 from .local_session import LocalSession
 from .plugins import bind_context, bind_rebind, local_runner, run_plugins
@@ -49,7 +50,7 @@ async def run_api_repl(
         {"obj": ApiObjTree(cache), "hass_api": rest_client}, auto_await=auto_await
     )
 
-    prompt = python_prompt(HISTORY)
+    prompt = python_prompt(HISTORY, HaCompleter(session.globals_))
     bind_context(session.globals_, "api", server_name)
     bind_rebind(session.globals_, plugins, local_runner(session))
     loaded = await run_plugins(plugins, local_runner(session))

@@ -34,6 +34,8 @@ from rich.console import Console
 
 from .cli import display_options, print_result
 from .client import Client, HaReplError, client_version
+from .complete import context_start
+from .completer import HaCompleter, names_read
 from .config import display_path
 from .editor import python_prompt, run_interruptibly
 from .local_session import LocalSession, format_error
@@ -361,6 +363,16 @@ class LiveSession:
                 "traceback": f"ha-repl: {message}\n",
             }
 
+    def remote_names_now(self) -> set[str]:
+        """The names that live in Home Assistant."""
+        return {*REMOTE_ONLY, *self.remote_names}
+
+    def completes_remotely(self, text: str) -> bool:
+        """Whether what's being typed at the end of `text` belongs to Home
+        Assistant: the input so far reads something that lives there, as
+        run() would decide - leaving out the word still being typed."""
+        return bool(names_read(text[: context_start(text)]) & self.remote_names_now())
+
     def _local_names(self) -> set[str]:
         return {
             name
@@ -534,15 +546,17 @@ async def run_repl(
     server_name: str | None = None,
     plugins: Sequence[Path] = (),
 ) -> int:
-    prompt = python_prompt(HISTORY)
     try:
         info = await client.call("ha_repl_server/info")
         server = f"Live Server v{info['version']}"
     except HaReplError:
         # An older server predating this command - not fatal, just less to show.
-        server = "Live Server"
+        info, server = {}, "Live Server"
 
     live = await connect_live(client, session_name, auto_await=auto_await)
+    completer = HaCompleter(live.local.globals_, live)
+    completer.remote = "complete" in info.get("commands", ())
+    prompt = python_prompt(HISTORY, completer)
     bind_context(live.local.globals_, "live", server_name)
     bind_live_rebind(live, plugins)
     loaded = await run_plugins(plugins, live.run_quiet)
@@ -552,6 +566,11 @@ async def run_repl(
         "Ctrl-D to exit.\n"
         "Python runs locally; anything using `hass` or `obj` runs inside Home Assistant."
         f"{banner_plugins(loaded)}"
+        + (
+            ""
+            if completer.remote
+            else "\nCompletion inside Home Assistant needs Live Server v0.14.0 or later."
+        )
     )
     while True:
         try:
@@ -565,6 +584,7 @@ async def run_repl(
         if is_quit_call(source):
             return 0
         await run_interruptibly(live.run(source), live.interrupt)
+        completer.forget()
 
 
 def banner_address(url: str, server_name: str | None) -> str:

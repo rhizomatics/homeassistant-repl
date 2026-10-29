@@ -32,7 +32,8 @@ async def test_ws_info_returns_manifest_version(
     response = await client.receive_json()
 
     assert response["success"]
-    assert response["result"] == {"version": integration.version}
+    assert response["result"]["version"] == integration.version
+    assert {"exec", "cancel", "complete"} <= set(response["result"]["commands"])
 
 
 async def _setup(hass: HomeAssistant, **options) -> None:
@@ -242,3 +243,57 @@ async def test_stop_button_stops_every_session(
     error = (await client.receive_json())["result"]["error"]
     assert error["type"] == "CancelledError"
     assert error["message"].endswith("from the Stop button")
+
+
+async def test_ws_complete_follows_real_home_assistant_objects(
+    recorder_mock, hass: HomeAssistant, enable_custom_integrations: None, hass_ws_client
+):
+    await _setup(hass)
+    hass.states.async_set("sensor.test", "42")
+    hass.services.async_register("demo", "ping", lambda call: None)
+    client = await hass_ws_client(hass)
+    ids = iter(range(1, 20))
+
+    async def labels(source: str) -> list[str]:
+        await client.send_json({
+            "id": next(ids),
+            "type": "ha_repl_server/complete",
+            "source": source,
+            "cursor": len(source),
+        })
+        result = (await client.receive_json())["result"]
+        return [item["label"] for item in result["items"]]
+
+    assert {"states", "services", "bus", "config"} <= set(await labels("hass."))
+    assert "async_set" in await labels("hass.states.async_s")
+    # Through get()'s return annotation, State | None, without calling it.
+    assert {"entity_id", "attributes", "domain"} <= set(
+        await labels('hass.states.get("sensor.test").')
+    )
+    assert await labels('obj["/dem') == ["/demo", "/demo/action", "/demo/action/ping"]
+    assert await labels('obj.find("/demo/a') == ["/demo/action", "/demo/action/ping"]
+    assert await labels('obj["/nothing') == []
+
+
+async def test_ws_complete_answers_while_code_runs_and_sees_its_variables(
+    recorder_mock, hass: HomeAssistant, enable_custom_integrations: None, hass_ws_client
+):
+    await _setup(hass)
+    client = await hass_ws_client(hass)
+    await client.send_json({
+        "id": 1,
+        "type": "ha_repl_server/exec",
+        "code": "import asyncio\nmy_states = hass.states\nawait asyncio.sleep(30)",
+    })
+    await asyncio.sleep(0.05)
+    await client.send_json({
+        "id": 2,
+        "type": "ha_repl_server/complete",
+        "source": "my_states.async_",
+        "cursor": 16,
+    })
+    reply = await client.receive_json()
+    assert reply["id"] == 2
+    assert reply["result"]["resolved"]
+    assert "async_set" in [item["label"] for item in reply["result"]["items"]]
+    await client.send_json({"id": 3, "type": "ha_repl_server/cancel"})
