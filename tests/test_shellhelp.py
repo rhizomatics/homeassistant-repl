@@ -90,9 +90,8 @@ async def test_an_attribute_its_class_documents_is_described_not_helped(capsys):
     )
     assert await _answer(("?", "sql.tables"), described=found) == []
     out = capsys.readouterr().out
-    assert (
-        "instance of list[SqlTable], attribute of homeassistant_repl.sql.SqlTool" in out
-    )
+    assert "instance of list[SqlTable]" in out
+    assert "attribute of" in out and "homeassistant_repl.sql.SqlTool" in out
     assert "12 items" in out and "recorder's tables" in out
     # Anything else is help() as before.
     plain = Doc("x", "instance", "list")

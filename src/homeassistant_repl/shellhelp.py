@@ -110,16 +110,16 @@ async def answer(
             return
         await run(f"help({expr})")
         return
-    found = await locate(expr)
-    if found is None:
+    where = await locate(expr)
+    if where is None:
         console.print(
             f"Can't tell where `{expr}` comes from without running it", style="red"
         )
-    elif not found.file:
-        console.print(f"{found.name} is built in: it has no Python source")
+    elif not where.file:
+        console.print(f"{where.name} is built in: it has no Python source")
     else:
         # Unwrapped, so the link stays one link at any width.
-        console.print(source_text(found), soft_wrap=True)
+        console.print(source_text(where), soft_wrap=True)
 
 
 def shell_help(mode: str) -> Text:
