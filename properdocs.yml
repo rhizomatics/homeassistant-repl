@@ -82,6 +82,7 @@ plugins:
           - modes/live_mode.md: Installing the server component, the live shell, and which statements run locally or inside Home Assistant
           - obj_tree.md: The `obj` object tree - path and entity id lookup, `find()` filters and `show()`
           - sql.md: The `sql` object for querying the Recorder database, and its result and table objects
+          - debug_console.md: How `ha-repl` compares with Home Assistant 2026.11's own browser Debug console, and which suits what
           - configuration/alternative_integration.md: Using `homeassistant_repl.connect()` from plain Python, ipython or Marimo instead of the shell
         Optional:
           - developer/design/design_principles.md: Design principles behind the client/server split

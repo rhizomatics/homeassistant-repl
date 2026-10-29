@@ -21,7 +21,7 @@ ha-repl
 
 ## First Steps with the Shell
 
-The shell is a full Python REPL shell, with multi-line editing, history etc, living inside an asyncio loop that exposes the live Home Assistant instance as:
+The shell is a full Python REPL shell, with multi-line editing, history by statement or block, etc, living inside an asyncio loop that exposes the live Home Assistant instance as:
 
 * `obj` - the [Object Tree](./obj_tree.md) exposed as a dictionary object and common methods
 * `hass_api` - the Home Assistant web socket / REST API exposed using the [homeassistant-api](https://pypi.org/project/HomeAssistant-API/) library

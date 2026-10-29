@@ -19,7 +19,6 @@ from __future__ import annotations
 
 import ast
 import asyncio
-import codeop
 import contextlib
 import copy
 import io
@@ -31,15 +30,12 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from prompt_toolkit import PromptSession
-from prompt_toolkit.history import FileHistory
-from prompt_toolkit.lexers import PygmentsLexer
-from pygments.lexers.python import PythonLexer
 from rich.console import Console
 
 from .cli import display_options, print_result
 from .client import Client, HaReplError, client_version
 from .config import display_path
+from .editor import python_prompt
 from .local_session import LocalSession, format_error
 from .plugins import bind_context, bind_rebind, run_plugins
 from .render import decode_value
@@ -518,11 +514,7 @@ async def run_repl(
     server_name: str | None = None,
     plugins: Sequence[Path] = (),
 ) -> int:
-    compiler = codeop.CommandCompiler()
-    compiler.compiler.flags |= ast.PyCF_ALLOW_TOP_LEVEL_AWAIT
-    prompt: PromptSession[str] = PromptSession(
-        history=FileHistory(str(HISTORY)), lexer=PygmentsLexer(PythonLexer)
-    )
+    prompt = python_prompt(HISTORY)
     try:
         info = await client.call("ha_repl_server/info")
         server = f"Live Server v{info['version']}"
@@ -541,24 +533,13 @@ async def run_repl(
         "Python runs locally; anything using `hass` or `obj` runs inside Home Assistant."
         f"{banner_plugins(loaded)}"
     )
-    lines: list[str] = []
     while True:
         try:
-            line = await prompt.prompt_async("... " if lines else ">>> ")
+            source = await prompt.prompt_async(">>> ")
         except KeyboardInterrupt:
-            lines.clear()
             continue
         except EOFError:
             return 0
-        lines.append(line)
-        source = "\n".join(lines)
-        try:
-            # None means incomplete input: keep reading continuation lines.
-            if compiler(source, "<ha_repl>", "single") is None:
-                continue
-        except SyntaxError, OverflowError, ValueError:
-            pass  # run it anyway so the error is reported consistently
-        lines.clear()
         if not source.strip():
             continue
         if is_quit_call(source):

@@ -4,6 +4,18 @@
     For live mode, generally the client and server component have to be on the same version. Different versions *might* work
     with each other for point releases
 
+# 0.14.0
+## ✨ Enhancements
+### Shell
+- A whole statement or block is edited and kept in history as one entry, in live and API modes alike
+  - Up brings back a complete `for` loop, `def` or `with` block, and any line of it can be changed before running it again
+  - Enter runs the code once it's complete, and the cursor is at the end. Otherwise it starts a new line, indented to match, one level deeper after a `:` and one shallower after `return`, `pass`, `break`, `continue` or `raise`
+  - A block is ended by an empty line, as before. Alt-Enter (Esc then Enter) runs what's there straight away
+  - Entries already in the history file from earlier versions are still there, a line each
+
+### Docs
+- New [Debug Console](https://homeassistant-repl.rhizomatics.org.uk/debug_console/) page, comparing `ha-repl` with the Debug console that Home Assistant 2026.11 adds
+
 # 0.13.0
 ## ✨ Enhancements
 ### SQL
