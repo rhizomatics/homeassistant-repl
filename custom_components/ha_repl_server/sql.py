@@ -56,7 +56,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.recorder import session_scope
 from nanoarrow.ipc import StreamWriter
 
-DEFAULT_MAX_ROWS = 1000
+from .const import DEFAULT_MAX_ROWS
+
 _FETCH_CHUNK_SIZE = 200
 
 

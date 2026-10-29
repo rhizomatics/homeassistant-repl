@@ -100,9 +100,13 @@ async def test_options_flow_shows_current_values_as_defaults(
     defaults = {
         k.schema: k.default()
         for k in result["data_schema"].schema
-        if not k.schema.endswith("_minutes")
+        if not k.schema.endswith("_minutes") and k.schema != "limits"
     }
-    assert defaults == {"expose_hass": False, "expose_sql": True, **COMPLETE_DEFAULTS}
+    assert defaults == {"expose_hass": False, "expose_sql": True}
+    # Completion's limits are in a section of their own, folded away.
+    (limits,) = [v for k, v in result["data_schema"].schema.items() if k == "limits"]
+    assert limits.options == {"collapsed": True}
+    assert {k.schema: k.default() for k in limits.schema.schema} == COMPLETE_DEFAULTS
 
 
 async def test_options_flow_updates_entry_options_and_reloads(
@@ -136,7 +140,12 @@ async def _configure(hass: HomeAssistant, entry: MockConfigEntry, **user_input):
     form = result
     result = await hass.config_entries.options.async_configure(
         result["flow_id"],
-        {"expose_hass": True, "expose_sql": True, **COMPLETE_DEFAULTS, **user_input},
+        {
+            "expose_hass": True,
+            "expose_sql": True,
+            "limits": COMPLETE_DEFAULTS,
+            **user_input,
+        },
     )
     await hass.async_block_till_done()
     assert result["type"] is FlowResultType.CREATE_ENTRY
@@ -240,7 +249,9 @@ async def test_completion_limits_are_options_the_session_manager_uses(
         500,
         0.5,
     )
-    await _configure(hass, entry, complete_limit=50, complete_budget_ms=200)
+    await _configure(
+        hass, entry, limits={"complete_limit": 50, "complete_budget_ms": 200}
+    )
     assert entry.options["complete_limit"] == 50
     assert (hass.data[DOMAIN].complete_limit, hass.data[DOMAIN].complete_budget) == (
         50,

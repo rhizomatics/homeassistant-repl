@@ -15,7 +15,11 @@ fixture - see conftest.py for why that matters here specifically.
 
 from __future__ import annotations
 
+from unittest.mock import patch
+
+import pytest
 from homeassistant.core import HomeAssistant
+from homeassistant.requirements import RequirementsNotFound
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.ha_repl_server.const import DOMAIN
@@ -63,3 +67,45 @@ async def test_setup_entry_respects_expose_hass_and_expose_sql_false(
     assert isinstance(session.globals_["obj"], ObjTree)
 
     assert await hass.config_entries.async_unload(entry.entry_id)
+
+
+@pytest.mark.parametrize(
+    ("target", "error"),
+    [
+        (
+            "custom_components.ha_repl_server.async_process_requirements",
+            RequirementsNotFound(DOMAIN, ["nanoarrow>=0.9.0"]),
+        ),
+        (
+            "custom_components.ha_repl_server.import_module",
+            ImportError("libnanoarrow.so: cannot open shared object file"),
+        ),
+    ],
+)
+async def test_sql_that_cannot_load_switches_off_only_sql(
+    recorder_mock,
+    hass: HomeAssistant,
+    enable_custom_integrations: None,
+    hass_ws_client,
+    caplog,
+    target,
+    error,
+) -> None:
+    entry = MockConfigEntry(domain=DOMAIN, data={})
+    entry.add_to_hass(hass)
+    with patch(target, side_effect=error):
+        assert await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+    manager = hass.data[DOMAIN]
+    assert not manager.has_feature("sql")
+    assert manager.get("default").globals_["hass"] is hass
+    assert "sql is unavailable, everything else works" in caplog.text
+
+    client = await hass_ws_client(hass)
+    await client.send_json({"id": 1, "type": "ha_repl_server/sql", "query": "select 1"})
+    response = await client.receive_json()
+    assert response["error"]["code"] == "sql_unavailable"
+    assert str(error) in response["error"]["message"]
+    await client.send_json({"id": 2, "type": "ha_repl_server/exec", "code": "1 + 1"})
+    assert (await client.receive_json())["result"]["value"] == "2"

@@ -21,7 +21,7 @@ from __future__ import annotations
 
 import math
 from datetime import datetime, timedelta
-from typing import Any
+from typing import Any, cast
 
 import voluptuous as vol
 from homeassistant.config_entries import (
@@ -30,6 +30,7 @@ from homeassistant.config_entries import (
     ConfigFlowResult,
     OptionsFlowWithReload,
 )
+from homeassistant.data_entry_flow import section
 from homeassistant.util import dt as dt_util
 
 from .const import (
@@ -132,8 +133,9 @@ class HaReplServerOptionsFlow(OptionsFlowWithReload):
                 else:
                     until = now + timedelta(minutes=minutes)
                     data[f"expose_{name}_until"] = until.isoformat()
-            for field in _COMPLETE_FIELDS:
-                data[field] = user_input[field]
+            limits = user_input.get("limits", {})
+            for field, (default, _, _) in _COMPLETE_FIELDS.items():
+                data[field] = limits.get(field, options.get(field, default))
             return self.async_create_entry(title="", data=data)
         fields: dict[Any, Any] = {}
         for name in CAPABILITIES:
@@ -147,8 +149,16 @@ class HaReplServerOptionsFlow(OptionsFlowWithReload):
                     f"expose_{name}_minutes", description={"suggested_value": left}
                 )
             ] = vol.All(vol.Coerce(int), vol.Range(min=1))
-        for field, (default, low, high) in _COMPLETE_FIELDS.items():
-            fields[vol.Required(field, default=options.get(field, default))] = vol.All(
-                vol.Coerce(int), vol.Range(min=low, max=high)
-            )
+        # In a section of their own, folded away: rarely changed. Defaulting
+        # to {} fills in each limit's own default when it's left out. The
+        # cast as websocket_api.py's: section() is typed for probatio.
+        fields[vol.Required("limits", default={})] = section(
+            cast(Any, vol.Schema)({
+                vol.Required(field, default=options.get(field, default)): vol.All(
+                    vol.Coerce(int), vol.Range(min=low, max=high)
+                )
+                for field, (default, low, high) in _COMPLETE_FIELDS.items()
+            }),
+            {"collapsed": True},
+        )
         return self.async_show_form(step_id="init", data_schema=vol.Schema(fields))  # type: ignore[arg-type] # ty: ignore[invalid-argument-type]

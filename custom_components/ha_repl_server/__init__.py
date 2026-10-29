@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime
+from importlib import import_module
 from typing import Any
 
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
@@ -17,6 +18,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.event import async_track_point_in_utc_time
 from homeassistant.helpers.typing import ConfigType
+from homeassistant.requirements import RequirementsNotFound, async_process_requirements
 from homeassistant.util import dt as dt_util
 
 from . import websocket_api
@@ -25,6 +27,7 @@ from .const import (
     DEFAULT_COMPLETE_BUDGET_MS,
     DEFAULT_COMPLETE_LIMIT,
     DOMAIN,
+    SQL_REQUIREMENTS,
 )
 from .objtree import ObjTree
 from .session import SessionManager
@@ -105,7 +108,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         bindings["hass"] = hass
     # sql isn't a session binding: the client's own `sql` object fetches
     # Arrow data through ha_repl_server/sql, which checks this feature.
-    features = {"sql"} if entry.options.get("expose_sql", True) else set()
+    features: set[str] = set()
+    unavailable: dict[str, str] = {}
+    if entry.options.get("expose_sql", True):
+        if (reason := await _load_sql(hass)) is None:
+            features.add("sql")
+        else:
+            unavailable["sql"] = reason
+            _LOGGER.warning(
+                "Home Assistant REPL: sql is unavailable, everything else works: %s",
+                reason,
+            )
 
     hass.data[DOMAIN] = SessionManager(
         bindings,
@@ -115,12 +128,27 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             "complete_budget_ms", DEFAULT_COMPLETE_BUDGET_MS
         )
         / 1000,
+        unavailable=unavailable,
     )
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     _LOGGER.warning(
         "Home Assistant REPL is enabled: admin users can execute arbitrary Python in this instance"
     )
     return True
+
+
+async def _load_sql(hass: HomeAssistant) -> str | None:
+    """Install and import what `sql` needs. None if that worked, otherwise
+    why not - for `sql` alone to be switched off."""
+    try:
+        await async_process_requirements(
+            hass, DOMAIN, SQL_REQUIREMENTS, is_built_in=False
+        )
+        # In the executor: an import reads files, which the loop mustn't.
+        await hass.async_add_executor_job(import_module, f"{__package__}.sql")
+    except (RequirementsNotFound, ImportError) as err:
+        return f"{type(err).__name__}: {err}"
+    return None
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

@@ -20,6 +20,10 @@ Install via [HACS](https://hacs.xyz):
    - The component will quiz you first to make sure you know what you're doing
    - Alternatively add `ha_repl_server:` to `configuration.yaml`, which is imported as a config entry) 
 
+### If `sql` Can't Be Loaded
+
+`sql` needs two Python packages beyond Home Assistant itself, `nanoarrow` and `sqlparse`. They're installed when the integration starts rather than as its listed requirements, so if they can't be - no build of `nanoarrow` for the platform Home Assistant runs on, say - only `sql` is switched off. `hass`, `obj` and everything else still work, the log says why `sql` isn't there, and so does the shell when it starts.
+
 ### Limiting What Is Exposed
 
 **Configure**, on the integration's own page, has a switch for each of the two things a live session can reach: `hass`, and `sql`.
@@ -32,7 +36,7 @@ Each switch has a time limit beside it, in minutes. Enter one and that capabilit
 
 ### Completion's Limits
 
-**Configure** also sets how much one completion answer can hold, and how long it may take to find it: 500 items and 500 milliseconds unless changed. They keep completing through something very large - every path of a big `obj`, say - from holding up Home Assistant. An answer cut short by either still shows what it found, and narrows as more is typed.
+**Configure** also has a **Limits** section, folded away, setting how much one completion answer can hold, and how long it may take to find it: 500 items and 500 milliseconds unless changed. They keep completing through something very large - every path of a big `obj`, say - from holding up Home Assistant. An answer cut short by either still shows what it found, and narrows as more is typed.
 
 ### Stopping Code and the Log
 

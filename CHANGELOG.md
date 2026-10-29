@@ -27,7 +27,9 @@ This release brings auto-complete for code and the object tree, integrated help/
 - A connection lost while the shell is open - Home Assistant restarting, say - is reported as `Connection closed`, rather than a traceback from the HTTP library, and leaving the shell still works
 
 ### Live Server
-- Completion's limits, 500 items and 500 milliseconds an answer by default, are options on the *Configure* form
+- If `nanoarrow` can't be installed or loaded, only `sql` is switched off, with the reason in the log and the shell, rather than the whole integration failing to load
+  - `nanoarrow` and `sqlparse` are installed when the integration starts, no longer as its manifest requirements
+- Completion's limits, 500 items and 500 milliseconds an answer by default, are options in a **Limits** section of the *Configure* form
 - New **Stop running code** button on the integration's device, stopping whatever is running in every live session
 - New `ha_repl_server/cancel` websocket command, which Ctrl-C in the shell sends
 - Every command is written to the Home Assistant log at `warning`, so it shows by default, with the user who sent it

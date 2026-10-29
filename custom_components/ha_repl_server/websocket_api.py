@@ -24,10 +24,9 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.loader import async_get_integration
 
 from .complete import complete, describe, signature, source
-from .const import DEFAULT_SESSION, DOMAIN
+from .const import DEFAULT_MAX_ROWS, DEFAULT_SESSION, DOMAIN
 from .objtree import async_load_action_descriptions
 from .session import SessionManager
-from .sql import DEFAULT_MAX_ROWS, SqlError, sql, table_schemas
 
 _LOGGER = logging.getLogger(__package__)
 COMMAND_LOG = logging.getLogger(f"{__package__}.commands")
@@ -288,11 +287,16 @@ def _sql_manager(
     if (manager := _manager(hass, connection, msg)) is None:
         return None
     if not manager.has_feature("sql"):
-        connection.send_error(
-            msg["id"],
-            "sql_disabled",
-            "sql is switched off in this integration's options",
-        )
+        if reason := manager.unavailable.get("sql"):
+            connection.send_error(
+                msg["id"], "sql_unavailable", f"sql couldn't be loaded: {reason}"
+            )
+        else:
+            connection.send_error(
+                msg["id"],
+                "sql_disabled",
+                "sql is switched off in this integration's options",
+            )
         return None
     return manager
 
@@ -321,6 +325,9 @@ async def ws_sql(
     download (show(), dataframes, CSV) happens on the client's machine."""
     if _sql_manager(hass, connection, msg) is None:
         return
+    # Imported only once _load_sql has, so only if it could be.
+    from .sql import SqlError, sql
+
     who = _who(connection)
     COMMAND_LOG.warning("%s queries:\n%s", who, msg["query"])
     start = time.perf_counter()
@@ -363,4 +370,6 @@ def ws_sql_tables(
     client's own `sql.tables`."""
     if _sql_manager(hass, connection, msg) is None:
         return
+    from .sql import table_schemas
+
     connection.send_result(msg["id"], {"tables": table_schemas()})

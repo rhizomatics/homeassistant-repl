@@ -27,11 +27,23 @@
           "expose_hass": "Expose `hass` in live sessions",
           "expose_hass_minutes": "Switch `hass` off after (minutes)",
           "expose_sql": "Expose `sql` in live sessions",
-          "expose_sql_minutes": "Switch `sql` off after (minutes)",
-          "complete_limit": "Completion: most items in one answer",
-          "complete_budget_ms": "Completion: most time to find them (milliseconds)"
+          "expose_sql_minutes": "Switch `sql` off after (minutes)"
         },
-        "description": "Either of `hass` and `sql` can be given a time limit, after which it is switched off again. Leave the limit empty to keep it on. Completion's limits keep a lookup through something very large from holding up Home Assistant; an answer cut short by either still shows what it has."
+        "description": "Either of `hass` and `sql` can be given a time limit, after which it is switched off again. Leave the limit empty to keep it on.",
+        "sections": {
+          "limits": {
+            "name": "Limits",
+            "description": "How much completion in a live shell may ask of Home Assistant. Completion never runs anything, but going through something very large - every path in a big object tree - still takes time on Home Assistant's event loop, where nothing else runs meanwhile. An answer cut short by either limit still shows what was found, and the shell asks again as more is typed.",
+            "data": {
+              "complete_limit": "Most completions in one answer",
+              "complete_budget_ms": "Most time to find them (milliseconds)"
+            },
+            "data_description": {
+              "complete_limit": "How many names, keys or paths are sent back for one Tab or keystroke. 500 unless changed.",
+              "complete_budget_ms": "How long Home Assistant may spend finding them, holding up its event loop meanwhile. 500 unless changed."
+            }
+          }
+        }
       }
     }
   },

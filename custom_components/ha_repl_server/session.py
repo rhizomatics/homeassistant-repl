@@ -1040,12 +1040,15 @@ class SessionManager:
         *,
         complete_limit: int = 500,
         complete_budget: float = 0.5,
+        unavailable: dict[str, str] | None = None,
     ) -> None:
         self._bindings = bindings
         self._features = features
         # Most items, and seconds, ha_repl_server/complete spends on one answer.
         self.complete_limit = complete_limit
         self.complete_budget = complete_budget
+        # Features switched on, but which couldn't be loaded - and why.
+        self.unavailable = unavailable or {}
         self._sessions: dict[str, Session] = {}
 
     def get(self, name: str) -> Session:

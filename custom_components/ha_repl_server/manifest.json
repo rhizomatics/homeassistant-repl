@@ -14,8 +14,6 @@
   "integration_type": "service",
   "iot_class": "local_push",
   "requirements": [
-    "nanoarrow>=0.9.0",
-    "sqlparse>=0.5.0",
     "pygments>=2.6"
   ],
   "single_config_entry": true,
