@@ -76,6 +76,10 @@ These are all current with Python v3, there are others like dreampie that didn't
 
 - [Terminal iPython](https://ipython.org) - Progenitor of Jupyter notebooks, rich formatting, syntax help, shell integration etc
 - [ptpython](https://github.com/prompt-toolkit/ptpython) - Syntax help and formatting, mouse support and more. Part of the [prompt-toolkit](https://python-prompt-toolkit.readthedocs.io/en/latest/) project, also used by Home Assistant REPL.
+- [IDLE](https://docs.python.org/3/library/idle.html) - the original Python Foundation enhanced shell, colourized text, multi-window etc
+
+### Others
+
+- [nrepl-python](https://git.sr.ht/~ngraves/nrepl-python) - based on the Clojure `nrepl` protocol, a simpler alternative to LSP
 - [bpython](https://bpython-interpreter.org) - Syntax help, auto-complete, improved history
 - [xon.sh](https://xon.sh) - python-centric shell
-- [IDLE](https://docs.python.org/3/library/idle.html) - the original Python Foundation enhanced shell, colourized text, multi-window etc
