@@ -1450,7 +1450,7 @@ with each other for point releases</p>
 <h1 id="0140">0.14.0<a class="headerlink" href="#0140" title="Permanent link">&para;</a></h1>
 <p>This release brings auto-complete for code and the object tree, integrated help/source-code lookup, much improved CLI history and lots more.</p>
 <h2 id="-enhancements">✨ Enhancements<a class="headerlink" href="#-enhancements" title="Permanent link">&para;</a></h2>
-<h3 id="shell">Shell<a class="headerlink" href="#shell" title="Permanent link">&para;</a></h3>
+<h3 id="shell-history">Shell History<a class="headerlink" href="#shell-history" title="Permanent link">&para;</a></h3>
 <ul>
 <li>A whole statement or block is edited and kept in history as one entry, in live and API modes alike</li>
 <li>Up brings back a complete <code>for</code> loop, <code>def</code> or <code>with</code> block, and any line of it can be changed before running it again</li>
@@ -1458,7 +1458,7 @@ with each other for point releases</p>
 <li>A block is ended by an empty line, as before. Alt-Enter (Esc then Enter) runs what's there straight away</li>
 <li>Entries already in the history file from earlier versions are still there, a line each</li>
 </ul>
-<h3 id="live-mode">Live Mode<a class="headerlink" href="#live-mode" title="Permanent link">&para;</a></h3>
+<h3 id="cancel-operations">Cancel Operations<a class="headerlink" href="#cancel-operations" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Ctrl-C while a command runs stops it, rather than the shell</li>
 <li>Code running inside Home Assistant is stopped there, and its traceback shows where it had got to. A second Ctrl-C stops waiting for it</li>
@@ -1466,14 +1466,8 @@ with each other for point releases</p>
 <li>Also in API mode, for its local code</li>
 <li>Stopping code inside Home Assistant needs the server component at this version</li>
 </ul>
-<h3 id="fixes">Fixes<a class="headerlink" href="#fixes" title="Permanent link">&para;</a></h3>
+<h3 id="live-server-controls">Live Server Controls<a class="headerlink" href="#live-server-controls" title="Permanent link">&para;</a></h3>
 <ul>
-<li>A connection lost while the shell is open - Home Assistant restarting, say - is reported as <code>Connection closed</code>, rather than a traceback from the HTTP library, and leaving the shell still works</li>
-</ul>
-<h3 id="live-server">Live Server<a class="headerlink" href="#live-server" title="Permanent link">&para;</a></h3>
-<ul>
-<li>If <code>nanoarrow</code> can't be installed or loaded, only <code>sql</code> is switched off, with the reason in the log and the shell, rather than the whole integration failing to load</li>
-<li><code>nanoarrow</code> and <code>sqlparse</code> are installed when the integration starts, no longer as its manifest requirements</li>
 <li>Completion's limits, 500 items and 500 milliseconds an answer by default, are options in a <strong>Limits</strong> section of the <em>Configure</em> form</li>
 <li>New <strong>Stop running code</strong> button on the integration's device, stopping whatever is running in every live session</li>
 <li>New <code>ha_repl_server/cancel</code> websocket command, which Ctrl-C in the shell sends</li>
@@ -1483,7 +1477,7 @@ with each other for point releases</p>
 <li>Each SQL query, and its row count and time, or its error</li>
 <li>Each stop and reset</li>
 </ul>
-<h3 id="auto-completion">Auto-Completion<a class="headerlink" href="#auto-completion" title="Permanent link">&para;</a></h3>
+<h3 id="auto-complete">Auto-Complete<a class="headerlink" href="#auto-complete" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Tab completes names, attributes and keys in both shells, and a menu opens by itself after a <code>.</code>, in a key, and after two letters of a name (<a href="https://homeassistant-repl.rhizomatics.org.uk/developer/design/rfcs/0002-auto-completed/">RFC 0002</a>, steps 2 and 3)</li>
 <li>Nothing is run to complete: no property, call, or lookup in anything but a plain <code>dict</code>, <code>list</code> or <code>tuple</code>, or the object tree - return and property annotations are followed instead</li>
@@ -1509,10 +1503,19 @@ with each other for point releases</p>
 <li><code>obj["</code> completes paths, and entity ids at the root, in IPython, Jupyter and Marimo, for <code>obj</code> from <code>connect()</code> as well as in live mode (step 1 of <a href="https://homeassistant-repl.rhizomatics.org.uk/developer/design/rfcs/0002-auto-completed/">RFC 0002</a>)</li>
 <li>A registry entry's keys complete as attributes there too: <code>entity.registry_entry.uni&lt;TAB&gt;</code></li>
 </ul>
-<h3 id="docs">Docs<a class="headerlink" href="#docs" title="Permanent link">&para;</a></h3>
+<h2 id="-fixes">🐛 Fixes<a class="headerlink" href="#-fixes" title="Permanent link">&para;</a></h2>
+<ul>
+<li>A connection lost while the shell is open - Home Assistant restarting, say - is reported as <code>Connection closed</code>, rather than a traceback from the HTTP library, and leaving the shell still works</li>
+</ul>
+<h2 id="-documentation">📚 Documentation<a class="headerlink" href="#-documentation" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="https://homeassistant-repl.rhizomatics.org.uk/developer/design/rfcs/0002-auto-completed/">RFC 0002</a> has the results of its step 0 spike, and where <code>ha-repl</code> would still differ from the Debug console once it's done</li>
 <li>New <a href="https://homeassistant-repl.rhizomatics.org.uk/debug_console/">Debug Console</a> page, comparing <code>ha-repl</code> with the Debug console that Home Assistant 2026.11 adds</li>
+</ul>
+<h2 id="-other-changes">📝 Other changes<a class="headerlink" href="#-other-changes" title="Permanent link">&para;</a></h2>
+<ul>
+<li>If <code>nanoarrow</code> can't be installed or loaded, only <code>sql</code> is switched off, with the reason in the log and the shell, rather than the whole integration failing to load</li>
+<li><code>nanoarrow</code> and <code>sqlparse</code> are installed when the integration starts, no longer as its manifest requirements</li>
 </ul>
 <h1 id="0130">0.13.0<a class="headerlink" href="#0130" title="Permanent link">&para;</a></h1>
 <h2 id="-enhancements_1">✨ Enhancements<a class="headerlink" href="#-enhancements_1" title="Permanent link">&para;</a></h2>
@@ -1536,13 +1539,13 @@ with each other for point releases</p>
 <li>In live, exec and API mode alike. An integration with actions and no entities is now in the tree</li>
 <li>Live mode needs the server component at this version</li>
 </ul>
-<h3 id="live-mode_1">Live Mode<a class="headerlink" href="#live-mode_1" title="Permanent link">&para;</a></h3>
+<h3 id="live-mode">Live Mode<a class="headerlink" href="#live-mode" title="Permanent link">&para;</a></h3>
 <ul>
 <li>New <code>rebind()</code>, to put back any of the shell's own names - <code>hass</code>, <code>obj</code>, <code>sql</code>, <code>hass_api</code>, <code>show</code>, <code>help</code>, <code>MODE</code>, <code>SERVER</code> - that has been assigned over, and run the plugins again</li>
 <li><code>rebind(plugins=False)</code> leaves the plugins alone</li>
 <li>Also in <code>ha-repl exec</code> and API mode</li>
 </ul>
-<h3 id="live-server_1">Live Server<a class="headerlink" href="#live-server_1" title="Permanent link">&para;</a></h3>
+<h3 id="live-server">Live Server<a class="headerlink" href="#live-server" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>hass</code> and <code>sql</code> can each be given a time limit, in minutes, from the integration's <em>Configure</em> form, after which that one is switched off again</li>
 <li>Left empty, it stays on, as before</li>
@@ -1563,7 +1566,7 @@ with each other for point releases</p>
 <li><code>sql.tables</code> lists them, each as a <code>VirtualTable</code> object rather than a <code>Table</code>, with a <code>virtual</code> flag and the query it stands for as its <code>definition</code></li>
 <li>Needs both the client and the server component at this version</li>
 </ul>
-<h3 id="live-mode_2">Live Mode<a class="headerlink" href="#live-mode_2" title="Permanent link">&para;</a></h3>
+<h3 id="live-mode_1">Live Mode<a class="headerlink" href="#live-mode_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li>New <code>show(thing)</code>, to look inside an object that otherwise prints as little more than its class name: its attributes and their values, in colour, one to a line</li>
 <li><code>show(hass.config)</code>, <code>show(hass.states.get("sun.sun"))</code></li>
@@ -1572,13 +1575,13 @@ with each other for point releases</p>
 <li>Nothing new is installed in Home Assistant: the server sends a description of the object, and the shell draws it</li>
 <li>Works on local objects too, and in <code>ha-repl exec</code>, where it comes back as text</li>
 </ul>
-<h2 id="-documentation">📚 Documentation<a class="headerlink" href="#-documentation" title="Permanent link">&para;</a></h2>
+<h2 id="-documentation_1">📚 Documentation<a class="headerlink" href="#-documentation_1" title="Permanent link">&para;</a></h2>
 <ul>
 <li>The agent skill and <em>Examples</em> cover querying state history, events and long term statistics, and looking inside objects with <code>show()</code></li>
 </ul>
 <h1 id="0111">0.11.1<a class="headerlink" href="#0111" title="Permanent link">&para;</a></h1>
-<h2 id="-fixes">🐛 Fixes<a class="headerlink" href="#-fixes" title="Permanent link">&para;</a></h2>
-<h3 id="live-mode_3">Live Mode<a class="headerlink" href="#live-mode_3" title="Permanent link">&para;</a></h3>
+<h2 id="-fixes_1">🐛 Fixes<a class="headerlink" href="#-fixes_1" title="Permanent link">&para;</a></h2>
+<h3 id="live-mode_2">Live Mode<a class="headerlink" href="#live-mode_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li>A name used only in a type annotation no longer decides which side a statement runs on, and no longer stops it running inside Home Assistant because it "only exists in the local session"</li>
 <li>A bare declaration, such as <code>hass: HomeAssistant</code>, is no longer treated as an assignment</li>
@@ -1589,7 +1592,7 @@ with each other for point releases</p>
 <li><code>homeassistant_repl.plugin</code> declares <code>MODE</code>, <code>SERVER</code>, <code>hass</code>, <code>obj</code>, <code>sql</code> and <code>hass_api</code> for linters and type checkers, to import under <code>TYPE_CHECKING</code></li>
 <li>The package now carries a <code>py.typed</code> marker</li>
 </ul>
-<h2 id="-documentation_1">📚 Documentation<a class="headerlink" href="#-documentation_1" title="Permanent link">&para;</a></h2>
+<h2 id="-documentation_2">📚 Documentation<a class="headerlink" href="#-documentation_2" title="Permanent link">&para;</a></h2>
 <ul>
 <li><em>Plugins</em> covers importing a component's own classes, and type checking a plugin</li>
 <li>A link is given to the example <a href="https://github.com/rhizomatics/supernotify/blob/main/.ha-repl/plugins/10-supernotify-internals.py">Supernotify ha-repl plugin code</a></li>
@@ -1618,7 +1621,7 @@ with each other for point releases</p>
 <li>New properties with the real <code>Entity</code> names: <code>unique_id</code>, <code>available</code>, <code>enabled</code>, <code>device_class</code>, <code>unit_of_measurement</code>, <code>icon</code>, <code>entity_picture</code>, <code>supported_features</code>, <code>assumed_state</code>, <code>attribution</code>, <code>entity_category</code>, <code>has_entity_name</code> and <code>translation_key</code></li>
 <li>The same applies to <code>obj.mode("api")</code> in live mode, so the server component needs updating too</li>
 </ul>
-<h2 id="-documentation_2">📚 Documentation<a class="headerlink" href="#-documentation_2" title="Permanent link">&para;</a></h2>
+<h2 id="-documentation_3">📚 Documentation<a class="headerlink" href="#-documentation_3" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Reorganized and improved the configuration and installation</li>
 </ul>
@@ -1643,13 +1646,13 @@ with each other for point releases</p>
 <li>Indexing a result with a row number, e.g. <code>sql("select count(*) from events")[0]</code>, returns a <code>Row</code> object - its values, readable by position or column name, with its column names and <code>Table</code></li>
 <li><code>columns</code> and <code>column_names</code> on a <code>Table</code> object are now properties, not methods</li>
 </ul>
-<h2 id="-documentation_3">📚 Documentation<a class="headerlink" href="#-documentation_3" title="Permanent link">&para;</a></h2>
+<h2 id="-documentation_4">📚 Documentation<a class="headerlink" href="#-documentation_4" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Added help on using <code>ha-repl</code> from the <strong>Studio Code Server</strong> and <strong>Advanced SSH</strong> Home Assistant apps (aka addons), and using <code>ttyd</code></li>
 <li>Lots more examples of how to use all the builtins</li>
 </ul>
 <h1 id="090">0.9.0<a class="headerlink" href="#090" title="Permanent link">&para;</a></h1>
-<h2 id="live-server_2">Live Server<a class="headerlink" href="#live-server_2" title="Permanent link">&para;</a></h2>
+<h2 id="live-server_1">Live Server<a class="headerlink" href="#live-server_1" title="Permanent link">&para;</a></h2>
 <ul>
 <li>No longer needs <code>homeassistant-api</code>: <code>hass_api</code> is the shell's own local REST client, and is no longer also bound inside Home Assistant</li>
 </ul>
@@ -1660,7 +1663,7 @@ with each other for point releases</p>
 <li><code>ha-repl --json exec</code> reports a plain-data value from inside Home Assistant as data, not as its printed form</li>
 </ul>
 <h1 id="080">0.8.0<a class="headerlink" href="#080" title="Permanent link">&para;</a></h1>
-<h2 id="live-server_3">Live Server<a class="headerlink" href="#live-server_3" title="Permanent link">&para;</a></h2>
+<h2 id="live-server_2">Live Server<a class="headerlink" href="#live-server_2" title="Permanent link">&para;</a></h2>
 <ul>
 <li>No longer uses <code>rich</code>, so installing no longer upgrades the much older <code>rich</code> bundled with Home Assistant 2026.10 - which could fail setup with <code>cannot import name 'SyntaxPosition' from 'rich.syntax'</code> until a second restart</li>
 <li>Values and errors are now sent to the client as data, and rendered there</li>
@@ -1693,7 +1696,7 @@ with each other for point releases</p>
 <li>Internally the data is more efficiently stored, as single native Arrow object</li>
 <li>Queries all executed under <code>read_only</code> session scope so no commits expected (this is not a security measure)</li>
 </ul>
-<h2 id="live-server_4">Live Server<a class="headerlink" href="#live-server_4" title="Permanent link">&para;</a></h2>
+<h2 id="live-server_3">Live Server<a class="headerlink" href="#live-server_3" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Config switches now to optionally switch off <code>sql</code> and/or <code>hass</code> access</li>
 </ul>
