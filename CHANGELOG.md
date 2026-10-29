@@ -9,26 +9,21 @@
 This release brings auto-complete for code and the object tree, integrated help/source-code lookup, much improved CLI history and lots more.
 
 ## ✨ Enhancements
-### Shell
+### Shell History
 - A whole statement or block is edited and kept in history as one entry, in live and API modes alike
   - Up brings back a complete `for` loop, `def` or `with` block, and any line of it can be changed before running it again
   - Enter runs the code once it's complete, and the cursor is at the end. Otherwise it starts a new line, indented to match, one level deeper after a `:` and one shallower after `return`, `pass`, `break`, `continue` or `raise`
   - A block is ended by an empty line, as before. Alt-Enter (Esc then Enter) runs what's there straight away
   - Entries already in the history file from earlier versions are still there, a line each
 
-### Live Mode
+### Cancel Operations
 - Ctrl-C while a command runs stops it, rather than the shell
   - Code running inside Home Assistant is stopped there, and its traceback shows where it had got to. A second Ctrl-C stops waiting for it
   - Local code stuck in a blocking call is interrupted by a second Ctrl-C
   - Also in API mode, for its local code
   - Stopping code inside Home Assistant needs the server component at this version
 
-### Fixes
-- A connection lost while the shell is open - Home Assistant restarting, say - is reported as `Connection closed`, rather than a traceback from the HTTP library, and leaving the shell still works
-
-### Live Server
-- If `nanoarrow` can't be installed or loaded, only `sql` is switched off, with the reason in the log and the shell, rather than the whole integration failing to load
-  - `nanoarrow` and `sqlparse` are installed when the integration starts, no longer as its manifest requirements
+### Live Server Controls
 - Completion's limits, 500 items and 500 milliseconds an answer by default, are options in a **Limits** section of the *Configure* form
 - New **Stop running code** button on the integration's device, stopping whatever is running in every live session
 - New `ha_repl_server/cancel` websocket command, which Ctrl-C in the shell sends
@@ -38,7 +33,7 @@ This release brings auto-complete for code and the object tree, integrated help/
   - Each SQL query, and its row count and time, or its error
   - Each stop and reset
 
-### Auto-Completion
+### Auto-Complete
 - Tab completes names, attributes and keys in both shells, and a menu opens by itself after a `.`, in a key, and after two letters of a name ([RFC 0002](https://homeassistant-repl.rhizomatics.org.uk/developer/design/rfcs/0002-auto-completed/), steps 2 and 3)
   - Nothing is run to complete: no property, call, or lookup in anything but a plain `dict`, `list` or `tuple`, or the object tree - return and property annotations are followed instead
   - `obj["` completes paths, and entity ids at the root, and `obj.find("` paths
@@ -61,9 +56,19 @@ This release brings auto-complete for code and the object tree, integrated help/
 - `obj["` completes paths, and entity ids at the root, in IPython, Jupyter and Marimo, for `obj` from `connect()` as well as in live mode (step 1 of [RFC 0002](https://homeassistant-repl.rhizomatics.org.uk/developer/design/rfcs/0002-auto-completed/))
 - A registry entry's keys complete as attributes there too: `entity.registry_entry.uni<TAB>`
 
-### Docs
+
+## 🐛 Fixes
+
+- A connection lost while the shell is open - Home Assistant restarting, say - is reported as `Connection closed`, rather than a traceback from the HTTP library, and leaving the shell still works
+
+
+## 📚 Documentation
 - [RFC 0002](https://homeassistant-repl.rhizomatics.org.uk/developer/design/rfcs/0002-auto-completed/) has the results of its step 0 spike, and where `ha-repl` would still differ from the Debug console once it's done
 - New [Debug Console](https://homeassistant-repl.rhizomatics.org.uk/debug_console/) page, comparing `ha-repl` with the Debug console that Home Assistant 2026.11 adds
+
+## 📝 Other changes
+- If `nanoarrow` can't be installed or loaded, only `sql` is switched off, with the reason in the log and the shell, rather than the whole integration failing to load
+  - `nanoarrow` and `sqlparse` are installed when the integration starts, no longer as its manifest requirements
 
 # 0.13.0
 ## ✨ Enhancements
