@@ -1421,6 +1421,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#as-built" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        As Built
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1817,7 +1828,7 @@
 </tr>
 <tr>
 <td>Progress</td>
-<td>Step 0 done, see <a href="#step-0-findings">Step 0 Findings</a>. Step 1 done in 0.14.0</td>
+<td>Steps 0 to 3 done in 0.14.0 - see <a href="#step-0-findings">Step 0 Findings</a> and <a href="#as-built">As Built</a></td>
 </tr>
 <tr>
 <td>Affects</td>
@@ -2223,6 +2234,17 @@
 <li>Home Assistant's own <a href="../../../../debug_console/">Debug console</a> answered the same question without jedi: going by the review of its <a href="https://github.com/home-assistant/core/pull/186547">pull request</a>, it matches names statically against the class's MRO and <code>__dict__</code>, replacing <code>rlcompleter</code>'s inspection of live objects</li>
 </ul>
 <p>So for the server, the standard library walk listed under <a href="#alternatives-considered">Alternatives Considered</a> becomes the default, not the fallback, answering <a href="#open-questions">Open Question</a> 1. jedi could still be used on the client, where what it might run is your own local code, if the loss of the rule there is acceptable - or behind objects wrapped so that <code>__getattr__</code> and <code>__dir__</code> can't be reached.</p>
+<h3 id="as-built">As Built<a class="headerlink" href="#as-built" title="Permanent link">&para;</a></h3>
+<p>Steps 1 to 3 went in as planned, except:</p>
+<ul>
+<li><strong>The server uses the standard library, not jedi</strong>, following step 0. <code>complete.py</code> follows the expression at the cursor with <code>inspect.getattr_static</code>, return and property annotations (read as strings, with <code>annotationlib</code>'s <code>STRING</code> format, never evaluated), and subscripts of a plain <code>dict</code>, <code>list</code> or <code>tuple</code>, or a class marked <code>_ha_repl_inspectable</code> - the object trees and registry entries. A missing key there completes nothing, rather than guessing</li>
+<li><strong>The client uses the same walk first, and jedi only where it can't follow</strong> - a loop or comprehension variable, an import. jedi also completes file names inside any string, so inside a string only the walk answers: keys after <code>[</code>, and tree paths in <code>obj.find("</code>. The same <code>complete.py</code> is in both packages, and a test keeps the two copies identical</li>
+<li><strong>The <code>obj</code> paths and <code>hass.data</code> keys of step 4 came early</strong>, since the walk completes keys of any subscript it can follow. Entity ids by parameter name, actions and config entries are still step 4</li>
+<li><strong>Where a completion runs</strong> is decided from the names in the input so far, found with <code>tokenize</code>, against the same remote names <code>LiveSession</code> keeps - not by moving <code>_Names</code> into a shared module, since <code>ast</code> can't parse unfinished input. If Home Assistant can't follow an expression, the client tries locally</li>
+<li><strong>A bare name</strong> completes from both sides without a round trip: the client already knows the names the server session holds</li>
+<li><strong><code>evaluate</code></strong> in <code>config.toml</code> waits for step 7, since <code>static</code> is the only setting until then</li>
+<li><code>ha_repl_server/complete</code> runs on the event loop, takes no lock, and is logged at <code>debug</code> only, since it runs nothing. Its answer has <code>resolved: false</code> when the expression couldn't be followed</li>
+</ul>
 <h2 id="gaps-with-home-assistants-debug-console">Gaps with Home Assistant's Debug Console<a class="headerlink" href="#gaps-with-home-assistants-debug-console" title="Permanent link">&para;</a></h2>
 <p>Even with everything in this RFC, the <a href="../../../../debug_console/">Debug console</a> in Home Assistant 2026.11 does some things <code>ha-repl</code> won't:</p>
 <ul>

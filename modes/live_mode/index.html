@@ -1628,6 +1628,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#completion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Completion
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#stopping-code" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1955,6 +1966,15 @@
 </span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    <span class="k">return</span> <span class="n">text</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
 </span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="n">shout</span><span class="p">(</span><span class="n">hass</span><span class="o">.</span><span class="n">states</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"sun.sun"</span><span class="p">)</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
 </span></code></pre></div>
+<h2 id="completion">Completion<a class="headerlink" href="#completion" title="Permanent link">&para;</a></h2>
+<p>Tab completes names, attributes and keys, and a menu opens by itself after a <code>.</code>, inside <code>obj["</code> or <code>obj.find("</code>, and after two letters of a name.</p>
+<ul>
+<li>Completion follows the same rule as running: something typed in a statement that uses <code>hass</code>, <code>obj</code> or a variable living in Home Assistant is completed by Home Assistant, from the live session</li>
+<li>Nothing is run to find a completion - no property, call, or lookup in anything but a plain <code>dict</code>, <code>list</code> or <code>tuple</code>, or the object tree. <code>hass.states.get("sun.sun").</code> completes from what <code>get</code> is declared to return, a <code>State</code>, without calling it</li>
+<li><code>obj["</code> completes paths, and entity ids at the root. A key that isn't there completes nothing</li>
+<li>Enter on a completion picked from the menu just takes it, without running the line</li>
+<li>Completion inside Home Assistant needs the server at 0.14.0 or later. Without it, the shell completes only what's local, and says so when it starts</li>
+</ul>
 <h2 id="stopping-code">Stopping Code<a class="headerlink" href="#stopping-code" title="Permanent link">&para;</a></h2>
 <p>Ctrl-C while something runs stops it, and leaves the shell and everything in it as it was.</p>
 <ul>

@@ -39,6 +39,7 @@ This is primarily for developers of custom components, and their LLM agents, tho
 - Reuses session and history features from `prompt-toolkit`
 - Access to all entities via an [Object Tree](https://homeassistant-repl.rhizomatics.org.uk/obj_tree/index.md) dictionary like interface
 - Multi-line editing, with a whole statement or block per history entry - Up brings back the complete `for` loop, to edit any line of it
+- Tab completion that runs nothing, including `obj` paths and entity ids, and in live mode what's inside Home Assistant
 - Integrated with [homeassistant-api](https://pypi.org/project/HomeAssistant-API/) as `hass_api` object
 - Auto-awaits coroutines for easy shell use (can be switched off or overridden)
 - Dedicated shell that can be run without installation with `uv`
@@ -472,6 +473,16 @@ def shout(text):
     return text.upper()
 shout(hass.states.get("sun.sun").state)
 ```
+
+## Completion
+
+Tab completes names, attributes and keys, and a menu opens by itself after a `.`, inside `obj["` or `obj.find("`, and after two letters of a name.
+
+- Completion follows the same rule as running: something typed in a statement that uses `hass`, `obj` or a variable living in Home Assistant is completed by Home Assistant, from the live session
+- Nothing is run to find a completion - no property, call, or lookup in anything but a plain `dict`, `list` or `tuple`, or the object tree. `hass.states.get("sun.sun").` completes from what `get` is declared to return, a `State`, without calling it
+- `obj["` completes paths, and entity ids at the root. A key that isn't there completes nothing
+- Enter on a completion picked from the menu just takes it, without running the line
+- Completion inside Home Assistant needs the server at 0.14.0 or later. Without it, the shell completes only what's local, and says so when it starts
 
 ## Stopping Code
 
@@ -931,7 +942,7 @@ Use **`ha-repl`** to work from a terminal or a coding agent, to work on data wit
 | Where your code runs         | All of it inside Home Assistant                                                  | Locally, except statements using `hass` or `obj`, which are sent to Home Assistant - see [What Runs Where](https://homeassistant-repl.rhizomatics.org.uk/modes/live_mode/#what-runs-where)                                             |
 | Libraries you can import     | Only what Home Assistant's Python has installed                                  | Anything installed locally, such as polars or pandas                                                                                                                                                                                   |
 | Looking inside objects       | Expandable results, with properties only evaluated when clicked                  | [`show()`](https://homeassistant-repl.rhizomatics.org.uk/modes/live_mode/#looking-inside-objects), printed in colour as text                                                                                                           |
-| Completion and signatures    | Yes, static                                                                      | Not yet - see [RFC 0002](https://homeassistant-repl.rhizomatics.org.uk/developer/design/rfcs/0002-auto-completed/index.md)                                                                                                             |
+| Completion and signatures    | Yes, static                                                                      | Completion, static, on both sides, including `obj` paths and dict keys. Signatures not yet - see [RFC 0002](https://homeassistant-repl.rhizomatics.org.uk/developer/design/rfcs/0002-auto-completed/index.md)                          |
 | Multi-line input and history | Yes, recalled with the arrow keys                                                | Yes, a whole block per history entry, kept across sessions in a history file                                                                                                                                                           |
 | Stopping running code        | *Stop* button or Ctrl-C                                                          | Ctrl-C in the shell, a *Stop running code* button in Home Assistant, or `ha-repl exec --timeout`                                                                                                                                       |
 | Waiting code                 | Doesn't block the console                                                        | Blocks the prompt until it finishes                                                                                                                                                                                                    |

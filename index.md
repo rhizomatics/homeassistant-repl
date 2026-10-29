@@ -30,6 +30,7 @@ This is primarily for developers of custom components, and their LLM agents, tho
 - Reuses session and history features from `prompt-toolkit`
 - Access to all entities via an [Object Tree](https://homeassistant-repl.rhizomatics.org.uk/obj_tree/index.md) dictionary like interface
 - Multi-line editing, with a whole statement or block per history entry - Up brings back the complete `for` loop, to edit any line of it
+- Tab completion that runs nothing, including `obj` paths and entity ids, and in live mode what's inside Home Assistant
 - Integrated with [homeassistant-api](https://pypi.org/project/HomeAssistant-API/) as `hass_api` object
 - Auto-awaits coroutines for easy shell use (can be switched off or overridden)
 - Dedicated shell that can be run without installation with `uv`

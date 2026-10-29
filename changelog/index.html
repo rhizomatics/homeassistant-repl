@@ -1474,6 +1474,15 @@ with each other for point releases</p>
 <li>Each SQL query, and its row count and time, or its error</li>
 <li>Each stop and reset</li>
 </ul>
+<h3 id="completion">Completion<a class="headerlink" href="#completion" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Tab completes names, attributes and keys in both shells, and a menu opens by itself after a <code>.</code>, in a key, and after two letters of a name (<a href="https://homeassistant-repl.rhizomatics.org.uk/developer/design/rfcs/0002-auto-completed/">RFC 0002</a>, steps 2 and 3)</li>
+<li>Nothing is run to complete: no property, call, or lookup in anything but a plain <code>dict</code>, <code>list</code> or <code>tuple</code>, or the object tree - return and property annotations are followed instead</li>
+<li><code>obj["</code> completes paths, and entity ids at the root, and <code>obj.find("</code> paths</li>
+<li>In live mode, a statement using <code>hass</code>, <code>obj</code> or a variable living in Home Assistant is completed by Home Assistant, from the session itself, even while code runs there. Needs the server component at this version</li>
+<li>Local code the walk can't follow, such as a loop variable, is completed by <a href="https://jedi.readthedocs.io">jedi</a>, now a dependency</li>
+<li>New <code>ha_repl_server/complete</code> websocket command, and <code>ha_repl_server/info</code> lists the commands a server has</li>
+</ul>
 <h3 id="object-tree">Object Tree<a class="headerlink" href="#object-tree" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>obj["</code> completes paths, and entity ids at the root, in IPython, Jupyter and Marimo, for <code>obj</code> from <code>connect()</code> as well as in live mode (step 1 of <a href="https://homeassistant-repl.rhizomatics.org.uk/developer/design/rfcs/0002-auto-completed/">RFC 0002</a>)</li>

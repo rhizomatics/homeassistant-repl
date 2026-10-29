@@ -209,6 +209,16 @@ def shout(text):
 shout(hass.states.get("sun.sun").state)
 ```
 
+## Completion
+
+Tab completes names, attributes and keys, and a menu opens by itself after a `.`, inside `obj["` or `obj.find("`, and after two letters of a name.
+
+- Completion follows the same rule as running: something typed in a statement that uses `hass`, `obj` or a variable living in Home Assistant is completed by Home Assistant, from the live session
+- Nothing is run to find a completion - no property, call, or lookup in anything but a plain `dict`, `list` or `tuple`, or the object tree. `hass.states.get("sun.sun").` completes from what `get` is declared to return, a `State`, without calling it
+- `obj["` completes paths, and entity ids at the root. A key that isn't there completes nothing
+- Enter on a completion picked from the menu just takes it, without running the line
+- Completion inside Home Assistant needs the server at 0.14.0 or later. Without it, the shell completes only what's local, and says so when it starts
+
 ## Stopping Code
 
 Ctrl-C while something runs stops it, and leaves the shell and everything in it as it was.
