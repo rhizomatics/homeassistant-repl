@@ -324,8 +324,12 @@ def test_describe_without_running_anything(ns):
     assert instance.doc == "Records anything done to it that could run code."
     assert instance.value == ""  # its repr could run anything
     # Known only from an annotation:
+    # A property: by its own annotation, without reading it.
     state = describe("w.state", ns)
-    assert state is not None and state.type == f"{__name__}.State"
+    assert state is not None and (state.kind, state.type) == (
+        "property",
+        "State | None",
+    )
     assert describe("n", ns).value == "7"  # type: ignore[union-attr]
     assert describe("nothere", ns) is None
 
@@ -374,4 +378,4 @@ def test_describe_a_property_by_its_own_docstring_and_annotation(ns):
     declared = describe("o.size", {"o": owner})
     assert declared is not None and declared.type == "list[int]"
     assert describe("len", {}).type == "len"  # type: ignore[union-attr]
-    assert describe("[]", {}).type == "list"  # type: ignore[union-attr]
+    assert describe("x", {"x": []}).type == "list"  # type: ignore[union-attr]

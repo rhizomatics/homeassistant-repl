@@ -299,8 +299,10 @@ async def test_ctrl_space_describes_the_name_under_the_cursor(tmp_path, capsys):
     ):
         prompt = python_prompt(tmp_path / "history", HaCompleter({"wordy": "x"}))
         loop = asyncio.get_running_loop()
-        # Ctrl-Space (NUL) with the cursor in `wordy`; the line is kept.
-        for delay, typed in ((0, "wor"), (0.1, "\x00"), (0.4, "dy\r")):
+        # Ctrl-Space (NUL) with the cursor inside `wordy`, moved back two;
+        # the line is kept.
+        steps = ((0, "wordy\x1b[D\x1b[D"), (0.1, "\x00"), (0.4, "\x1b[C\x1b[C\r"))
+        for delay, typed in steps:
             loop.call_later(delay, pipe.send_text, typed)
         assert await prompt.prompt_async(">>> ") == "wordy"
     assert "instance of str" in capsys.readouterr().out

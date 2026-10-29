@@ -7,6 +7,8 @@ import argparse
 import json
 from typing import Any
 
+import pytest
+
 from homeassistant_repl.cli import _inspect, print_result
 
 
@@ -90,11 +92,16 @@ def test_print_result_falls_back_to_the_plain_traceback(capsys):
 class _InspectClient:
     """Enough of a live server for `ha-repl inspect`."""
 
+    url = "ws://example/api/websocket"
+    token = "token"
+
     async def call(self, type_: str, **payload: Any) -> Any:
         if type_ == "ha_repl_server/sessions":
             return {"sessions": []}
         if type_ == "ha_repl_server/info":
             return {"version": "0.14.0", "commands": ["complete"]}
+        if type_ == "ha_repl_server/sql_tables":
+            return {"tables": []}
         assert type_ == "ha_repl_server/complete"
         if payload["kind"] == "doc":
             return {
@@ -114,6 +121,16 @@ class _InspectClient:
                 "url": "https://github.com/home-assistant/core/blob/2026.11.0b0/homeassistant/core.py#L1",
             }
         }
+
+
+@pytest.fixture(autouse=True)
+def _no_rest_client(monkeypatch):
+    """A live session's `hass_api` is a REST client, never needed here."""
+
+    async def no_client(url: str, token: str) -> None:
+        return None
+
+    monkeypatch.setattr("homeassistant_repl.repl.hass_api", no_client)
 
 
 def _inspect_args(**overrides) -> argparse.Namespace:
