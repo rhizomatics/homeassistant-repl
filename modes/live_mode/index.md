@@ -227,6 +227,8 @@ As in IPython:
 
 - `?` on its own shows what the shell offers in the mode it's in, and its keys
 - `thing?` (or `?thing`) is `help(thing)`, run where `thing` lives - `hass?` is answered inside Home Assistant. Nothing is called to get there: `hass.states.get("x")?` is refused, ask about `hass.states.get?` instead
+- For an attribute its class declares or documents, `thing?` shows that instead, since `help()` would only describe the value's type: `sql.tables?` gives `list[SqlTable]`, how many there are, and what `sql`'s own docstring says about `.tables`
+- Ctrl-Space shows what the name under the cursor is - or, between a call's brackets, the function being called - with its signature and docstring, above the prompt, keeping what's typed. Nothing is run to find out. Most terminals send Ctrl-Shift-Space, VSCode's *Trigger Parameter Hints*, the same way
 - `thing??` shows where its source is - file and line - and a link to that line on GitHub, at the version that's running: Home Assistant's own release or beta tag, this project's, or Python's. Found without running anything. A link rather than the source, since Home Assistant may be running any version, and its files aren't here to show
 
 ## Stopping Code

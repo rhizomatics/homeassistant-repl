@@ -896,6 +896,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#completions-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Completion's Limits
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#stopping-code-and-the-log" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1583,6 +1594,8 @@
 <li>Opening <strong>Configure</strong> again shows the minutes left, to change, or to clear for no limit</li>
 <li>Saving the form, or a limit running out, reloads the integration, which ends any live sessions' server-side state</li>
 </ul>
+<h3 id="completions-limits">Completion's Limits<a class="headerlink" href="#completions-limits" title="Permanent link">&para;</a></h3>
+<p><strong>Configure</strong> also sets how much one completion answer can hold, and how long it may take to find it: 500 items and 500 milliseconds unless changed. They keep completing through something very large - every path of a big <code>obj</code>, say - from holding up Home Assistant. An answer cut short by either still shows what it found, and narrows as more is typed.</p>
 <h3 id="stopping-code-and-the-log">Stopping Code and the Log<a class="headerlink" href="#stopping-code-and-the-log" title="Permanent link">&para;</a></h3>
 <p>The integration's device has a <strong>Stop running code</strong> button. Pressing it stops whatever is running in every live session - for when the shell that started it has gone, or from a dashboard or automation. Ctrl-C in the shell does the same for its own session.</p>
 <p>Every command a shell sends is written to the Home Assistant log, with the user who sent it: the code run and how it went (its value or error, and how long it took), each SQL query and how many rows it returned, and each stop and reset. They're logged at <code>warning</code>, so they show in the log with Home Assistant's default settings. They have a logger of their own, so to quieten them without hiding the integration's other warnings, add this to <code>configuration.yaml</code>:</p>

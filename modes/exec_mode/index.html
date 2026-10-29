@@ -1792,6 +1792,7 @@
 <li>Prefer reading to writing. <code>hass.states.get(...)</code>, <code>obj[...]</code> and <code>sql(...)</code> are safe to repeat; service calls and direct changes to <code>hass</code> objects take effect immediately on the instance.</li>
 <li><code>show(thing)</code> as the last expression gives an object's attributes and their values, cut down to a readable size - see <a href="../live_mode/#looking-inside-objects">Looking Inside Objects</a>. With <code>--json</code> it comes back in <code>value</code> as text.</li>
 <li><code>help(thing)</code> prints a summary of an object's methods and properties, which is often quicker than reading the source. <code>help(thing, full=True)</code> gives Python's own full help page instead.</li>
+<li><code>ha-repl --json inspect EXPR</code> describes what an expression names - kind, type, signature and docstring - without running it, and gives where its source is, with a GitHub link at the version running. It's decided where to look as <code>exec</code> would, plugins included. <code>--source</code> adds the location to the plain text output too. Exit status <code>1</code> if it can't be followed without running something.</li>
 </ul>
 
 

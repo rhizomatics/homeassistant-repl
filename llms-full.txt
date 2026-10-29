@@ -263,6 +263,7 @@ A rejected query raises `SqlError`. Only a single `SELECT` statement is accepted
 - Prefer reading to writing. `hass.states.get(...)`, `obj[...]` and `sql(...)` are safe to repeat; service calls and direct changes to `hass` objects take effect immediately on the instance.
 - `show(thing)` as the last expression gives an object's attributes and their values, cut down to a readable size - see [Looking Inside Objects](https://homeassistant-repl.rhizomatics.org.uk/modes/live_mode/#looking-inside-objects). With `--json` it comes back in `value` as text.
 - `help(thing)` prints a summary of an object's methods and properties, which is often quicker than reading the source. `help(thing, full=True)` gives Python's own full help page instead.
+- `ha-repl --json inspect EXPR` describes what an expression names - kind, type, signature and docstring - without running it, and gives where its source is, with a GitHub link at the version running. It's decided where to look as `exec` would, plugins included. `--source` adds the location to the plain text output too. Exit status `1` if it can't be followed without running something.
 # Reference
 
 # Live Mode
@@ -494,6 +495,8 @@ As in IPython:
 
 - `?` on its own shows what the shell offers in the mode it's in, and its keys
 - `thing?` (or `?thing`) is `help(thing)`, run where `thing` lives - `hass?` is answered inside Home Assistant. Nothing is called to get there: `hass.states.get("x")?` is refused, ask about `hass.states.get?` instead
+- For an attribute its class declares or documents, `thing?` shows that instead, since `help()` would only describe the value's type: `sql.tables?` gives `list[SqlTable]`, how many there are, and what `sql`'s own docstring says about `.tables`
+- Ctrl-Space shows what the name under the cursor is - or, between a call's brackets, the function being called - with its signature and docstring, above the prompt, keeping what's typed. Nothing is run to find out. Most terminals send Ctrl-Shift-Space, VSCode's *Trigger Parameter Hints*, the same way
 - `thing??` shows where its source is - file and line - and a link to that line on GitHub, at the version that's running: Home Assistant's own release or beta tag, this project's, or Python's. Found without running anything. A link rather than the source, since Home Assistant may be running any version, and its files aren't here to show
 
 ## Stopping Code

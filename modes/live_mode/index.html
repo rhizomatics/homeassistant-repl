@@ -1997,6 +1997,8 @@
 <ul>
 <li><code>?</code> on its own shows what the shell offers in the mode it's in, and its keys</li>
 <li><code>thing?</code> (or <code>?thing</code>) is <code>help(thing)</code>, run where <code>thing</code> lives - <code>hass?</code> is answered inside Home Assistant. Nothing is called to get there: <code>hass.states.get("x")?</code> is refused, ask about <code>hass.states.get?</code> instead</li>
+<li>For an attribute its class declares or documents, <code>thing?</code> shows that instead, since <code>help()</code> would only describe the value's type: <code>sql.tables?</code> gives <code>list[SqlTable]</code>, how many there are, and what <code>sql</code>'s own docstring says about <code>.tables</code></li>
+<li>Ctrl-Space shows what the name under the cursor is - or, between a call's brackets, the function being called - with its signature and docstring, above the prompt, keeping what's typed. Nothing is run to find out. Most terminals send Ctrl-Shift-Space, VSCode's <em>Trigger Parameter Hints</em>, the same way</li>
 <li><code>thing??</code> shows where its source is - file and line - and a link to that line on GitHub, at the version that's running: Home Assistant's own release or beta tag, this project's, or Python's. Found without running anything. A link rather than the source, since Home Assistant may be running any version, and its files aren't here to show</li>
 </ul>
 <h2 id="stopping-code">Stopping Code<a class="headerlink" href="#stopping-code" title="Permanent link">&para;</a></h2>

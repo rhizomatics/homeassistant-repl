@@ -1472,6 +1472,7 @@ with each other for point releases</p>
 </ul>
 <h3 id="live-server">Live Server<a class="headerlink" href="#live-server" title="Permanent link">&para;</a></h3>
 <ul>
+<li>Completion's limits, 500 items and 500 milliseconds an answer by default, are options on the <em>Configure</em> form</li>
 <li>New <strong>Stop running code</strong> button on the integration's device, stopping whatever is running in every live session</li>
 <li>New <code>ha_repl_server/cancel</code> websocket command, which Ctrl-C in the shell sends</li>
 <li>Every command is written to the Home Assistant log at <code>warning</code>, so it shows by default, with the user who sent it</li>
@@ -1496,6 +1497,9 @@ with each other for point releases</p>
 <li><code>?</code> on its own: what the shell offers in its mode, and its keys</li>
 <li><code>thing?</code>: <code>help(thing)</code>, run where <code>thing</code> lives, so <code>hass?</code> is answered by Home Assistant. Never calls anything to get there</li>
 <li><code>thing??</code>: file and line of its source, and a link to that line on GitHub at the version running - Home Assistant's release or beta tag, this project's, or Python's</li>
+<li>For an attribute its class declares or documents, <code>thing?</code> gives its declared type and what the class's docstring says about it, rather than help on the value's type - <code>sql.tables?</code> no longer describes <code>list</code></li>
+<li>Ctrl-Space (or Ctrl-Shift-Space) describes the name under the cursor, or the call it's in - signature and docstring - above the prompt, without running anything</li>
+<li>New <code>ha-repl inspect EXPR</code>, the same description for an agent, routed as <code>exec</code> is: <code>--json</code> gives it with the source location, <code>--source</code> adds the location to plain text</li>
 <li>New <code>ha_repl_server/complete</code> websocket command, for completions, signatures (<code>kind: "signature"</code>) and source locations (<code>kind: "source"</code>), and <code>ha_repl_server/info</code> lists the commands a server has</li>
 </ul>
 <h3 id="object-tree">Object Tree<a class="headerlink" href="#object-tree" title="Permanent link">&para;</a></h3>

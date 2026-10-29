@@ -1828,7 +1828,7 @@
 </tr>
 <tr>
 <td>Progress</td>
-<td>Steps 0 to 3 done in 0.14.0, and most of 5 and 6 - see <a href="#step-0-findings">Step 0 Findings</a> and <a href="#as-built">As Built</a></td>
+<td>Steps 0 to 3 and 6 done in 0.14.0, and most of 5 - see <a href="#step-0-findings">Step 0 Findings</a> and <a href="#as-built">As Built</a></td>
 </tr>
 <tr>
 <td>Affects</td>
@@ -2244,8 +2244,9 @@
 <li><strong>A bare name</strong> completes from both sides without a round trip: the client already knows the names the server session holds</li>
 <li><strong><code>evaluate</code></strong> in <code>config.toml</code> waits for step 7, since <code>static</code> is the only setting until then</li>
 <li><strong>Step 5</strong> shows the signature under the prompt only inside a call's brackets, cut to fit with the argument being typed kept in view, and adds <code>name=</code> completion of the parameters not given yet. The marker for where a statement runs, and the routing and syntax warnings, are still to do</li>
-<li><strong>Step 6</strong> is <code>?</code> and <code>??</code>, but differently: <code>thing?</code> runs the shell's own <code>help(thing)</code> where <code>thing</code> lives, refusing any expression with a call in it, rather than a new <code>doc</code> kind. <code>thing??</code> gives the file and line, and a GitHub link at the version running, rather than the source text, since what runs in Home Assistant may be any version. <code>?</code> alone shows the shell's own help for its mode. <code>ha-repl inspect</code> is still to do</li>
+<li><strong>Step 6</strong> is <code>?</code> and <code>??</code>, but differently: <code>thing?</code> runs the shell's own <code>help(thing)</code> where <code>thing</code> lives, refusing any expression with a call in it, rather than a new <code>doc</code> kind. <code>thing??</code> gives the file and line, and a GitHub link at the version running, rather than the source text, since what runs in Home Assistant may be any version. <code>?</code> alone shows the shell's own help for its mode. For an attribute its class declares or documents, <code>thing?</code> shows the declared type and the paragraphs of the class's docstring that mention it, rather than <code>help()</code> on the value's type. Ctrl-Space describes the name under the cursor, or the call it's in, statically, with the new <code>doc</code> kind of <code>ha_repl_server/complete</code>. <code>ha-repl inspect</code> gives the same description and source location, routed as <code>exec</code> is, with <code>--json</code></li>
 <li>What's typed matches anywhere in a name, case-insensitively, names starting with it first - prefix matching hid what was wanted behind <code>async_</code> and <code>get_</code></li>
+<li>The item cap and time budget are options on the live server's <em>Configure</em> form, 500 items and 500ms by default, as Open Question 4 settled. The budget is checked while going through keys and members, and an answer cut short is <code>incomplete</code></li>
 <li><code>ha_repl_server/complete</code> runs on the event loop, takes no lock, and is logged at <code>debug</code> only, since it runs nothing. Its answer has <code>resolved: false</code> when the expression couldn't be followed</li>
 </ul>
 <h2 id="gaps-with-home-assistants-debug-console">Gaps with Home Assistant's Debug Console<a class="headerlink" href="#gaps-with-home-assistants-debug-console" title="Permanent link">&para;</a></h2>
