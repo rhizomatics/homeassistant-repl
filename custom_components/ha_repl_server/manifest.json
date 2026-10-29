@@ -1,6 +1,7 @@
 {
   "domain": "ha_repl_server",
   "name": "Home Assistant REPL Live Server",
+  "categories": ["computers_network.cloud_developer_tools"],
   "codeowners": [],
   "config_flow": true,
   "dependencies": ["websocket_api", "recorder"],
