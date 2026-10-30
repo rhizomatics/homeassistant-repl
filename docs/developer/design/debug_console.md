@@ -4,36 +4,36 @@ Home Assistant 2026.11 adds its own Python console, the [Debug console](https://
 
 Once `debug_console:` is added to `configuration.yaml` and Home Assistant restarted, administrators find it under *Settings > Tools > Debug console*: a browser console with `hass` available, top-level `await`, and the last result in `_`.
 
-It covers some of the same ground as `ha-repl`'s [live mode](./modes/live_mode.md), so this page sets out which suits what. The two don't conflict, and can both be enabled on the same instance.
+It covers some of the same ground as `ha-repl`'s [live mode](../../modes/live_mode.md), so this page sets out which suits what. The two don't conflict, and can both be enabled on the same instance.
 
 ## In Short
 
 Use the **Debug console** to poke around a running instance from a browser - on any machine, a tablet, with nothing to install or configure beyond one line of YAML.
 
-Use **`ha-repl`** to work from a terminal or a coding agent, to work on data with your own local Python libraries, to query the Recorder database, or against a Home Assistant older than 2026.11 - or with nothing installed on Home Assistant at all, in [API mode](./modes/api_mode.md).
+Use **`ha-repl`** to work from a terminal or a coding agent, to work on data with your own local Python libraries, to query the Recorder database, or against a Home Assistant older than 2026.11 - or with nothing installed on Home Assistant at all, in [API mode](../../modes/api_mode.md).
 
 ## Side by Side
 
 | | Debug console | `ha-repl` |
 | --- | --- | --- |
 | Where it runs | Browser, in Home Assistant's own UI | Terminal, `ha-repl exec` for scripts and agents, or from plain Python, ipython or Marimo |
-| Home Assistant version | 2026.11 or later | Live mode: see [Server Installation](./configuration/server_install.md). API mode works with any version |
+| Home Assistant version | 2026.11 or later | Live mode: see [Server Installation](../../configuration/server_install.md). API mode works with any version |
 | Installed on Home Assistant | Part of core | Live mode: the `ha_repl_server` HACS component. API mode: nothing |
 | Enabling | YAML only, then restart | Requires a custom Marketplace install, then added from *Devices & services* after a risk acknowledgement, or YAML. `hass` and `sql` can be switched on separately, with a time limit |
-| Where your code runs | All of it inside Home Assistant | Locally, except statements using `hass` or `obj`, which are sent to Home Assistant - see [What Runs Where](./modes/live_mode.md#what-runs-where) |
+| Where your code runs | All of it inside Home Assistant | Locally, except statements using `hass` or `obj`, which are sent to Home Assistant - see [What Runs Where](../../modes/live_mode.md#what-runs-where) |
 | Libraries you can import | Only what Home Assistant's Python has installed | Anything installed locally, such as polars or pandas |
-| Looking inside objects | Expandable results, with properties only evaluated when clicked | [`show()`](./modes/live_mode.md#looking-inside-objects), printed in colour as text |
-| Completion and signatures | Yes, static | Yes, static, on both sides, including `obj` paths and dict keys, matching anywhere in a name - see [RFC 0002](./developer/design/rfcs/0002-auto-completed.md) |
+| Looking inside objects | Expandable results, with properties only evaluated when clicked | [`show()`](../../modes/live_mode.md#looking-inside-objects), printed in colour as text |
+| Completion and signatures | Yes, static | Yes, static, on both sides, including `obj` paths and dict keys, matching anywhere in a name - see [RFC 0002](./rfcs/0002-auto-completed.md) |
 | Help | Expand a result to look inside it | `thing?` for help, `thing??` for a GitHub link to the source at the version running |
 | Multi-line input and history | Yes, recalled with the arrow keys | Yes, a whole block per history entry, kept across sessions in a history file |
 | Stopping running code | *Stop* button or Ctrl-C | Ctrl-C in the shell, a *Stop running code* button in Home Assistant, or `ha-repl exec --timeout` |
 | Waiting code | Doesn't block the console | Blocks the prompt until it finishes |
-| Database | Through `hass` like anything else | [`sql`](./sql.md), with results downloaded as Arrow for local dataframes or CSV |
-| Entities and actions | Through `hass` | Also the [object tree](./obj_tree.md), `obj`, the same in live and API modes |
+| Database | Through `hass` like anything else | [`sql`](../../sql.md), with results downloaded as Arrow for local dataframes or CSV |
+| Entities and actions | Through `hass` | Also the [object tree](../../obj_tree.md), `obj`, the same in live and API modes |
 | Sessions | One per browser tab. Deleted 30 minutes after the tab disconnects, or on restart | Named, and kept until Home Assistant restarts, so `ha-repl exec` calls can share one |
-| Audit trail | Each run is logged with the user who ran it | Each command is logged with the user who sent it, its outcome and timing, at `warning` so it shows by default - see [the log](./configuration/server_install.md#stopping-code-and-the-log) |
+| Audit trail | Each run is logged with the user who ran it | Each command is logged with the user who sent it, its outcome and timing, at `warning` so it shows by default - see [the log](../../configuration/server_install.md#stopping-code-and-the-log) |
 | Paste protection | Pasting blocked until you type `allow pasting` | None - the terminal's own paste is used |
-| Extending | No | [Plugins](./configuration/plugins.md), which a component can ship for its developers |
+| Extending | No | [Plugins](../../configuration/plugins.md), which a component can ship for its developers |
 
 ## Things in Common
 
@@ -43,4 +43,4 @@ Use **`ha-repl`** to work from a terminal or a coding agent, to work on data wit
 
 ## Security Choices
 
-The Debug console can only be enabled in YAML: the Home Assistant team chose that so code in an administrator's browser, such as a custom card, can't switch it on. `ha-repl`'s server component can be added from the UI as well as YAML, as most integrations can. If that matters for your instance, add it with `ha_repl_server:` in YAML, and use the [time limits](./configuration/server_install.md#limiting-what-is-exposed) on `hass` and `sql` so they don't stay on.
+The Debug console can only be enabled in YAML: the Home Assistant team chose that so code in an administrator's browser, such as a custom card, can't switch it on. `ha-repl`'s server component can be added from the UI as well as YAML, as most integrations can. If that matters for your instance, add it with `ha_repl_server:` in YAML, and use the [time limits](../../configuration/server_install.md#limiting-what-is-exposed) on `hass` and `sql` so they don't stay on.

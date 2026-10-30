@@ -268,7 +268,7 @@ What that means for the design:
 - jedi never ran a property, a `__getitem__` or a call. Annotations are followed, as [Safety](#safety-idempotent-unless-explicitly-not) needs
 - It does call `__getattr__` on any object, looking for `__wrapped__` and `__objclass__`, and `__dir__` on any object, whatever the setting. Both break the rule that a completion runs nothing: a proxy or lazy object can do anything in either
 - The first completion took 300ms and the first signature 650ms, loading typeshed. Later ones took 1 to 30ms
-- Home Assistant's own [Debug console](../../../debug_console.md) answered the same question without jedi: going by the review of its [pull request](https://github.com/home-assistant/core/pull/186547), it matches names statically against the class's MRO and `__dict__`, replacing `rlcompleter`'s inspection of live objects
+- Home Assistant's own [Debug console](../debug_console.md) answered the same question without jedi: going by the review of its [pull request](https://github.com/home-assistant/core/pull/186547), it matches names statically against the class's MRO and `__dict__`, replacing `rlcompleter`'s inspection of live objects
 
 So for the server, the standard library walk listed under [Alternatives Considered](#alternatives-considered) becomes the default, not the fallback, answering [Open Question](#open-questions) 1. jedi could still be used on the client, where what it might run is your own local code, if the loss of the rule there is acceptable - or behind objects wrapped so that `__getattr__` and `__dir__` can't be reached.
 
@@ -290,7 +290,7 @@ Steps 1 to 3 went in as planned, except:
 
 ## Gaps with Home Assistant's Debug Console
 
-Even with everything in this RFC, the [Debug console](../../../debug_console.md) in Home Assistant 2026.11 does some things `ha-repl` won't:
+Even with everything in this RFC, the [Debug console](../debug_console.md) in Home Assistant 2026.11 does some things `ha-repl` won't:
 
 - **Inspecting a result by clicking through it.** The console shows a value as a tree to expand, and runs a property only when it's opened. In a terminal, `show()` prints the attributes it reads, and `?` gives the documentation, not the value. Neither is lazy in that way, and this RFC's completion only names attributes, it doesn't show their values
 - **Typing while code runs.** The console takes new input while earlier code is waiting, and runs it alongside. `ha-repl`'s prompt waits for each command, and a server session runs one command at a time. This RFC lets completion answer during an `exec`, but nothing else runs alongside one
