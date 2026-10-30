@@ -26,12 +26,11 @@ This is primarily for developers of custom components, and their LLM agents, tho
 
 ## Features
 
-- Easy `ipython` style help using `?` for help and `??` for source code, matched to the correct version tag
+- Multi-line editing, with a whole statement or block per history entry - Up brings back the complete `for` loop, to edit any line of it
 - Integrated with `rich` and `pygments` for pretty object printouts and stack traces
 - Reuses session and history features from `prompt-toolkit`
 - Access to all entities via an [Object Tree](https://homeassistant-repl.rhizomatics.org.uk/obj_tree/index.md) dictionary like interface
-- Multi-line editing, with a whole statement or block per history entry - Up brings back the complete `for` loop, to edit any line of it
-- Tab completion that runs nothing, including `obj` paths and entity ids, and in live mode what's inside Home Assistant, with the signature of the call being typed
+- Tab completion for objects, function signatures, entity IDs and Object Tree paths.
 - IPython style `thing?` help, and `thing??` for a link to its source on GitHub at the version running
 - Integrated with [homeassistant-api](https://pypi.org/project/HomeAssistant-API/) as `hass_api` object
 - Auto-awaits coroutines for easy shell use (can be switched off or overridden)
@@ -41,7 +40,7 @@ This is primarily for developers of custom components, and their LLM agents, tho
 
 All of the above works with standard Home Assistant APIs, referred to as [`api` mode](https://homeassistant-repl.rhizomatics.org.uk/modes/api_mode/index.md).
 
-Home Assistant REPL also has an advanced [`live` mode](https://homeassistant-repl.rhizomatics.org.uk/modes/live_mode/index.md) that taps directly into a live Home Assistant using an optional server component available via [HACS](http://hacs.xyz).
+Home Assistant REPL also has an advanced [`live` mode](https://homeassistant-repl.rhizomatics.org.uk/modes/live_mode/index.md) that taps directly into a live Home Assistant using an optional server component available via [HACS](http://hacs.xyz) where you have access to the central `hass` object.
 
 Get started with a single line at [Quick Start](https://homeassistant-repl.rhizomatics.org.uk/quick_start/index.md)
 
@@ -60,11 +59,11 @@ See the [Roadmap](https://homeassistant-repl.rhizomatics.org.uk/developer/design
 
 Note
 
-It is not intended to ever be a replacement for a Python debugger, although it may complement one. It also does not intend to replicate [PyScript](https://pyscript.net), instead focusing on standard python (PyScript uses MicroPython) even at expense of general usability or home assistance access, and not a general automation script execution service. For most non-developer cases, [homeassistant-cli](https://pypi.org/project/homeassistant-cli/) is a better choice, with pre-packaged access to devices, entities, services etc.
+It is not intended to ever be a replacement for a Python debugger, although it may complement one. It also does not intend to replicate [PyScript](https://pyscript.net), instead focusing on standard python (PyScript uses MicroPython) even at expense of general usability or home assistance access, and not a general automation script execution service. For most non-developer cases, [homeassistant-cli](https://pypi.org/project/homeassistant-cli/) is a better choice, with pre-packaged access to devices, entities, services etc, or for occasional use the built-in [Debug Console](https://homeassistant-repl.rhizomatics.org.uk/developer/design/debug_console/index.md).
 
 ## Home Assistant's Debug Console
 
-Home Assistant 2026.11 added its own browser-based Python console, the [Debug console](https://www.home-assistant.io/integrations/debug_console/). See [Debug Console](https://homeassistant-repl.rhizomatics.org.uk/debug_console/index.md) for how it compares, and which suits what.
+Home Assistant 2026.11 added its own browser-based Python console, the [Debug console](https://www.home-assistant.io/integrations/debug_console/). See [Debug Console](https://homeassistant-repl.rhizomatics.org.uk/developer/design/debug_console/index.md) for how it compares, and which suits what.
 
 ## Agent Support
 
@@ -76,7 +75,7 @@ These are all current with Python v3, there are others like dreampie that didn't
 
 ### Out of the Box
 
-- [Home Assistant Debug console](https://www.home-assistant.io/integrations/debug_console/) - browser console inside Home Assistant itself, from 2026.11 - see [comparison](https://homeassistant-repl.rhizomatics.org.uk/debug_console/index.md)
+- [Home Assistant Debug console](https://www.home-assistant.io/integrations/debug_console/) - browser console inside Home Assistant itself, from 2026.11 - see [comparison](https://homeassistant-repl.rhizomatics.org.uk/developer/design/debug_console/index.md)
 - [Python Interactive Mode](https://docs.python.org/3/tutorial/appendix.html#tut-interac) - Core python REPL, greatly enhanced in v3.13 with PyPi code, and now the default Python terminal experience.
 - [VSCode Python REPL](https://code.visualstudio.com/docs/python/run#_native-repl) - Notebook style with Intellisense, bundled with the standard Microsoft VSCode Python bundle
 
