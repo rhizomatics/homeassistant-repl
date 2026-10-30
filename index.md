@@ -90,3 +90,8 @@ These are all current with Python v3, there are others like dreampie that didn't
 - [nrepl-python](https://git.sr.ht/~ngraves/nrepl-python) - based on the Clojure `nrepl` protocol, a simpler alternative to LSP
 - [bpython](https://bpython-interpreter.org) - Syntax help, auto-complete, improved history
 - [xon.sh](https://xon.sh) - python-centric shell
+
+### Other Home Assistant CLIs
+
+- [ha-tool](https://github.com/szsolt/ha-tool) - Query tool for entities and history
+- [homeassistant-cli](https://pypi.org/project/homeassistant-cli/) - Simplified API calls for command line use

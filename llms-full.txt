@@ -100,6 +100,11 @@ These are all current with Python v3, there are others like dreampie that didn't
 - [bpython](https://bpython-interpreter.org) - Syntax help, auto-complete, improved history
 - [xon.sh](https://xon.sh) - python-centric shell
 
+### Other Home Assistant CLIs
+
+- [ha-tool](https://github.com/szsolt/ha-tool) - Query tool for entities and history
+- [homeassistant-cli](https://pypi.org/project/homeassistant-cli/) - Simplified API calls for command line use
+
 # Exec Mode
 
 `ha-repl exec` runs one snippet of Python against a running Home Assistant and exits. It is the non-interactive form of [live mode](https://homeassistant-repl.rhizomatics.org.uk/modes/live_mode/index.md), and its main use is giving a coding agent a way to check its ideas against a real instance: read an entity's state, query the recorder, call a service, inspect an object, then decide what to do next.
