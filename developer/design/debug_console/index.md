@@ -1,6 +1,6 @@
 # Home Assistant's Debug Console
 
-Home Assistant 2026.11 adds its own Python console, the [Debug console](https://www.home-assistant.io/integrations/debug_console/) integration, described in the [developer blog](https://contributors.home-assistant.io/blog/2026/10/17/debug-console/) a couple of weeks afer this component was first announced.
+Home Assistant 2026.11 adds its own Python console, the [Debug console](https://www.home-assistant.io/integrations/debug_console/) integration, described in the [developer blog](https://contributors.home-assistant.io/blog/2026/10/17/debug-console/) a couple of weeks after this component was first announced.
 
 Once `debug_console:` is added to `configuration.yaml` and Home Assistant restarted, administrators find it under *Settings > Tools > Debug console*: a browser console with `hass` available, top-level `await`, and the last result in `_`.
 
