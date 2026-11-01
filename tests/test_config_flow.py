@@ -104,7 +104,7 @@ async def test_options_flow_shows_current_values_as_defaults(
     }
     assert defaults == {"expose_hass": False, "expose_sql": True}
     # Completion's limits are in a section of their own, folded away.
-    (limits,) = [v for k, v in result["data_schema"].schema.items() if k == "limits"]
+    (limits,) = (v for k, v in result["data_schema"].schema.items() if k == "limits")
     assert limits.options == {"collapsed": True}
     assert {k.schema: k.default() for k in limits.schema.schema} == COMPLETE_DEFAULTS
 
