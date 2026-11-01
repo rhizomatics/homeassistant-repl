@@ -1,3 +1,6 @@
+# Run Python hooks on 3.14, the only version this project supports, as the other HA repos do.
+default_language_version:
+  python: python3.14
 repos:
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.22.0
@@ -95,4 +98,6 @@ ci:
     skip:
       - bandit
       - mypy
+      # ty resolves the project environment, which pre-commit.ci can't build; it still runs locally
+      - ty
     submodules: false
