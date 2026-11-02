@@ -21,7 +21,7 @@ repos:
       - id: check-shebang-scripts-are-executable
         name: Check shell scripts are executable
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.13.5
+    rev: 0.13.6
     hooks:
       - id: uv-lock
         # Lock as CI does, without ~/.config/uv/uv.toml: its settings (an
@@ -29,7 +29,7 @@ repos:
         # uv.lock, which `uv sync --locked` then rejects anywhere else.
         entry: env XDG_CONFIG_HOME=/dev/null uv lock
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.17.2
+    rev: v0.17.3
     hooks:
      # Run the linter.
       - id: ruff-check
@@ -42,7 +42,7 @@ repos:
       - id: codespell
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: 'v2.4.0'
+    rev: 'v2.4.1'
     hooks:
       - id: mypy
         args:
@@ -82,7 +82,7 @@ repos:
       - id: actionlint
 
   - repo: https://github.com/astral-sh/ty-pre-commit
-    rev: v0.0.92
+    rev: v0.0.95
     hooks:
       - id: ty
 
