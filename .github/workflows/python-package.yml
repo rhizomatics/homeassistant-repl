@@ -34,6 +34,9 @@ jobs:
       - name: mypy
         run: uv run mypy --explicit-package-bases --follow-untyped-imports src custom_components
 
+      - name: ty
+        run: uv run ty check
+
   build:
     runs-on: ubuntu-latest
     permissions:
@@ -88,6 +91,17 @@ jobs:
         export HTMLPROOFER_EXT_URLS=True
         uv run properdocs gh-deploy
 
-
-
-
+  # The one check branch protection requires, so the jobs above can change without
+  # editing the required status checks.
+  ci-ok:
+    if: always()
+    needs: [typecheck, build]
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: All CI jobs passed
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "Results: $RESULTS"
+          for r in $RESULTS; do [[ $r == success ]] || exit 1; done
