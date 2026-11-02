@@ -614,6 +614,8 @@ async def test_key_completions_are_paths_below_and_entity_ids_at_the_root(
 
 
 async def test_registry_entry_keys_complete_as_attributes(tree: ApiObjTree):
-    entry = tree["light.kitchen_lights"].registry_entry
+    entity = tree["light.kitchen_lights"]
+    assert isinstance(entity, ApiEntity)
+    entry = entity.registry_entry
     assert "unique_id" in dir(entry)
     assert "items" in dir(entry)

@@ -59,7 +59,7 @@ if TYPE_CHECKING:
 
 # The same rule as complete.py's, for jedi: nothing is evaluated (though
 # jedi still calls __getattr__ and __dir__ - see RFC 0002's Step 0 Findings).
-jedi.settings.allow_unsafe_interpreter_executions = False
+jedi.settings.allow_unsafe_interpreter_executions = False  # ty: ignore[invalid-assignment]
 
 # Seconds to wait for Home Assistant while typing, and after Tab.
 REMOTE_WAIT = 0.3

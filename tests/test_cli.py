@@ -147,7 +147,7 @@ def _inspect_args(**overrides) -> argparse.Namespace:
 
 
 async def test_inspect_describes_and_with_source_says_where(capsys):
-    assert await _inspect(_InspectClient(), _inspect_args(source=True)) == 0  # type: ignore[arg-type]
+    assert await _inspect(_InspectClient(), _inspect_args(source=True)) == 0  # type: ignore[arg-type]  # ty: ignore[invalid-argument-type]
     out = capsys.readouterr().out
     assert "hass.states.async_set(entity_id: str) -> None" in out
     assert "Set the state of an entity." in out
@@ -155,7 +155,7 @@ async def test_inspect_describes_and_with_source_says_where(capsys):
 
 
 async def test_inspect_json_has_both(capsys):
-    assert await _inspect(_InspectClient(), _inspect_args(json=True)) == 0  # type: ignore[arg-type]
+    assert await _inspect(_InspectClient(), _inspect_args(json=True)) == 0  # type: ignore[arg-type]  # ty: ignore[invalid-argument-type]
     result = json.loads(capsys.readouterr().out)
     assert result["doc"]["signature"] == "(entity_id: str) -> None"
     assert result["source"]["line"] == 1
@@ -163,5 +163,5 @@ async def test_inspect_json_has_both(capsys):
 
 async def test_inspect_something_unknown_fails(capsys):
     args = _inspect_args(expression="nothing_here")
-    assert await _inspect(_InspectClient(), args) == 1  # type: ignore[arg-type]
+    assert await _inspect(_InspectClient(), args) == 1  # type: ignore[arg-type]  # ty: ignore[invalid-argument-type]
     assert "can't tell" in capsys.readouterr().err

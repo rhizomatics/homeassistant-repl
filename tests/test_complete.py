@@ -216,7 +216,7 @@ def test_signature_of_the_call_being_typed(ns):
     assert found.active(1, None) == 1
     assert found.active(0, "b") == 1
     assert found.active(5, None) is None
-    assert signature("tree.find(", 10, ns).doc == ""  # type: ignore[union-attr]
+    assert signature("tree.find(", 10, ns).doc == ""  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
     get = signature("w.get(", 6, ns)
     assert get is not None and get.returns == "State | None"
 
@@ -267,11 +267,11 @@ def test_source_of_a_class_function_or_instance(ns):
     assert found is not None
     assert found.name == f"{__name__}.Tree"
     assert found.file == __file__
-    assert found.line == Tree.__firstlineno__
+    assert found.line == Tree.__firstlineno__  # ty: ignore[unresolved-attribute]
     assert found.url == ""  # tests aren't a known repository
     method = source("w.method", ns, {})
     assert method is not None and method.name.endswith("Watched.method")
-    assert source("w", ns, {}).name.endswith("Watched")  # type: ignore[union-attr]
+    assert source("w", ns, {}).name.endswith("Watched")  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
     assert source("nothere", ns, {}) is None
 
 
@@ -300,7 +300,7 @@ def test_source_links_to_the_version_running():
         {"homeassistant_repl": "dev"},
     )
     assert dev is not None and "/blob/main/" in dev.url
-    assert source("len", {}, {}).file == ""  # type: ignore[union-attr]
+    assert source("len", {}, {}).file == ""  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
 
 
 def test_expression_at_the_cursor_or_the_call_it_is_in():
@@ -330,7 +330,7 @@ def test_describe_without_running_anything(ns):
         "property",
         "State | None",
     )
-    assert describe("n", ns).value == "7"  # type: ignore[union-attr]
+    assert describe("n", ns).value == "7"  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
     assert describe("nothere", ns) is None
 
 
@@ -353,7 +353,7 @@ def test_a_time_budget_cuts_a_long_answer_short(ns):
     assert found is not None
     assert found.incomplete
     assert len(found.items) < 100
-    assert not complete('k["', 3, {"k": keys}, limit=200_000, budget=None).incomplete  # type: ignore[union-attr]
+    assert not complete('k["', 3, {"k": keys}, limit=200_000, budget=None).incomplete  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
 
 
 def test_describe_a_property_by_its_own_docstring_and_annotation(ns):
@@ -377,8 +377,8 @@ def test_describe_a_property_by_its_own_docstring_and_annotation(ns):
     )
     declared = describe("o.size", {"o": owner})
     assert declared is not None and declared.type == "list[int]"
-    assert describe("len", {}).type == "len"  # type: ignore[union-attr]
-    assert describe("x", {"x": []}).type == "list"  # type: ignore[union-attr]
+    assert describe("len", {}).type == "len"  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
+    assert describe("x", {"x": []}).type == "list"  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
 
 
 def test_describe_an_attribute_by_what_its_class_says_about_it():
@@ -399,4 +399,4 @@ def test_describe_an_attribute_by_what_its_class_says_about_it():
     assert (found.type, found.value) == ("list[str]", "2 items")
     assert found.doc == "`.items` the things it holds - `.item(n)` picks one."
     assert found.owner.endswith("Tool")
-    assert describe("t", {"t": tool}).owner == ""  # type: ignore[union-attr]
+    assert describe("t", {"t": tool}).owner == ""  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
