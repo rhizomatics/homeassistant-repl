@@ -57,7 +57,9 @@ jobs:
       run: uv run pytest tests
     - name: Build a binary wheel and a source tarball
       run: uv build
+    # Publishing steps: on main only, never from a pull request's merge ref.
     - name: Generate badges
+      if: github.event_name == 'push'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
@@ -85,6 +87,7 @@ jobs:
         fi
 
     - name: ProperDocs
+      if: github.event_name == 'push'
       run:  |
         git pull
         uv sync --dev --group docs
