@@ -4,7 +4,9 @@
   "categories": [
     "computers_network.cloud_developer_tools"
   ],
-  "codeowners": [],
+  "codeowners": [
+    "@jeyrb"
+  ],
   "config_flow": true,
   "dependencies": [
     "websocket_api",
