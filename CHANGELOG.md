@@ -4,6 +4,11 @@
     For live mode, generally the client and server component have to be on the same version. Different versions *might* work
     with each other for point releases
 
+# 0.14.1
+
+## 🐛 Fixes
+- The live server loads again on Home Assistant 2026.8.x. 0.14.0 imported `probatio`, which Home Assistant only ships from 2026.9
+
 # 0.14.0
 
 This release brings auto-complete for code and the object tree, integrated help/source-code lookup, much improved CLI history and lots more.
