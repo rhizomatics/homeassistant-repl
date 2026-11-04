@@ -49,3 +49,11 @@ logger:
   logs:
     custom_components.ha_repl_server.commands: error
 ```
+
+### Removing
+
+1. If `ha_repl_server:` is in `configuration.yaml`, take it out first. Otherwise the entry is imported again at the next restart
+2. In **Settings → Devices & services → Home Assistant REPL**, open the three-dot menu and choose **Delete**. Any live sessions end, and the Stop button and the integration's device go with it
+3. In HACS, open *Home Assistant REPL* and choose **Remove**, then restart Home Assistant
+
+`nanoarrow` and `sqlparse`, installed for `sql`, stay in Home Assistant's Python environment until it is next rebuilt (as on an upgrade). Nothing uses them.

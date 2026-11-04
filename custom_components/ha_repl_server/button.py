@@ -14,6 +14,9 @@ from .const import DOMAIN
 from .session import SessionManager
 from .websocket_api import COMMAND_LOG
 
+# Pressing only cancels tasks on the event loop: nothing to limit.
+PARALLEL_UPDATES = 0
+
 
 async def async_setup_entry(
     hass: HomeAssistant,

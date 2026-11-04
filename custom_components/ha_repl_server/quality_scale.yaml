@@ -1,0 +1,221 @@
+---
+# Quality Scale tracking for the Home Assistant REPL live server (ha_repl_server)
+# Created: 2026-11-04 (2026-Q4 architecture review)
+# Rule set verified against https://contributors.home-assistant.io/core/quality-scale/rules/#checklist
+# (HA 2026.10.4; 54 rules: Bronze 20, Silver 10, Gold 21, Platinum 3).
+# Changelog of rule changes: none since this file was created.
+#
+# A service integration with no external device or connection: it serves websocket commands to
+# the ha-repl client, with one Stop button on its own service device. Many rules are exempt for
+# that reason. No level is declared in manifest.json yet: runtime-data blocks Bronze.
+
+rules:
+  # ==================
+  # BRONZE TIER
+  # ==================
+
+  action-setup:
+    status: exempt
+    comment: |
+      No service actions. The websocket commands are registered once in async_setup
+      (websocket_api.async_register) and report "not_loaded" while no entry is loaded,
+      which is the same pattern the rule asks of actions.
+  appropriate-polling:
+    status: exempt
+    comment: Nothing is polled (iot_class local_push).
+  brands:
+    status: done
+    comment: brand/ holds icon and dark_icon images, 1x and 2x.
+  common-modules:
+    status: done
+    comment: One platform and one entity; no coordinator or shared entity base needed.
+  config-flow:
+    status: done
+    comment: |
+      UI flow with explicit risk acknowledgements (config_flow.py), plus YAML import for installs
+      that predate it. Options flow for what's exposed and completion limits.
+  config-flow-test-coverage:
+    status: done
+    comment: tests/test_config_flow.py; config_flow.py at 100% line and branch coverage (2026-11-04).
+  dependency-transparency:
+    status: done
+    comment: |
+      Manifest requirement pygments, and SQL_REQUIREMENTS (nanoarrow, sqlparse) installed at setup
+      through async_process_requirements so a missing wheel only switches sql off. All are on PyPI
+      under OSI licences, with public source and CI-built releases.
+  docs-actions:
+    status: exempt
+    comment: No service actions.
+  docs-conditions:
+    status: exempt
+    comment: No conditions.
+  docs-high-level-description:
+    status: done
+    comment: README.md, which is also the docs home page.
+  docs-installation-instructions:
+    status: done
+    comment: docs/configuration/server_install.md.
+  docs-removal-instructions:
+    status: done
+    comment: docs/configuration/server_install.md "Removing", including the YAML import case.
+  docs-triggers:
+    status: exempt
+    comment: No triggers.
+  entity-event-setup:
+    status: exempt
+    comment: The Stop button subscribes to nothing.
+  entity-unique-id:
+    status: done
+    comment: button.py, "<entry_id>_stop".
+  has-entity-name:
+    status: done
+    comment: button.py, with translation_key "stop".
+  runtime-data:
+    status: todo
+    comment: |
+      The SessionManager is kept in hass.data[DOMAIN] (__init__.py async_setup_entry) and read
+      from there by button.py and websocket_api._manager. Move it to a typed entry.runtime_data,
+      with the websocket commands finding the loaded entry through
+      hass.config_entries.async_loaded_entries(DOMAIN) (single_config_entry, so at most one).
+  test-before-configure:
+    status: exempt
+    comment: No connection or credentials to test; the flow only collects acknowledgements.
+  test-before-setup:
+    status: exempt
+    comment: |
+      Nothing external to reach. The one thing that can fail at setup, installing sql's
+      packages, deliberately switches only sql off and logs why (__init__.py _load_sql).
+  unique-config-entry:
+    status: done
+    comment: single_config_entry in manifest.json.
+
+  # ==================
+  # SILVER TIER
+  # ==================
+
+  action-exceptions:
+    status: exempt
+    comment: No service actions. Websocket commands answer with send_error codes.
+  config-entry-unloading:
+    status: done
+    comment: async_unload_entry unloads the button platform and cancels every session; time limits use entry.async_on_unload.
+  docs-configuration-parameters:
+    status: done
+    comment: server_install.md "Limiting What Is Exposed" and "Completion's Limits" cover every option.
+  docs-installation-parameters:
+    status: done
+    comment: server_install.md describes the acknowledgement step; there are no other parameters.
+  entity-unavailable:
+    status: exempt
+    comment: The Stop button has no backing device to lose; it does nothing when no sessions run.
+  integration-owner:
+    status: done
+    comment: codeowners @jeyrb.
+  log-when-unavailable:
+    status: exempt
+    comment: No external service to become unavailable.
+  parallel-updates:
+    status: done
+    comment: button.py PARALLEL_UPDATES = 0 (pressing only cancels tasks on the event loop).
+  reauthentication-flow:
+    status: exempt
+    comment: No authentication; access is Home Assistant's own admin check on each websocket command.
+  test-coverage:
+    status: todo
+    comment: |
+      custom_components/ha_repl_server is at 81% (2026-11-04), short of the 95% asked. complete.py
+      (59%) is kept identical to src/homeassistant_repl/complete.py by a test, and that copy is at
+      85%, so most of its gap is tests that only import the client copy. Others below 95%: button
+      84%, websocket_api 84%, objtree 83%. pyproject.toml fail-under is 45 across both packages.
+
+  # ==================
+  # GOLD TIER
+  # ==================
+
+  devices:
+    status: done
+    comment: One service device per entry (button.py DeviceInfo, DeviceEntryType.SERVICE).
+  diagnostics:
+    status: todo
+    comment: |
+      Entry diagnostics would help support: options (expose_*, time limits, completion limits),
+      features loaded, why sql is unavailable, and session names. No secrets to redact.
+  discovery:
+    status: exempt
+    comment: Nothing to discover.
+  discovery-update-info:
+    status: exempt
+    comment: Nothing to discover.
+  docs-data-update:
+    status: exempt
+    comment: No data is fetched or updated; everything is on request from the client.
+  docs-examples:
+    status: done
+    comment: docs/examples.md.
+  docs-known-limitations:
+    status: todo
+    comment: |
+      Limitations are listed in docs/developer/design/roadmap.md, which users won't look in.
+      Move or link a user-facing list from server_install.md or the README.
+  docs-supported-devices:
+    status: exempt
+    comment: No devices.
+  docs-supported-functions:
+    status: done
+    comment: docs/modes/ and docs/obj_tree.md, docs/sql.md.
+  docs-troubleshooting:
+    status: todo
+    comment: |
+      Only "If sql Can't Be Loaded" (server_install.md). Add the common ones: "not_loaded" from the
+      client, a version mismatch between client and server, and code that blocks the event loop.
+  docs-use-cases:
+    status: done
+    comment: README.md and docs/quick_start.md.
+  dynamic-devices:
+    status: exempt
+    comment: A single service device, created with the entry.
+  entity-category:
+    status: done
+    comment: The Stop button is a control in its own right, so it has no category.
+  entity-device-class:
+    status: exempt
+    comment: No button device class (identify, restart, update) fits stopping code.
+  entity-disabled-by-default:
+    status: exempt
+    comment: The one entity is the point of the platform.
+  entity-translations:
+    status: done
+    comment: translations/en.json entity.button.stop.
+  exception-translations:
+    status: exempt
+    comment: |
+      No HomeAssistantError is raised to users; errors go back to the client as websocket error
+      codes, which have no translation mechanism.
+  icon-translations:
+    status: done
+    comment: icons.json.
+  reconfiguration-flow:
+    status: exempt
+    comment: The entry has no data to reconfigure; every setting is in the options flow.
+  repair-issues:
+    status: todo
+    comment: |
+      Candidate: a repair issue when sql can't be loaded (now a log warning). Arguably also one
+      while the integration is enabled at all, since it runs arbitrary code as admin.
+  stale-devices:
+    status: exempt
+    comment: A single service device, removed with the entry.
+
+  # ==================
+  # PLATINUM TIER
+  # ==================
+
+  async-dependency:
+    status: exempt
+    comment: No dependency does I/O; sql's queries run in the recorder's executor.
+  inject-websession:
+    status: exempt
+    comment: No HTTP client.
+  strict-typing:
+    status: todo
+    comment: mypy runs without strict = true, and there is no py.typed.
