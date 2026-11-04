@@ -16,9 +16,8 @@ import base64
 import contextlib
 import logging
 import time
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
-import probatio as vol
 from homeassistant.components import websocket_api
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.loader import async_get_integration
@@ -27,6 +26,13 @@ from .complete import complete, describe, signature, source
 from .const import DEFAULT_MAX_ROWS, DEFAULT_SESSION, DOMAIN
 from .objtree import async_load_action_descriptions
 from .session import SessionManager
+
+if TYPE_CHECKING:
+    import probatio as vol
+else:
+    # From 2026.9 Home Assistant installs probatio as `voluptuous`, so this is
+    # probatio there; 2026.8, still supported, has only voluptuous.
+    import voluptuous as vol
 
 _LOGGER = logging.getLogger(__package__)
 COMMAND_LOG = logging.getLogger(f"{__package__}.commands")
