@@ -882,6 +882,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#removing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Removing
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1600,6 +1611,13 @@
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">logs</span><span class="p">:</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="nt">custom_components.ha_repl_server.commands</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">error</span>
 </span></code></pre></div>
+<h3 id="removing">Removing<a class="headerlink" href="#removing" title="Permanent link">&para;</a></h3>
+<ol>
+<li>If <code>ha_repl_server:</code> is in <code>configuration.yaml</code>, take it out first. Otherwise the entry is imported again at the next restart</li>
+<li>In <strong>Settings → Devices &amp; services → Home Assistant REPL</strong>, open the three-dot menu and choose <strong>Delete</strong>. Any live sessions end, and the Stop button and the integration's device go with it</li>
+<li>In HACS, open <em>Home Assistant REPL</em> and choose <strong>Remove</strong>, then restart Home Assistant</li>
+</ol>
+<p><code>nanoarrow</code> and <code>sqlparse</code>, installed for <code>sql</code>, stay in Home Assistant's Python environment until it is next rebuilt (as on an upgrade). Nothing uses them.</p>
 
 
 

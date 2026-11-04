@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="This release brings auto-complete for code and the object tree, integrated help/source-code lookup, much improved CLI history and lots more.">
+        <meta name="description" content="Python REPL Shell for Home Assistant Developers">
       
       
       
@@ -1431,6 +1431,11 @@
 <p>For live mode, generally the client and server component have to be on the same version. Different versions <em>might</em> work
 with each other for point releases</p>
 </div>
+<h1 id="0141">0.14.1<a class="headerlink" href="#0141" title="Permanent link">&para;</a></h1>
+<h2 id="-fixes">🐛 Fixes<a class="headerlink" href="#-fixes" title="Permanent link">&para;</a></h2>
+<ul>
+<li>The live server loads again on Home Assistant 2026.8.x. 0.14.0 imported <code>probatio</code>, which Home Assistant only ships from 2026.9</li>
+</ul>
 <h1 id="0140">0.14.0<a class="headerlink" href="#0140" title="Permanent link">&para;</a></h1>
 <p>This release brings auto-complete for code and the object tree, integrated help/source-code lookup, much improved CLI history and lots more.</p>
 <h2 id="-enhancements">✨ Enhancements<a class="headerlink" href="#-enhancements" title="Permanent link">&para;</a></h2>
@@ -1487,7 +1492,7 @@ with each other for point releases</p>
 <li><code>obj["</code> completes paths, and entity ids at the root, in IPython, Jupyter and Marimo, for <code>obj</code> from <code>connect()</code> as well as in live mode (step 1 of <a href="https://homeassistant-repl.rhizomatics.org.uk/developer/design/rfcs/0002-auto-completed/">RFC 0002</a>)</li>
 <li>A registry entry's keys complete as attributes there too: <code>entity.registry_entry.uni&lt;TAB&gt;</code></li>
 </ul>
-<h2 id="-fixes">🐛 Fixes<a class="headerlink" href="#-fixes" title="Permanent link">&para;</a></h2>
+<h2 id="-fixes_1">🐛 Fixes<a class="headerlink" href="#-fixes_1" title="Permanent link">&para;</a></h2>
 <ul>
 <li>A connection lost while the shell is open - Home Assistant restarting, say - is reported as <code>Connection closed</code>, rather than a traceback from the HTTP library, and leaving the shell still works</li>
 </ul>
@@ -1564,7 +1569,7 @@ with each other for point releases</p>
 <li>The agent skill and <em>Examples</em> cover querying state history, events and long term statistics, and looking inside objects with <code>show()</code></li>
 </ul>
 <h1 id="0111">0.11.1<a class="headerlink" href="#0111" title="Permanent link">&para;</a></h1>
-<h2 id="-fixes_1">🐛 Fixes<a class="headerlink" href="#-fixes_1" title="Permanent link">&para;</a></h2>
+<h2 id="-fixes_2">🐛 Fixes<a class="headerlink" href="#-fixes_2" title="Permanent link">&para;</a></h2>
 <h3 id="live-mode_2">Live Mode<a class="headerlink" href="#live-mode_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li>A name used only in a type annotation no longer decides which side a statement runs on, and no longer stops it running inside Home Assistant because it "only exists in the local session"</li>
