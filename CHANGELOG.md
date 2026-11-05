@@ -6,8 +6,10 @@
 
 # 0.14.1
 
-## 🐛 Fixes
+## 🐛 Bug Fixes
 - The live server loads again on Home Assistant 2026.8.x. 0.14.0 imported `probatio`, which Home Assistant only ships from 2026.9
+## 📚 Documentation
+- Replaced references to HACS with 'Marketplace'
 
 # 0.14.0
 
