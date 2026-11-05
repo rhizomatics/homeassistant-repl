@@ -1432,9 +1432,13 @@
 with each other for point releases</p>
 </div>
 <h1 id="0141">0.14.1<a class="headerlink" href="#0141" title="Permanent link">&para;</a></h1>
-<h2 id="-fixes">🐛 Fixes<a class="headerlink" href="#-fixes" title="Permanent link">&para;</a></h2>
+<h2 id="-bug-fixes">🐛 Bug Fixes<a class="headerlink" href="#-bug-fixes" title="Permanent link">&para;</a></h2>
 <ul>
 <li>The live server loads again on Home Assistant 2026.8.x. 0.14.0 imported <code>probatio</code>, which Home Assistant only ships from 2026.9</li>
+</ul>
+<h2 id="-documentation">📚 Documentation<a class="headerlink" href="#-documentation" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Replaced references to HACS with 'Marketplace'</li>
 </ul>
 <h1 id="0140">0.14.0<a class="headerlink" href="#0140" title="Permanent link">&para;</a></h1>
 <p>This release brings auto-complete for code and the object tree, integrated help/source-code lookup, much improved CLI history and lots more.</p>
@@ -1492,11 +1496,11 @@ with each other for point releases</p>
 <li><code>obj["</code> completes paths, and entity ids at the root, in IPython, Jupyter and Marimo, for <code>obj</code> from <code>connect()</code> as well as in live mode (step 1 of <a href="https://homeassistant-repl.rhizomatics.org.uk/developer/design/rfcs/0002-auto-completed/">RFC 0002</a>)</li>
 <li>A registry entry's keys complete as attributes there too: <code>entity.registry_entry.uni&lt;TAB&gt;</code></li>
 </ul>
-<h2 id="-fixes_1">🐛 Fixes<a class="headerlink" href="#-fixes_1" title="Permanent link">&para;</a></h2>
+<h2 id="-fixes">🐛 Fixes<a class="headerlink" href="#-fixes" title="Permanent link">&para;</a></h2>
 <ul>
 <li>A connection lost while the shell is open - Home Assistant restarting, say - is reported as <code>Connection closed</code>, rather than a traceback from the HTTP library, and leaving the shell still works</li>
 </ul>
-<h2 id="-documentation">📚 Documentation<a class="headerlink" href="#-documentation" title="Permanent link">&para;</a></h2>
+<h2 id="-documentation_1">📚 Documentation<a class="headerlink" href="#-documentation_1" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="https://homeassistant-repl.rhizomatics.org.uk/developer/design/rfcs/0002-auto-completed/">RFC 0002</a> has the results of its step 0 spike, and where <code>ha-repl</code> would still differ from the Debug console once it's done</li>
 <li>New <a href="https://homeassistant-repl.rhizomatics.org.uk/debug_console/">Debug Console</a> page, comparing <code>ha-repl</code> with the Debug console that Home Assistant 2026.11 adds</li>
@@ -1564,12 +1568,12 @@ with each other for point releases</p>
 <li>Nothing new is installed in Home Assistant: the server sends a description of the object, and the shell draws it</li>
 <li>Works on local objects too, and in <code>ha-repl exec</code>, where it comes back as text</li>
 </ul>
-<h2 id="-documentation_1">📚 Documentation<a class="headerlink" href="#-documentation_1" title="Permanent link">&para;</a></h2>
+<h2 id="-documentation_2">📚 Documentation<a class="headerlink" href="#-documentation_2" title="Permanent link">&para;</a></h2>
 <ul>
 <li>The agent skill and <em>Examples</em> cover querying state history, events and long term statistics, and looking inside objects with <code>show()</code></li>
 </ul>
 <h1 id="0111">0.11.1<a class="headerlink" href="#0111" title="Permanent link">&para;</a></h1>
-<h2 id="-fixes_2">🐛 Fixes<a class="headerlink" href="#-fixes_2" title="Permanent link">&para;</a></h2>
+<h2 id="-fixes_1">🐛 Fixes<a class="headerlink" href="#-fixes_1" title="Permanent link">&para;</a></h2>
 <h3 id="live-mode_2">Live Mode<a class="headerlink" href="#live-mode_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li>A name used only in a type annotation no longer decides which side a statement runs on, and no longer stops it running inside Home Assistant because it "only exists in the local session"</li>
@@ -1581,7 +1585,7 @@ with each other for point releases</p>
 <li><code>homeassistant_repl.plugin</code> declares <code>MODE</code>, <code>SERVER</code>, <code>hass</code>, <code>obj</code>, <code>sql</code> and <code>hass_api</code> for linters and type checkers, to import under <code>TYPE_CHECKING</code></li>
 <li>The package now carries a <code>py.typed</code> marker</li>
 </ul>
-<h2 id="-documentation_2">📚 Documentation<a class="headerlink" href="#-documentation_2" title="Permanent link">&para;</a></h2>
+<h2 id="-documentation_3">📚 Documentation<a class="headerlink" href="#-documentation_3" title="Permanent link">&para;</a></h2>
 <ul>
 <li><em>Plugins</em> covers importing a component's own classes, and type checking a plugin</li>
 <li>A link is given to the example <a href="https://github.com/rhizomatics/supernotify/blob/main/.ha-repl/plugins/10-supernotify-internals.py">Supernotify ha-repl plugin code</a></li>
@@ -1610,7 +1614,7 @@ with each other for point releases</p>
 <li>New properties with the real <code>Entity</code> names: <code>unique_id</code>, <code>available</code>, <code>enabled</code>, <code>device_class</code>, <code>unit_of_measurement</code>, <code>icon</code>, <code>entity_picture</code>, <code>supported_features</code>, <code>assumed_state</code>, <code>attribution</code>, <code>entity_category</code>, <code>has_entity_name</code> and <code>translation_key</code></li>
 <li>The same applies to <code>obj.mode("api")</code> in live mode, so the server component needs updating too</li>
 </ul>
-<h2 id="-documentation_3">📚 Documentation<a class="headerlink" href="#-documentation_3" title="Permanent link">&para;</a></h2>
+<h2 id="-documentation_4">📚 Documentation<a class="headerlink" href="#-documentation_4" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Reorganized and improved the configuration and installation</li>
 </ul>
@@ -1635,7 +1639,7 @@ with each other for point releases</p>
 <li>Indexing a result with a row number, e.g. <code>sql("select count(*) from events")[0]</code>, returns a <code>Row</code> object - its values, readable by position or column name, with its column names and <code>Table</code></li>
 <li><code>columns</code> and <code>column_names</code> on a <code>Table</code> object are now properties, not methods</li>
 </ul>
-<h2 id="-documentation_4">📚 Documentation<a class="headerlink" href="#-documentation_4" title="Permanent link">&para;</a></h2>
+<h2 id="-documentation_5">📚 Documentation<a class="headerlink" href="#-documentation_5" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Added help on using <code>ha-repl</code> from the <strong>Studio Code Server</strong> and <strong>Advanced SSH</strong> Home Assistant apps (aka addons), and using <code>ttyd</code></li>
 <li>Lots more examples of how to use all the builtins</li>
