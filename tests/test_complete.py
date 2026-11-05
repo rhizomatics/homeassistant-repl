@@ -356,7 +356,7 @@ def test_a_time_budget_cuts_a_long_answer_short(ns):
     assert not complete('k["', 3, {"k": keys}, limit=200_000, budget=None).incomplete  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
 
 
-def test_describe_a_property_by_its_own_docstring_and_annotation(ns):
+def test_describe_a_property_by_its_own_docstring_and_annotation(ns) -> None:
     class Owner:
         size: list[int]
 
@@ -381,7 +381,7 @@ def test_describe_a_property_by_its_own_docstring_and_annotation(ns):
     assert describe("x", {"x": []}).type == "list"  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
 
 
-def test_describe_an_attribute_by_what_its_class_says_about_it():
+def test_describe_an_attribute_by_what_its_class_says_about_it() -> None:
     class Tool:
         """A tool.
 

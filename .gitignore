@@ -20,6 +20,7 @@ dev/config/*
 throwaway/
 docs/changelog.md
 docs/index.md
+/supernotify/
 
 # Distribution / packaging
 .Python

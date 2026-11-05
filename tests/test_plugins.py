@@ -294,7 +294,7 @@ async def test_rebind_in_api_mode_puts_obj_back(tmp_path):
     assert session.globals_["limit"] == 3
 
 
-async def test_a_plugin_that_calls_rebind_does_not_run_them_all_again(tmp_path):
+async def test_a_plugin_that_calls_rebind_does_not_run_them_all_again(tmp_path) -> None:
     runs: list[int] = []
     session = LocalSession({"runs": runs})
     path = _file(tmp_path, "10-loop.py", "runs.append(1)\nrebind()\n")

@@ -60,6 +60,7 @@ repos:
           - sqlparse
           - types-PyYAML
           - prompt_toolkit
+          - jedi
           - niquests[ws]
           - homeassistant_api
           - properdocs
@@ -82,7 +83,7 @@ repos:
       - id: actionlint
 
   - repo: https://github.com/astral-sh/ty-pre-commit
-    rev: v0.0.95
+    rev: v0.0.97
     hooks:
       - id: ty
 

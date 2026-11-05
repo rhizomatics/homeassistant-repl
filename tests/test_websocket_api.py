@@ -170,7 +170,7 @@ async def test_ws_cancel_stops_a_running_exec_and_both_are_logged(
         "type": "ha_repl_server/cancel",
         "session": "default",
     })
-    replies = {}
+    replies: dict[int, dict] = {}
     while len(replies) < 2:
         reply = await client.receive_json()
         replies[reply["id"]] = reply
