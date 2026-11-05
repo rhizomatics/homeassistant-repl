@@ -48,4 +48,5 @@ updates:
       - dependency-name: pytest-homeassistant-custom-component
       - dependency-name: pytest
       - dependency-name: zeroconf
+      - dependency-name: pillow
 
