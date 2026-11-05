@@ -21,7 +21,7 @@ repos:
       - id: check-shebang-scripts-are-executable
         name: Check shell scripts are executable
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.13.6
+    rev: 0.13.7
     hooks:
       - id: uv-lock
         # Lock as CI does, without ~/.config/uv/uv.toml: its settings (an
@@ -83,7 +83,7 @@ repos:
       - id: actionlint
 
   - repo: https://github.com/astral-sh/ty-pre-commit
-    rev: v0.0.97
+    rev: v0.0.98
     hooks:
       - id: ty
 

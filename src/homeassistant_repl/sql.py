@@ -290,12 +290,12 @@ class SqlResult:
         }
 
     def to_polars(self) -> Any:
-        import polars as pl  # type: ignore[import-not-found]  # ty: ignore[unresolved-import]
+        import polars as pl  # type: ignore[import-not-found]  # ty: ignore[import-not-found]
 
         return pl.DataFrame(self.arrow())
 
     def to_pandas(self) -> Any:
-        import pandas as pd  # type: ignore[import-untyped]  # ty: ignore[unresolved-import]
+        import pandas as pd  # type: ignore[import-untyped]  # ty: ignore[import-not-found]
 
         return pd.DataFrame({
             name: column.to_pylist() for name, column in self._column_arrays().items()
