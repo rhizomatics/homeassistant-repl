@@ -2,7 +2,7 @@
 
 > Python REPL Shell for Home Assistant Developers
 
-Home Assistant REPL is a Python shell for developers of Home Assistant custom components. It exposes the live object tree - entities and more - as a dict-like `obj`, for exploring APIs, trying out code snippets and hotfixing issues directly against a running Home Assistant instance. `api` mode uses only the standard Home Assistant HTTP/WebSocket API; an optional `live` mode, via a HACS companion component, adds direct access to the core Python API as `hass`.
+Home Assistant REPL is a Python shell for developers of Home Assistant custom components. It exposes the live object tree - entities and more - as a dict-like `obj`, for exploring APIs, trying out code snippets and hotfixing issues directly against a running Home Assistant instance. `api` mode uses only the standard Home Assistant HTTP/WebSocket API; an optional `live` mode, via a Marketplace companion component, adds direct access to the core Python API as `hass`.
 
 
 # Start here
@@ -49,13 +49,13 @@ This is primarily for developers of custom components, and their LLM agents, tho
 
 All of the above works with standard Home Assistant APIs, referred to as [`api` mode](https://homeassistant-repl.rhizomatics.org.uk/modes/api_mode/index.md).
 
-Home Assistant REPL also has an advanced [`live` mode](https://homeassistant-repl.rhizomatics.org.uk/modes/live_mode/index.md) that taps directly into a live Home Assistant using an optional server component available via [HACS](http://hacs.xyz) where you have access to the central `hass` object.
+Home Assistant REPL also has an advanced [`live` mode](https://homeassistant-repl.rhizomatics.org.uk/modes/live_mode/index.md) that taps directly into a live Home Assistant using an optional server component available via the [Home Assistant Marketplace](https://www.home-assistant.io/integrations/marketplace/) where you have access to the central `hass` object.
 
 Get started with a single line at [Quick Start](https://homeassistant-repl.rhizomatics.org.uk/quick_start/index.md)
 
 ## Advanced Modes
 
-These modes require a custom component to be [installed](https://homeassistant-repl.rhizomatics.org.uk/configuration/server_install/index.md) on the target Home Assistant server via HACS, or use the supplied scripts to install on a local devcontainer. It adds:
+These modes require a custom component to be [installed](https://homeassistant-repl.rhizomatics.org.uk/configuration/server_install/index.md) on the target Home Assistant server via Marketplace, or use the supplied scripts to install on a local devcontainer. It adds:
 
 - Full access to the core Home Assistant Python API via `hass`
 - Read/write access to the actual objects, e.g. entities and their helpers
@@ -956,7 +956,7 @@ Use **`ha-repl`** to work from a terminal or a coding agent, to work on data wit
 | ---------------------------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Where it runs                | Browser, in Home Assistant's own UI                                              | Terminal, `ha-repl exec` for scripts and agents, or from plain Python, ipython or Marimo                                                                                                                                             |
 | Home Assistant version       | 2026.11 or later                                                                 | Live mode: see [Server Installation](https://homeassistant-repl.rhizomatics.org.uk/configuration/server_install/index.md). API mode works with any version                                                                           |
-| Installed on Home Assistant  | Part of core                                                                     | Live mode: the `ha_repl_server` HACS component. API mode: nothing                                                                                                                                                                    |
+| Installed on Home Assistant  | Part of core                                                                     | Live mode: the `ha_repl_server` Marketplace component. API mode: nothing                                                                                                                                                             |
 | Enabling                     | YAML only, then restart                                                          | Requires a custom Marketplace install, then added from *Devices & services* after a risk acknowledgement, or YAML. `hass` and `sql` can be switched on separately, with a time limit                                                 |
 | Where your code runs         | All of it inside Home Assistant                                                  | Locally, except statements using `hass` or `obj`, which are sent to Home Assistant - see [What Runs Where](https://homeassistant-repl.rhizomatics.org.uk/modes/live_mode/#what-runs-where)                                           |
 | Libraries you can import     | Only what Home Assistant's Python has installed                                  | Anything installed locally, such as polars or pandas                                                                                                                                                                                 |
@@ -1020,7 +1020,7 @@ async def main() -> None:
 asyncio.run(main())
 ```
 
-`obj` behaves identically to the one bound in the REPL - everything under The Object Tree below applies. `connect()` only gets you `api` mode (read-only, no `hass`); `live` mode's live object tree requires the `ha_repl_server` HACS component and talks to it over the same underlying `Client`, but isn't exposed as a standalone importable helper.
+`obj` behaves identically to the one bound in the REPL - everything under The Object Tree below applies. `connect()` only gets you `api` mode (read-only, no `hass`); `live` mode's live object tree requires the `ha_repl_server` Marketplace component and talks to it over the same underlying `Client`, but isn't exposed as a standalone importable helper.
 
 `connect()` reads the same [`config.toml`](https://homeassistant-repl.rhizomatics.org.uk/configuration/client_configuration/index.md) as the CLI, so a server can be given by name - `await homeassistant_repl.connect("house")` - and the `default` server is used when no argument and no `HASS_SERVER` is given. Plugins belong to the shells, and are not run by `connect()`.
 

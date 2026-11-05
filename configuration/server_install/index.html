@@ -827,15 +827,15 @@
     <ul class="md-nav__list" data-md-component="toc">
       
         <li class="md-nav__item">
-  <a href="#hacs-component" class="md-nav__link">
+  <a href="#marketplace-component" class="md-nav__link">
     <span class="md-ellipsis">
       
-        HACS Component
+        Marketplace Component
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="HACS Component">
+    <nav class="md-nav" aria-label="Marketplace Component">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1580,13 +1580,13 @@
 <h1 id="server-installation">Server Installation<a class="headerlink" href="#server-installation" title="Permanent link">&para;</a></h1>
 <p>This step is only required if you need to use Live or Exec mode - it's not needed for the simpler API mode.</p>
 <p>This is a powerful component, so treat with care, especially if its on your home server. It has controls to limit it to Home Assistant API and/or SQL access.</p>
-<h2 id="hacs-component">HACS Component<a class="headerlink" href="#hacs-component" title="Permanent link">&para;</a></h2>
-<p>A HACS component that taps into the Home Assistant and acts as a session server over web sockets. It has been designed for HomeAssistant 2026.8 or greater.</p>
+<h2 id="marketplace-component">Marketplace Component<a class="headerlink" href="#marketplace-component" title="Permanent link">&para;</a></h2>
+<p>A Home Assistant Marketplace (HACS on older versions of Home Assistant) component that taps into the Home Assistant and acts as a session server over web sockets. It has been designed for HomeAssistant 2026.8 or greater.</p>
 <p>Needed for <code>live</code> mode only, since <code>api</code> mode only uses standard Home Assistant APIs.</p>
-<p>Install via <a href="https://hacs.xyz">HACS</a>:</p>
+<p>Install via Marketplace (in the <em>Tools</em> page):</p>
 <ul>
-<li>it's not in the default HACS repository, so you'll have to add <code>https://github.com/rhizomatics/homeassistant-repl</code> as a Custom Repository from the top-right dot menu first</li>
-<li>Search for <em>Home Assistant REPL</em> in the HACS menu and choose <em>Download</em></li>
+<li>it's not in the default Marketplace repository, so you'll have to add <code>https://github.com/rhizomatics/homeassistant-repl</code> as a Custom Repository from the top-right dot menu first</li>
+<li>Search for <em>Home Assistant REPL</em> in the Marketplace menu and choose <em>Download</em></li>
 <li>Restart Home Assistant for it to recognize the new custom component available</li>
 <li>From <strong>Settings → Devices &amp; services → Add integration</strong> find <strong>Home Assistant REPL Server</strong> in the list and install, there's no further config needed</li>
 <li>The component will quiz you first to make sure you know what you're doing</li>
@@ -1615,7 +1615,7 @@
 <ol>
 <li>If <code>ha_repl_server:</code> is in <code>configuration.yaml</code>, take it out first. Otherwise the entry is imported again at the next restart</li>
 <li>In <strong>Settings → Devices &amp; services → Home Assistant REPL</strong>, open the three-dot menu and choose <strong>Delete</strong>. Any live sessions end, and the Stop button and the integration's device go with it</li>
-<li>In HACS, open <em>Home Assistant REPL</em> and choose <strong>Remove</strong>, then restart Home Assistant</li>
+<li>In Marketplace, open <em>Home Assistant REPL</em> and choose <strong>Remove</strong>, then restart Home Assistant</li>
 </ol>
 <p><code>nanoarrow</code> and <code>sqlparse</code>, installed for <code>sql</code>, stay in Home Assistant's Python environment until it is next rebuilt (as on an upgrade). Nothing uses them.</p>
 

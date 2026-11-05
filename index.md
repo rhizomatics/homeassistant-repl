@@ -40,13 +40,13 @@ This is primarily for developers of custom components, and their LLM agents, tho
 
 All of the above works with standard Home Assistant APIs, referred to as [`api` mode](https://homeassistant-repl.rhizomatics.org.uk/modes/api_mode/index.md).
 
-Home Assistant REPL also has an advanced [`live` mode](https://homeassistant-repl.rhizomatics.org.uk/modes/live_mode/index.md) that taps directly into a live Home Assistant using an optional server component available via [HACS](http://hacs.xyz) where you have access to the central `hass` object.
+Home Assistant REPL also has an advanced [`live` mode](https://homeassistant-repl.rhizomatics.org.uk/modes/live_mode/index.md) that taps directly into a live Home Assistant using an optional server component available via the [Home Assistant Marketplace](https://www.home-assistant.io/integrations/marketplace/) where you have access to the central `hass` object.
 
 Get started with a single line at [Quick Start](https://homeassistant-repl.rhizomatics.org.uk/quick_start/index.md)
 
 ## Advanced Modes
 
-These modes require a custom component to be [installed](https://homeassistant-repl.rhizomatics.org.uk/configuration/server_install/index.md) on the target Home Assistant server via HACS, or use the supplied scripts to install on a local devcontainer. It adds:
+These modes require a custom component to be [installed](https://homeassistant-repl.rhizomatics.org.uk/configuration/server_install/index.md) on the target Home Assistant server via Marketplace, or use the supplied scripts to install on a local devcontainer. It adds:
 
 - Full access to the core Home Assistant Python API via `hass`
 - Read/write access to the actual objects, e.g. entities and their helpers

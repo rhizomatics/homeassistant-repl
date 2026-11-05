@@ -1669,7 +1669,7 @@
 </ul>
 <p>This is primarily for developers of custom components, and their agents, though may be of interest for other folk tinkering with Home Assistant. It is a potentially sharp tool, so NOT appropriate for general Home Assistant users.</p>
 <h2 id="back-end">Back End<a class="headerlink" href="#back-end" title="Permanent link">&para;</a></h2>
-<p>A HACS component that taps into the Home Assistant and acts as a session server over web sockets.</p>
+<p>A Marketplace component that taps into the Home Assistant and acts as a session server over web sockets.</p>
 <h2 id="object-browser">Object Browser<a class="headerlink" href="#object-browser" title="Permanent link">&para;</a></h2>
 <p>All of the objects in Home Assistant - entities, devices, actions, areas, labels etc - are represented live in an Object Explorer, a tree structure, nested by the "." split name and with the object type and integration_key at the root. The properties of objects can be inspected. </p>
 <p>Logical
@@ -1759,7 +1759,7 @@
 <li>VSCode extension</li>
 <li>http caching, using <code>niquests-cache</code></li>
 <li>API Mode</li>
-<li>API access only, also no need of HACS components [DONE]</li>
+<li>API access only, also no need of Marketplace components [DONE]</li>
 <li>TBD: whether actions/services get folded into the object tree, or left separate</li>
 <li>Other bindings</li>
 <li>sql() for the sqlite DB [DONE]<ul>
@@ -1818,7 +1818,7 @@
 <li>so also no <code>this</code> or <code>obj[]</code></li>
 <li>VSCode integration</li>
 <li>out of scope</li>
-<li>HACS Component</li>
+<li>Marketplace (HACS) Component</li>
 <li>server side session management (session reused indefinitely until reset)</li>
 <li>stdout and traceback reflection to shell</li>
 <li>admin-only websocket</li>
@@ -1826,7 +1826,7 @@
 </ul>
 <h2 id="development">Development<a class="headerlink" href="#development" title="Permanent link">&para;</a></h2>
 <p>Layout:
-- <code>custom_components/ha_repl_server/</code>: the HACS integration (named <code>ha_repl_server</code> to distinguish it from the CLI below). <code>session.py</code> is the execution engine (no HA imports); <code>websocket_api.py</code> exposes the admin-only <code>ha_repl_server/exec</code>, <code>ha_repl_server/reset</code> and <code>ha_repl_server/sessions</code> commands.
+- <code>custom_components/ha_repl_server/</code>: the Marketplace integration (named <code>ha_repl_server</code> to distinguish it from the CLI below). <code>session.py</code> is the execution engine (no HA imports); <code>websocket_api.py</code> exposes the admin-only <code>ha_repl_server/exec</code>, <code>ha_repl_server/reset</code> and <code>ha_repl_server/sessions</code> commands.
 - <code>src/homeassistant_repl/</code>: the <code>ha-repl</code> CLI (<code>exec</code>, interactive REPL, <code>reset</code>, <code>sessions</code>).
 - <code>dev/</code>: a throwaway HA config with <code>demo:</code> entities, plus run and bootstrap scripts.</p>
 
