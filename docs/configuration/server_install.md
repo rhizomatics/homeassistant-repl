@@ -4,17 +4,17 @@ This step is only required if you need to use Live or Exec mode - it's not neede
 
 This is a powerful component, so treat with care, especially if its on your home server. It has controls to limit it to Home Assistant API and/or SQL access.
 
-## HACS Component
+## Marketplace Component
 
 
-A HACS component that taps into the Home Assistant and acts as a session server over web sockets. It has been designed for HomeAssistant 2026.8 or greater.
+A Home Assistant Marketplace (HACS on older versions of Home Assistant) component that taps into the Home Assistant and acts as a session server over web sockets. It has been designed for HomeAssistant 2026.8 or greater.
 
 Needed for `live` mode only, since `api` mode only uses standard Home Assistant APIs.
 
-Install via [HACS](https://hacs.xyz):
+Install via Marketplace (in the *Tools* page):
 
- - it's not in the default HACS repository, so you'll have to add `https://github.com/rhizomatics/homeassistant-repl` as a Custom Repository from the top-right dot menu first
- - Search for *Home Assistant REPL* in the HACS menu and choose *Download*
+ - it's not in the default Marketplace repository, so you'll have to add `https://github.com/rhizomatics/homeassistant-repl` as a Custom Repository from the top-right dot menu first
+ - Search for *Home Assistant REPL* in the Marketplace menu and choose *Download*
  - Restart Home Assistant for it to recognize the new custom component available
  - From **Settings → Devices & services → Add integration** find **Home Assistant REPL Server** in the list and install, there's no further config needed
    - The component will quiz you first to make sure you know what you're doing
@@ -54,6 +54,6 @@ logger:
 
 1. If `ha_repl_server:` is in `configuration.yaml`, take it out first. Otherwise the entry is imported again at the next restart
 2. In **Settings → Devices & services → Home Assistant REPL**, open the three-dot menu and choose **Delete**. Any live sessions end, and the Stop button and the integration's device go with it
-3. In HACS, open *Home Assistant REPL* and choose **Remove**, then restart Home Assistant
+3. In Marketplace, open *Home Assistant REPL* and choose **Remove**, then restart Home Assistant
 
 `nanoarrow` and `sqlparse`, installed for `sql`, stay in Home Assistant's Python environment until it is next rebuilt (as on an upgrade). Nothing uses them.

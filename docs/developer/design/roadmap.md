@@ -11,7 +11,7 @@ This is primarily for developers of custom components, and their agents, though 
 
 ## Back End
 
-A HACS component that taps into the Home Assistant and acts as a session server over web sockets.
+A Marketplace component that taps into the Home Assistant and acts as a session server over web sockets.
 
 ## Object Browser
 
@@ -108,7 +108,7 @@ This switch controls trade-off between shell convenience and ability to trial wo
 - VSCode extension
 - http caching, using `niquests-cache`
 - API Mode
-  - API access only, also no need of HACS components [DONE]
+  - API access only, also no need of Marketplace components [DONE]
   - TBD: whether actions/services get folded into the object tree, or left separate
 - Other bindings
   - sql() for the sqlite DB [DONE]
@@ -158,7 +158,7 @@ This switch controls trade-off between shell convenience and ability to trial wo
   - so also no `this` or `obj[]`
 - VSCode integration
   - out of scope
-- HACS Component
+- Marketplace (HACS) Component
   - server side session management (session reused indefinitely until reset)
   - stdout and traceback reflection to shell
   - admin-only websocket
@@ -167,6 +167,6 @@ This switch controls trade-off between shell convenience and ability to trial wo
 ## Development
 
 Layout:
-- `custom_components/ha_repl_server/`: the HACS integration (named `ha_repl_server` to distinguish it from the CLI below). `session.py` is the execution engine (no HA imports); `websocket_api.py` exposes the admin-only `ha_repl_server/exec`, `ha_repl_server/reset` and `ha_repl_server/sessions` commands.
+- `custom_components/ha_repl_server/`: the Marketplace integration (named `ha_repl_server` to distinguish it from the CLI below). `session.py` is the execution engine (no HA imports); `websocket_api.py` exposes the admin-only `ha_repl_server/exec`, `ha_repl_server/reset` and `ha_repl_server/sessions` commands.
 - `src/homeassistant_repl/`: the `ha-repl` CLI (`exec`, interactive REPL, `reset`, `sessions`).
 - `dev/`: a throwaway HA config with `demo:` entities, plus run and bootstrap scripts.

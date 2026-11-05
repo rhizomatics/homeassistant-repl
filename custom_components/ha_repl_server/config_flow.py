@@ -1,6 +1,6 @@
 """Config flow for Home Assistant REPL: a single entry, added from the UI
 (gated behind explicit risk acknowledgment - see _ACK_FIELDS below, the same
-"are you sure you know what you're doing" pattern HACS's own config flow
+"are you sure you know what you're doing" pattern Marketplace's own config flow
 uses) or imported from YAML (`ha_repl_server:` in configuration.yaml, left
 as a no-form, always-on path for backward compatibility with existing
 installs that predate this gate).

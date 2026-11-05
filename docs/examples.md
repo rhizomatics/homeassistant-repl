@@ -73,7 +73,7 @@ hass_api.get_domain("switch").services.keys()
 ## Live Mode
 
 !!! note
-    These examples need the [Live Server](modes/live_mode.md#install-local-home-assistant-with-the-live-server) HACS component installed on a Home Assistant server.
+    These examples need the [Live Server](modes/live_mode.md#install-local-home-assistant-with-the-live-server) Marketplace component installed on a Home Assistant server.
 
 ### `hass` object
 

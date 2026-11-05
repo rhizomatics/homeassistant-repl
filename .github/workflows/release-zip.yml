@@ -1,4 +1,4 @@
-name: HACS Release Zip
+name: Marketplace Release Zip
 
 on:
   release:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   release-zip:
-    # separate from the PyPI publish so HACS can download the zip as soon as possible
+    # separate from the PyPI publish so Marketplace can download the zip as soon as possible
     runs-on: ubuntu-latest
     permissions:
       contents: write

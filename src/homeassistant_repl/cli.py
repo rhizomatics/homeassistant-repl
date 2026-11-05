@@ -1,7 +1,7 @@
 """ha-repl - run Python against a live Home Assistant.
 
   ha-repl                                         interactive API client shell (default)
-                                                    `obj` only, read-only, no HACS component needed
+                                                    `obj` only, read-only, no Marketplace component needed
   ha-repl live                                    interactive custom-component shell
                                                     local Python with `sql` + `hass_api`; anything
                                                     using `hass`/`obj` runs inside Home Assistant;
@@ -134,7 +134,7 @@ def _parser() -> argparse.ArgumentParser:
 
     sub.add_parser(
         "api",
-        help="interactive API client shell (the default): obj only, no HACS component needed",
+        help="interactive API client shell (the default): obj only, no Marketplace component needed",
     )
     sub.add_parser(
         "live",

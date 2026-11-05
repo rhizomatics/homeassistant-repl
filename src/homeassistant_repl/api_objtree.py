@@ -17,7 +17,7 @@ call_service.
 Mirrors custom_components/ha_repl_server/objtree.py's shape - __getitem__,
 .keys()/.values()/.items(), find(), show() all behave the same way modulo the
 smaller attribute set - but lives in this package rather than that one (a
-HACS-deployed component with its own packaging boundary), so the handful of
+Marketplace-deployed component with its own packaging boundary), so the handful of
 small, stable, HA-import-free pieces it needs (the ordered-view mixin,
 parse_path, the None/empty-collection cleanup) are duplicated here rather than
 imported across that boundary. Revisit if API client mode sticks and a shared

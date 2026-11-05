@@ -73,7 +73,7 @@ plugins:
         exposes the live object tree - entities and more - as a dict-like `obj`, for exploring
         APIs, trying out code snippets and hotfixing issues directly against a running Home
         Assistant instance. `api` mode uses only the standard Home Assistant HTTP/WebSocket API;
-        an optional `live` mode, via a HACS companion component, adds direct access to the
+        an optional `live` mode, via a Marketplace companion component, adds direct access to the
         core Python API as `hass`.
       sections:
         Start here:

@@ -8,7 +8,7 @@ See [Live Mode Server Install](../configuration/server_install.md)
 
 ## Using the Live REPL
 
-![HACS Component Direct Access](../assets/screenshots/hacs_comp_live.png)
+![Marketplace Component Direct Access](../assets/screenshots/hacs_comp_live.png)
 
 Run `ha-repl` with the `live` argument
 

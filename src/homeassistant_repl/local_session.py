@@ -4,7 +4,7 @@ code to, since API client mode talks to Home Assistant only through its
 standard API (see api_objtree.py). Deliberately mirrors
 custom_components/ha_repl_server/session.py's exec model (top-level await,
 trailing-expression echo) rather than importing it:
-that module lives in a separate HACS-deployed package with its own packaging
+that module lives in a separate Marketplace-deployed package with its own packaging
 boundary, and duplicating ~100 lines here is simpler than bridging it.
 
 Simpler than session.py in one respect: output goes straight to the real

@@ -279,7 +279,7 @@ async def ws_info(
     """The server-side component's own version - compared against the
     client's own package version in the live-mode shell's startup banner,
     since the two are versioned and deployed independently (PyPI package vs
-    HACS component) and can drift out of sync."""
+    Marketplace component) and can drift out of sync."""
     integration = await async_get_integration(hass, DOMAIN)
     connection.send_result(
         msg["id"], {"version": integration.version, "commands": sorted(COMMANDS)}
