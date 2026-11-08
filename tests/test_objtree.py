@@ -17,12 +17,9 @@ from homeassistant.core import (
 )
 from homeassistant.helpers.service import async_set_service_schema
 from homeassistant.setup import async_setup_component
-from pytest_homeassistant_custom_component.common import (
-    MockEntity,
-    setup_test_component_platform,
-)
 
 from custom_components.ha_repl_server.objtree import Action, ApiEntity, ObjTree
+from tests.ha_testing import MockEntity, setup_test_component_platform
 
 
 @pytest.fixture

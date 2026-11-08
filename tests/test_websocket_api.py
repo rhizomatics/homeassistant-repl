@@ -11,10 +11,10 @@ import re
 
 from homeassistant.core import HomeAssistant
 from homeassistant.loader import async_get_integration
-from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.ha_repl_server.const import DOMAIN
 from homeassistant_repl.sql import SqlResult as ClientSqlResult
+from tests.ha_testing import MockConfigEntry
 
 
 async def test_ws_info_returns_manifest_version(

@@ -123,6 +123,8 @@ norecursedirs = [
     "templates",
 ]
 addopts = [
+    # pytest-homeassistant installs respx, whose pytest plugin it asks to be switched off
+    "-p", "no:respx",
     "--timeout=30",
     "--junitxml=junit/test-results.xml",
     "--cov-report=xml:cov.xml",
