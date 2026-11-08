@@ -3,10 +3,10 @@ revision = 5
 requires-python = ">=3.14.2"
 resolution-markers = [
     "python_full_version >= '3.15' and sys_platform == 'win32'",
-    "python_full_version < '3.15' and sys_platform == 'win32'",
     "python_full_version >= '3.15' and sys_platform == 'emscripten'",
-    "python_full_version < '3.15' and sys_platform == 'emscripten'",
     "python_full_version >= '3.15' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+    "python_full_version < '3.15' and sys_platform == 'win32'",
+    "python_full_version < '3.15' and sys_platform == 'emscripten'",
     "python_full_version < '3.15' and sys_platform != 'emscripten' and sys_platform != 'win32'",
 ]
 
@@ -16,12 +16,10 @@ exclude-newer = "0001-01-01T00:00:00Z" # This has no effect and is included for 
 exclude-newer-span = "P7D"
 
 [options.exclude-newer-package]
-certifi = false
 homeassistant-repl = false
-ty = { timestamp = "0001-01-01T00:00:00Z", span = "P1D" }
-uv = false
+ty = { timestamp = "0001-01-01T00:00:00Z", span = "P2D" }
+uv = { timestamp = "0001-01-01T00:00:00Z", span = "P2D" }
 uv-build = { timestamp = "0001-01-01T00:00:00Z", span = "P2D" }
-virtualenv = false
 
 [manifest]
 overrides = [{ name = "uv", specifier = ">=0.13.4" }]
