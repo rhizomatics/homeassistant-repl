@@ -95,11 +95,57 @@ jobs:
         export HTMLPROOFER_EXT_URLS=True
         uv run properdocs gh-deploy
 
+  # The build job tests the locked Home Assistant; this tests the oldest supported (hacs.json,
+  # 2026.8 by policy exception) and the newest
+  test-ha:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ha-version: "2026.8"
+            ha-override: "2026.8.*"
+          - ha-version: "2026.11"
+            ha-override: "2026.11.*"
+            # Home Assistant's own test package, replacing pytest-homeassistant-custom-component from 2026.11
+            ha-test-package: pytest-homeassistant
+
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e
+        with:
+          python-version: "3.14"
+
+      - name: Install dependencies
+        run: uv sync --locked --all-extras --dev
+
+      # --no-config keeps the [tool.uv] settings in pyproject.toml out of this resolve. The test
+      # harness has to move with homeassistant, as it is built against one HA release: Home
+      # Assistant's own pytest-homeassistant from 2026.11, pytest-homeassistant-custom-component
+      # before that (see tests/ha_testing.py)
+      - name: Pin Home Assistant ${{ matrix.ha-version }}
+        run: |
+          uv pip uninstall pytest-homeassistant pytest-homeassistant-custom-component
+          if [ "${{ matrix.ha-test-package }}" = "pytest-homeassistant" ]; then
+            uv pip install --no-config "homeassistant==${{ matrix.ha-override }}" "pytest-homeassistant==${{ matrix.ha-override }}"
+          else
+            uv pip install --no-config "homeassistant==${{ matrix.ha-override }}" pytest-homeassistant-custom-component
+          fi
+          uv run --no-sync python -c "import homeassistant.const as c; v = c.__version__; print('Home Assistant', v); assert v.startswith('${{ matrix.ha-version }}.'), v"
+
+      # --no-sync: a plain uv run would re-sync to the lock and undo the pin above
+      - name: Test with pytest
+        run: uv run --no-sync pytest tests
+
   # The one check branch protection requires, so the jobs above can change without
   # editing the required status checks.
   ci-ok:
     if: always()
-    needs: [typecheck, build]
+    needs: [typecheck, build, test-ha]
     runs-on: ubuntu-latest
     permissions: {}
     steps:

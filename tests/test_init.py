@@ -20,10 +20,10 @@ from unittest.mock import patch
 import pytest
 from homeassistant.core import HomeAssistant
 from homeassistant.requirements import RequirementsNotFound
-from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.ha_repl_server.const import DOMAIN
 from custom_components.ha_repl_server.objtree import ObjTree
+from tests.ha_testing import MockConfigEntry
 
 
 async def test_setup_and_unload_entry(

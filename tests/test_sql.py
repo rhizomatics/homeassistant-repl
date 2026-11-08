@@ -20,9 +20,6 @@ from homeassistant.components.recorder.statistics import (
 from homeassistant.core import Context, HomeAssistant
 from homeassistant.util import dt as dt_util
 from homeassistant.util.ulid import ulid_to_bytes
-from pytest_homeassistant_custom_component.components.recorder.common import (
-    async_wait_recording_done,
-)
 
 from custom_components.ha_repl_server.sql import (
     ArrowResult,
@@ -32,6 +29,7 @@ from custom_components.ha_repl_server.sql import (
     sql,
     table_schemas,
 )
+from tests.ha_testing import async_wait_recording_done
 
 
 async def _settle(hass: HomeAssistant) -> None:

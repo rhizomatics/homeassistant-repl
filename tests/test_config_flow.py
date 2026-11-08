@@ -11,12 +11,9 @@ from homeassistant import config_entries
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.util import dt as dt_util
-from pytest_homeassistant_custom_component.common import (
-    MockConfigEntry,
-    async_fire_time_changed,
-)
 
 from custom_components.ha_repl_server.const import DOMAIN
+from tests.ha_testing import MockConfigEntry, async_fire_time_changed
 
 _ALL_ACKS = {
     "ack_stability": True,

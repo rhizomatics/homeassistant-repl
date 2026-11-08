@@ -8,9 +8,17 @@ objtree.py against a live `hass`) get it from here instead.
 
 from __future__ import annotations
 
+import importlib.util
+
 import pytest
 
-pytest_plugins = "pytest_homeassistant_custom_component"
+# Home Assistant's own test package from 2026.11, pytest-homeassistant-custom-component before
+# that - see ha_testing.py
+pytest_plugins = (
+    "pytest_homeassistant"
+    if importlib.util.find_spec("pytest_homeassistant")
+    else "pytest_homeassistant_custom_component"
+)
 
 # Deliberately not autouse: enable_custom_integrations (from the test harness)
 # itself depends on `hass`, so forcing it on every test - including ones using
