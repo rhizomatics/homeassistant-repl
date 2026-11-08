@@ -13,4 +13,4 @@ uv sync --group dev
 # pre-commit bakes this container's venv path into .git/hooks/pre-commit, so a
 # fresh container (or one rebuilt with a different venv path) needs this rerun
 # - it's not something committing the hook file itself could fix.
-uv run pre-commit install
+uv run prek install
