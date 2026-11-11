@@ -148,6 +148,13 @@ output="cov.xml"
 [tool.coverage.html]
 directory="htmlcov"
 
+# only one of the two Home Assistant test helper packages is installed at a time (same as supernotify)
+[[tool.ty.overrides]]
+include = ["tests/ha_testing.py"]
+
+[tool.ty.overrides.rules]
+import-not-found = "ignore"
+
 [tool.mypy]
 mypy_path = "src"
 
