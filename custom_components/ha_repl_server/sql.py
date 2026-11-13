@@ -509,7 +509,7 @@ def table_schemas() -> list[dict[str, Any]]:
                     "type": str(column.type),
                     "legacy": _is_legacy(column),
                 }
-                for column in cls.__table__.c  # type:ignore[attr-defined] # ty: ignore[unresolved-attribute]
+                for column in cls.__table__.c  # type:ignore[attr-defined] # ty: ignore[missing-attribute]
             ],
         }
         for name, cls in classes.items()
