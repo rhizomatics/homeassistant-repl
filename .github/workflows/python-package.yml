@@ -23,14 +23,14 @@ jobs:
       - uses: actions/checkout@v7.0.1
 
       - name: Install uv
-        uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2
         with:
           python-version: ${{ matrix.python-version }}
 
-      # docs group: ty also checks docs_hooks, which imports properdocs
+      # docs group: ty also checks docs_hooks, which imports properdocs; extras: sql.py imports polars and pandas
       - name: Install dependencies
         run: |
-          uv sync --group docs --python ${{ matrix.python-version }}
+          uv sync --all-extras --group docs --python ${{ matrix.python-version }}
 
       - name: mypy
         run: uv run mypy --explicit-package-bases --follow-untyped-imports src custom_components
@@ -45,7 +45,7 @@ jobs:
     steps:
     - uses: actions/checkout@v7
     - name: Install uv
-      uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e
+      uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2
       with:
         python-version: 3.14
     - name: Install dependencies
@@ -116,7 +116,7 @@ jobs:
       - uses: actions/checkout@v7.0.1
 
       - name: Install uv
-        uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2
         with:
           python-version: "3.14"
 
