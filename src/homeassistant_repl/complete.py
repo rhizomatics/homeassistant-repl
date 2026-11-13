@@ -150,7 +150,7 @@ def context_start(text: str) -> int:
     more of it is typed."""
     if (string := _open_string(text)) is not None:
         return string + 1
-    return _IDENTIFIER_END.search(text).start()  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
+    return _IDENTIFIER_END.search(text).start()  # type: ignore[union-attr]  # ty: ignore[missing-union-attribute]
 
 
 def kind_at(text: str) -> str:
@@ -203,7 +203,7 @@ def _complete(
 ) -> Completions | None:
     if (quote := _open_string(text)) is not None:
         return _complete_string(text, quote, namespace, limit, clock)
-    prefix = _IDENTIFIER_END.search(text).group()  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
+    prefix = _IDENTIFIER_END.search(text).group()  # type: ignore[union-attr]  # ty: ignore[missing-union-attribute]
     before = text[: len(text) - len(prefix)]
     if before.endswith("."):
         if (expr := _expression_before(before[:-1])) is None:
@@ -391,7 +391,7 @@ def expression_at(text: str, after: str = "") -> str:
     """The name or attribute chain the cursor is on - `text` is before it,
     `after` after it - or, between a call's brackets, the callee. "" if
     neither."""
-    word = re.match(r"\w*", after).group()  # type: ignore[union-attr]  # ty: ignore[unresolved-attribute]
+    word = re.match(r"\w*", after).group()  # type: ignore[union-attr]  # ty: ignore[missing-union-attribute]
     full = text + word
     if (found := _expression_start(full)) is not None and full[found:].strip():
         return full[found:]

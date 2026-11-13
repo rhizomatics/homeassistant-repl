@@ -27,10 +27,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      # docs group: ty also checks docs_hooks, which imports properdocs
+      # docs group: ty also checks docs_hooks, which imports properdocs; extras: sql.py imports polars and pandas
       - name: Install dependencies
         run: |
-          uv sync --group docs --python ${{ matrix.python-version }}
+          uv sync --all-extras --group docs --python ${{ matrix.python-version }}
 
       - name: mypy
         run: uv run mypy --explicit-package-bases --follow-untyped-imports src custom_components

@@ -151,7 +151,7 @@ class ApiPlatform(str):  # noqa: FURB189 - has to be a real str: compared, print
         return self
 
     # So it can be copied and pickled - one more argument than str's own.
-    def __getnewargs__(self) -> tuple[str, str]:  # type: ignore[override]  # ty: ignore[invalid-method-override]
+    def __getnewargs__(self) -> tuple[str, str]:  # type: ignore[override]  # ty: ignore[incompatible-method-override]
         return (str(self), self.domain)
 
     @property
@@ -558,7 +558,7 @@ class OrderedValuesView(_OrderedView, ValuesView, Sequence):
     pass
 
 
-class OrderedItemsView(_OrderedView, ItemsView, Sequence):  # type: ignore[misc]  # ty: ignore[invalid-method-override]
+class OrderedItemsView(_OrderedView, ItemsView, Sequence):  # type: ignore[misc]  # ty: ignore[incompatible-method-override]
     # Sequence.__contains__(value) vs ItemsView.__contains__(item: tuple) is a
     # real static Liskov mismatch, but fine at runtime - both just delegate to
     # tuple(self).__contains__ via _OrderedView/Iterable, deliberately getting
