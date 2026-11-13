@@ -49,9 +49,9 @@ ha-repl = "homeassistant_repl.cli:main"
 
 [dependency-groups]
 dev = [
-    "homeassistant>=2026.8.0",
+    "homeassistant>=2026.11.0",
     "types-Pygments",
-    "pytest-homeassistant-custom-component",
+    "pytest-homeassistant>=2026.11.0",
     "pytest-asyncio>=0.24",
     "ruff>=0.15.0",
     "pytest>=9.0.0",
