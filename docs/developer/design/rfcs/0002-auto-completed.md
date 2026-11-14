@@ -2,7 +2,7 @@
 
 | | |
 | --- | --- |
-| Status | Draft |
+| Status | Partially Complete |
 | Date | 2026-10-28, updated 2026-10-29 |
 | Progress | Steps 0 to 3 and 6 done in 0.14.0, and most of 5 - see [Step 0 Findings](#step-0-findings) and [As Built](#as-built) |
 | Affects | Live and API modes, `homeassistant_repl.connect()`, a new server command for live mode |
