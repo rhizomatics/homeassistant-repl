@@ -11,12 +11,19 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      # for the build provenance attestation of the zip
+      id-token: write
+      attestations: write
     steps:
     - uses: actions/checkout@v7.0.1
     - name: Package release zip
       run: |
         cd custom_components/ha_repl_server
         zip -r "${{ github.workspace }}/ha_repl_server.zip" . -x "__pycache__/*" "*/__pycache__/*"
+    - name: Attest build provenance
+      uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+      with:
+        subject-path: ha_repl_server.zip
     - name: Upload release zip asset
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
