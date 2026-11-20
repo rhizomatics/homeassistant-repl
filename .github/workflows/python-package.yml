@@ -91,7 +91,6 @@ jobs:
       run:  |
         git pull
         uv sync --dev --group docs
-        sudo apt-get install pngquant
         export HTMLPROOFER_EXT_URLS=True
         uv run properdocs gh-deploy
 
