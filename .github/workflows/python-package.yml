@@ -90,6 +90,8 @@ jobs:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         persist-credentials: false
+        # all of it, for each page's date of last change (git-revision-date-localized)
+        fetch-depth: 0
     - name: Install uv
       uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
       with:
@@ -140,6 +142,8 @@ jobs:
         export GIT_CONFIG_KEY_0="http.https://github.com/.extraheader"
         GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
         export GIT_CONFIG_VALUE_0
+        # gh-deploy adds its commit to origin/gh-pages, which the checkout of main alone doesn't have
+        git fetch --no-tags origin +gh-pages:refs/remotes/origin/gh-pages
         uv run properdocs gh-deploy
 
   # The build job tests the locked Home Assistant; this tests the oldest supported (hacs.json,
