@@ -16,7 +16,7 @@
         <link rel="prev" href="../0001-persistent-config/">
       
       
-        <link rel="next" href="../../../../modes/">
+        <link rel="next" href="../0003-event-assistance/">
       
       
         
@@ -1084,6 +1084,8 @@
       
         
       
+        
+      
     
     
     
@@ -1421,6 +1423,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#whats-left" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What's Left
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1485,6 +1498,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../0003-event-assistance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RFC0003 - Event Assistance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1809,15 +1850,15 @@
 <tbody>
 <tr>
 <td>Status</td>
-<td>Partially Complete</td>
+<td>Complete, except step 7</td>
 </tr>
 <tr>
 <td>Date</td>
-<td>2026-10-28, updated 2026-10-29</td>
+<td>2026-10-28, updated 2026-11-21</td>
 </tr>
 <tr>
 <td>Progress</td>
-<td>Steps 0 to 3 and 6 done in 0.14.0, and most of 5 - see <a href="#step-0-findings">Step 0 Findings</a> and <a href="#as-built">As Built</a></td>
+<td>Steps 0 to 3 and 6 done in 0.14.0, and most of 5; steps 4 and 5 finished after 0.14.1; step 7 deferred - see <a href="#step-0-findings">Step 0 Findings</a>, <a href="#as-built">As Built</a> and <a href="#whats-left">What's Left</a></td>
 </tr>
 <tr>
 <td>Affects</td>
@@ -2228,15 +2269,39 @@
 <ul>
 <li><strong>The server uses the standard library, not jedi</strong>, following step 0. <code>complete.py</code> follows the expression at the cursor with <code>inspect.getattr_static</code>, return and property annotations (read as strings, with <code>annotationlib</code>'s <code>STRING</code> format, never evaluated), and subscripts of a plain <code>dict</code>, <code>list</code> or <code>tuple</code>, or a class marked <code>_ha_repl_inspectable</code> - the object trees and registry entries. A missing key there completes nothing, rather than guessing</li>
 <li><strong>The client uses the same walk first, and jedi only where it can't follow</strong> - a loop or comprehension variable, an import. jedi also completes file names inside any string, so inside a string only the walk answers: keys after <code>[</code>, and tree paths in <code>obj.find("</code>. The same <code>complete.py</code> is in both packages, and a test keeps the two copies identical</li>
-<li><strong>The <code>obj</code> paths and <code>hass.data</code> keys of step 4 came early</strong>, since the walk completes keys of any subscript it can follow. Entity ids by parameter name, actions and config entries are still step 4</li>
+<li><strong>The <code>obj</code> paths and <code>hass.data</code> keys of step 4 came early</strong>, since the walk completes keys of any subscript it can follow</li>
 <li><strong>Where a completion runs</strong> is decided from the names in the input so far, found with <code>tokenize</code>, against the same remote names <code>LiveSession</code> keeps - not by moving <code>_Names</code> into a shared module, since <code>ast</code> can't parse unfinished input. If Home Assistant can't follow an expression, the client tries locally</li>
 <li><strong>A bare name</strong> completes from both sides without a round trip: the client already knows the names the server session holds</li>
 <li><strong><code>evaluate</code></strong> in <code>config.toml</code> waits for step 7, since <code>static</code> is the only setting until then</li>
-<li><strong>Step 5</strong> shows the signature under the prompt only inside a call's brackets, cut to fit with the argument being typed kept in view, and adds <code>name=</code> completion of the parameters not given yet. The marker for where a statement runs, and the routing and syntax warnings, are still to do</li>
+<li><strong>Step 5</strong> shows the signature under the prompt inside a call's brackets, cut to fit with the argument being typed kept in view, and adds <code>name=</code> completion of the parameters not given yet. The marker for where a statement runs, and the routing and syntax warnings, followed after 0.14.1 - see below</li>
 <li><strong>Step 6</strong> is <code>?</code> and <code>??</code>, but differently: <code>thing?</code> runs the shell's own <code>help(thing)</code> where <code>thing</code> lives, refusing any expression with a call in it, rather than a new <code>doc</code> kind. <code>thing??</code> gives the file and line, and a GitHub link at the version running, rather than the source text, since what runs in Home Assistant may be any version. <code>?</code> alone shows the shell's own help for its mode. For an attribute its class declares or documents, <code>thing?</code> shows the declared type and the paragraphs of the class's docstring that mention it, rather than <code>help()</code> on the value's type. Ctrl-Space describes the name under the cursor, or the call it's in, statically, with the new <code>doc</code> kind of <code>ha_repl_server/complete</code>. <code>ha-repl inspect</code> gives the same description and source location, routed as <code>exec</code> is, with <code>--json</code></li>
 <li>What's typed matches anywhere in a name, case-insensitively, names starting with it first - prefix matching hid what was wanted behind <code>async_</code> and <code>get_</code></li>
 <li>The item cap and time budget are options on the live server's <em>Configure</em> form, 500 items and 500ms by default, as Open Question 4 settled. The budget is checked while going through keys and members, and an answer cut short is <code>incomplete</code></li>
 <li><code>ha_repl_server/complete</code> runs on the event loop, takes no lock, and is logged at <code>debug</code> only, since it runs nothing. Its answer has <code>resolved: false</code> when the expression couldn't be followed</li>
+</ul>
+<p>Step 4, after 0.14.1:</p>
+<ul>
+<li><strong>A string is completed by the name it's given to</strong>, found in the order: a dict key (<code>{"entity_id": "</code>), a keyword (<code>entity_id="</code>, wherever it is), then the parameter the argument goes to, from the callee's signature as for step 5. A string in a list is given to the list's name, so <code>entity_id=["a", "</code> works too. This is how <code>target={"entity_id": "</code> in <code>hass.services.async_call</code> completes, though the entity id there is no parameter of anything</li>
+<li><strong>The strings already given by name go along with it</strong>, positional or keyword, so <code>service</code> knows its <code>domain</code></li>
+<li><strong><code>complete.py</code> asks, but knows nothing of Home Assistant.</strong> It takes a <code>strings(name, given)</code> callback, which keeps the two copies identical and free of Home Assistant imports. On the server, <code>providers.py</code> answers from the state machine, the action registry and the config entries, on the event loop with the rest of <code>ha_repl_server/complete</code>. In API mode, <code>Cache.strings</code> answers entity ids, domains and actions from what <code>obj</code> already holds - and since <code>homeassistant_api</code>'s client names its parameters the same way, <code>hass_api</code> calls complete too</li>
+<li><strong>Names, not methods</strong>: <code>entity_id</code>, <code>entity_ids</code>, <code>domain</code>, <code>service</code>, <code>action</code>, <code>entry_id</code> and <code>config_entry_id</code>. Nothing is matched by the callable's qualified name - none was needed</li>
+<li><strong><code>sql</code> is completed on the client</strong>, from <code>sql.tables</code>, before anything else is tried: tables after <code>from</code> and <code>join</code>, a table's columns after its name or alias and a <code>.</code>, and elsewhere the columns of the tables the query names so far (of every real table, if none yet). Going by the query's words, not a parse. <code>string_at</code>, in <code>complete.py</code>, finds a string open over several lines and in triple quotes, which a query often is and the rest of completion doesn't look inside. <code>sql.table("</code> completes table names</li>
+<li>Still not completed: a string given to a name in a local statement in live mode (<code>hass_api</code> there, say), since the local side has no copy of the states</li>
+</ul>
+<p>Step 5's marker and warnings, after 0.14.1:</p>
+<ul>
+<li><strong>The toolbar is shown whenever there's something to say</strong>: in live mode, whenever anything is typed; otherwise inside a call, or with a syntax error to report. The marker comes first, then the signature, and a warning on the lines below, wrapped to fit</li>
+<li><strong><code>LiveSession.plan()</code> decides the marker as <code>run()</code> would</strong>, chunk by chunk with the same <code>_next_chunk</code>, from a copy of the names living on each side - so input with statements for both shows <code>local then HA</code>. What a Home Assistant statement assigns is taken to stay there, which only running it can tell otherwise. Input that doesn't parse yet goes by its names, read with <code>tokenize</code>, as completion's routing does, and is never refused</li>
+<li><strong>One check of what Enter would refuse</strong>, <code>LiveSession.refusal()</code>, taken out of <code>_run_remote</code>, which still prints it as before. Whether a local value can be copied over is kept by its name and <code>id()</code> until the next command runs, so a large dataframe isn't tried on every keystroke</li>
+<li><strong>A syntax error is shown only on a line other than the cursor's.</strong> Nearly everything on the line being typed is a syntax error until it's finished - <code>x =</code>, <code>hass.</code> - so this catches the error left behind in a block brought back by Up and edited, which is when it's wanted. It's compiled as a whole (<code>exec</code>), not as one statement, so several statements on separate lines aren't an error</li>
+<li>The <code>HA</code> mark before a signature is left out in live mode, where the marker says it already</li>
+</ul>
+<h3 id="whats-left">What's Left<a class="headerlink" href="#whats-left" title="Permanent link">&para;</a></h3>
+<p><strong>Step 7</strong>, <code>evaluate = "properties"</code>, is deferred, and may be dropped:</p>
+<ul>
+<li>Step 0 and the steps since show annotations cover Home Assistant core well, and the object trees cover the dynamic cases</li>
+<li><code>ha_repl_server/complete</code> now runs on the event loop, not in a thread as first planned. A property that does I/O would block Home Assistant, and the time budget, checked between items, can't stop it. Running properties would mean moving that branch back to an executor thread, and revising <a href="#security">Security</a></li>
+<li>A cheaper step comes first: values already computed can be read without running anything. A <code>functools.cached_property</code> already computed is in the instance's <code>__dict__</code>, which <code>getattr_static</code> finds already; one made with propcache's <code>under_cached_property</code>, which Home Assistant uses widely, is in the instance's <code>_cache</code> dict, which can be read the same way. Only if that leaves real gaps is running properties worth its risk</li>
 </ul>
 <h2 id="gaps-with-home-assistants-debug-console">Gaps with Home Assistant's Debug Console<a class="headerlink" href="#gaps-with-home-assistants-debug-console" title="Permanent link">&para;</a></h2>
 <p>Even with everything in this RFC, the <a href="../../debug_console/">Debug console</a> in Home Assistant 2026.11 does some things <code>ha-repl</code> won't:</p>

@@ -1076,6 +1076,8 @@
       
         
       
+        
+      
     
     
     
@@ -1175,6 +1177,34 @@
     
   
     RFC 0002: Auto Complete Support
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/design/rfcs/0003-event-assistance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RFC0003 - Event Assistance
   
 
     
@@ -1377,6 +1407,23 @@
   </a>
   
 </li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#completion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Completion
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Completion">
+      <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#code-that-works-in-both-modes" class="md-nav__link">
@@ -1624,6 +1671,8 @@
 </span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a><span class="p">)</span>
 </span></code></pre></div>
 <p>In <code>live</code> mode the entities returned are the actual <code>Entity</code> objects from Home Assistant, with their full set of methods and other attributes.</p>
+<h2 id="completion">Completion<a class="headerlink" href="#completion" title="Permanent link">&para;</a></h2>
+<p>Completion works as it does in <a href="../live_mode/#completion">live mode</a>, from the objects in the shell itself. Inside a string given to <code>entity_id</code>, <code>domain</code>, <code>service</code> or <code>action</code> - <code>hass_api.get_state(entity_id="</code>, <code>hass_api.trigger_service("light", "</code> - it completes entity ids, domains and actions from the cached states and actions <code>obj</code> holds.</p>
 <h3 id="code-that-works-in-both-modes">Code That Works in Both Modes<a class="headerlink" href="#code-that-works-in-both-modes" title="Permanent link">&para;</a></h3>
 <p>An <code>ApiEntity</code> uses the real <code>Entity</code> names wherever it has the data, so the same expression reads the same in <code>api</code> and <code>live</code> mode:</p>
 <table>

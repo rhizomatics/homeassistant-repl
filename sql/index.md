@@ -22,6 +22,8 @@ Data is serialized as Apache Arrow using the `nanofeather` library - this provid
 | `sql.table("<name>", legacy=True)` | The same, with the table's [legacy columns](#legacy-columns) included                                                                        |
 | `sql.tables`                       | Returns a list of `Table` objects that describe each table and its contents, with a `VirtualTable` for each [virtual table](#virtual-tables) |
 
+In the shell, Tab completes inside the query: table names after `from` and `join`, a table's columns after its name or alias and a `.`, and elsewhere the columns of the tables named so far - see [Completion](https://homeassistant-repl.rhizomatics.org.uk/modes/live_mode/#completion).
+
 For example this will show the size of the `statistics` table.
 
 ```python

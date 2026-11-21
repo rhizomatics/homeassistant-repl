@@ -1086,6 +1086,8 @@
       
         
       
+        
+      
     
     
     
@@ -1185,6 +1187,34 @@
     
   
     RFC 0002: Auto Complete Support
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../developer/design/rfcs/0003-event-assistance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RFC0003 - Event Assistance
   
 
     
@@ -1436,6 +1466,24 @@
 <p>For live mode, generally the client and server component have to be on the same version. Different versions <em>might</em> work
 with each other for point releases</p>
 </div>
+<h1 id="0150">0.15.0<a class="headerlink" href="#0150" title="Permanent link">&para;</a></h1>
+<h2 id="-enhancements">✨ Enhancements<a class="headerlink" href="#-enhancements" title="Permanent link">&para;</a></h2>
+<ul>
+<li>For selected string values, completion offers what Home Assistant has for the name the string is given to - a parameter, keyword argument or dict key<ul>
+<li>Entity ids, with their names, for <code>entity_id</code> and <code>entity_ids</code>: <code>hass.states.get("</code>, <code>entity_id="</code>, <code>target={"entity_id": "</code>, and a list given to any of them</li>
+<li>Action domains for <code>domain</code>, and the actions of the domain already given for <code>service</code> and <code>action</code>: <code>hass.services.async_call("light", "</code></li>
+<li>Config entry ids, with their integration and title, for <code>entry_id</code> and <code>config_entry_id</code></li>
+<li>In live mode from Home Assistant itself, which needs the server at this version; in API mode from the cached states and actions, for <code>hass_api</code> calls too</li>
+<li>Implements step 4 of [RFC 0002](https://homeassistant-repl.rhizomatics.org.uk/developer/design/rfcs/0002-auto-completed/</li>
+</ul>
+</li>
+<li>The line under the prompt shows where what's typed will run, <code>HA</code> or <code>local</code>, and why Enter would refuse it, if it would - a statement using both <code>sql</code> and <code>hass</code>, or a local value that can't be copied over - before it's sent<ul>
+<li>And a syntax error, once the cursor has left the line it's on, in API mode too</li>
+<li>Implements step 5 of <a href="https://homeassistant-repl.rhizomatics.org.uk/developer/design/rfcs/0002-auto-completed/">RFC 0002</a></li>
+</ul>
+</li>
+<li><code>sql("</code> completes table names after <code>from</code> and <code>join</code>, a table's columns after its name or alias and a <code>.</code>, and elsewhere the columns of the tables named so far - in single or triple quotes, over several lines. <code>sql.table("</code> completes table names</li>
+</ul>
 <h1 id="0141">0.14.1<a class="headerlink" href="#0141" title="Permanent link">&para;</a></h1>
 <h2 id="-bug-fixes">🐛 Bug Fixes<a class="headerlink" href="#-bug-fixes" title="Permanent link">&para;</a></h2>
 <ul>
@@ -1447,7 +1495,7 @@ with each other for point releases</p>
 </ul>
 <h1 id="0140">0.14.0<a class="headerlink" href="#0140" title="Permanent link">&para;</a></h1>
 <p>This release brings auto-complete for code and the object tree, integrated help/source-code lookup, much improved CLI history and lots more.</p>
-<h2 id="-enhancements">✨ Enhancements<a class="headerlink" href="#-enhancements" title="Permanent link">&para;</a></h2>
+<h2 id="-enhancements_1">✨ Enhancements<a class="headerlink" href="#-enhancements_1" title="Permanent link">&para;</a></h2>
 <h3 id="shell-history">Shell History<a class="headerlink" href="#shell-history" title="Permanent link">&para;</a></h3>
 <ul>
 <li>A whole statement or block is edited and kept in history as one entry, in live and API modes alike</li>
@@ -1516,7 +1564,7 @@ with each other for point releases</p>
 <li><code>nanoarrow</code> and <code>sqlparse</code> are installed when the integration starts, no longer as its manifest requirements</li>
 </ul>
 <h1 id="0130">0.13.0<a class="headerlink" href="#0130" title="Permanent link">&para;</a></h1>
-<h2 id="-enhancements_1">✨ Enhancements<a class="headerlink" href="#-enhancements_1" title="Permanent link">&para;</a></h2>
+<h2 id="-enhancements_2">✨ Enhancements<a class="headerlink" href="#-enhancements_2" title="Permanent link">&para;</a></h2>
 <h3 id="sql">SQL<a class="headerlink" href="#sql" title="Permanent link">&para;</a></h3>
 <ul>
 <li>A result column of a Recorder table comes back as what it holds, going by how <code>db_schema</code> declares it</li>
@@ -1551,7 +1599,7 @@ with each other for point releases</p>
 <li><em>Configure</em> shows the minutes left on a running limit, to change or clear</li>
 </ul>
 <h1 id="0120">0.12.0<a class="headerlink" href="#0120" title="Permanent link">&para;</a></h1>
-<h2 id="-enhancements_2">✨ Enhancements<a class="headerlink" href="#-enhancements_2" title="Permanent link">&para;</a></h2>
+<h2 id="-enhancements_3">✨ Enhancements<a class="headerlink" href="#-enhancements_3" title="Permanent link">&para;</a></h2>
 <h3 id="sql_1">SQL<a class="headerlink" href="#sql_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li>New virtual tables, to query as if they were real ones, in place of the join almost every query on these tables needs</li>
@@ -1584,7 +1632,7 @@ with each other for point releases</p>
 <li>A name used only in a type annotation no longer decides which side a statement runs on, and no longer stops it running inside Home Assistant because it "only exists in the local session"</li>
 <li>A bare declaration, such as <code>hass: HomeAssistant</code>, is no longer treated as an assignment</li>
 </ul>
-<h2 id="-enhancements_3">✨ Enhancements<a class="headerlink" href="#-enhancements_3" title="Permanent link">&para;</a></h2>
+<h2 id="-enhancements_4">✨ Enhancements<a class="headerlink" href="#-enhancements_4" title="Permanent link">&para;</a></h2>
 <h3 id="plugins">Plugins<a class="headerlink" href="#plugins" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>homeassistant_repl.plugin</code> declares <code>MODE</code>, <code>SERVER</code>, <code>hass</code>, <code>obj</code>, <code>sql</code> and <code>hass_api</code> for linters and type checkers, to import under <code>TYPE_CHECKING</code></li>
@@ -1596,7 +1644,7 @@ with each other for point releases</p>
 <li>A link is given to the example <a href="https://github.com/rhizomatics/supernotify/blob/main/.ha-repl/plugins/10-supernotify-internals.py">Supernotify ha-repl plugin code</a></li>
 </ul>
 <h1 id="0110">0.11.0<a class="headerlink" href="#0110" title="Permanent link">&para;</a></h1>
-<h2 id="-enhancements_4">✨ Enhancements<a class="headerlink" href="#-enhancements_4" title="Permanent link">&para;</a></h2>
+<h2 id="-enhancements_5">✨ Enhancements<a class="headerlink" href="#-enhancements_5" title="Permanent link">&para;</a></h2>
 <h3 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Implementation of <a href="https://homeassistant-repl.rhizomatics.org.uk/developer/design/rfcs/0001-persistent-config/">RFC-0001: Persistent Config</a></li>
@@ -1624,7 +1672,7 @@ with each other for point releases</p>
 <li>Reorganized and improved the configuration and installation</li>
 </ul>
 <h1 id="0100">0.10.0<a class="headerlink" href="#0100" title="Permanent link">&para;</a></h1>
-<h2 id="-enhancements_5">✨ Enhancements<a class="headerlink" href="#-enhancements_5" title="Permanent link">&para;</a></h2>
+<h2 id="-enhancements_6">✨ Enhancements<a class="headerlink" href="#-enhancements_6" title="Permanent link">&para;</a></h2>
 <h3 id="help_1">Help<a class="headerlink" href="#help_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>help()</code> on something local - <code>obj</code> in API mode, <code>sql</code> and its results, tables and rows - now gives a short summary of what it is for, its methods, properties and attributes, as it already did for objects inside Home Assistant. Special methods, inherited members, data descriptors and the method resolution order are left out</li>

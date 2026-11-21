@@ -1224,6 +1224,8 @@
       
         
       
+        
+      
     
     
     
@@ -1323,6 +1325,34 @@
     
   
     RFC 0002: Auto Complete Support
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../developer/design/rfcs/0003-event-assistance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RFC0003 - Event Assistance
   
 
     
@@ -1619,6 +1649,7 @@
 </tr>
 </tbody>
 </table>
+<p>In the shell, Tab completes inside the query: table names after <code>from</code> and <code>join</code>, a table's columns after its name or alias and a <code>.</code>, and elsewhere the columns of the tables named so far - see <a href="../modes/live_mode/#completion">Completion</a>.</p>
 <p>For example this will show the size of the <code>statistics</code> table.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">results</span><span class="o">=</span><span class="n">sql</span><span class="p">(</span><span class="s1">'select * from event_types'</span><span class="p">)</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">sql</span><span class="p">(</span><span class="s1">'select count(*) from statistics'</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>

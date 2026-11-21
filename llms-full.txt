@@ -483,15 +483,30 @@ shout(hass.states.get("sun.sun").state)
 
 ## Completion
 
-Tab completes names, attributes and keys, and a menu opens by itself after a `.`, inside `obj["` or `obj.find("`, and after two letters of a name.
+Tab completes names, attributes, keys and strings, and a menu opens by itself after a `.`, inside a string it can complete, and after two letters of a name.
 
 - What's typed matches anywhere in a name, in any case, so `hass.states.set` finds `async_set` - names starting with it come first
 - Inside a call's brackets, its signature is shown under the prompt, with the argument being typed in bold, and its parameters not given yet complete as `name=`
 - Completion follows the same rule as running: something typed in a statement that uses `hass`, `obj` or a variable living in Home Assistant is completed by Home Assistant, from the live session
 - Nothing is run to find a completion - no property, call, or lookup in anything but a plain `dict`, `list` or `tuple`, or the object tree. `hass.states.get("sun.sun").` completes from what `get` is declared to return, a `State`, without calling it
 - `obj["` completes paths, and entity ids at the root. A key that isn't there completes nothing
+- Inside a string, what can go there is completed by the name it's given to - a parameter, a keyword argument or a dict key:
+  - `entity_id` or `entity_ids`: entity ids, with their names - `hass.states.get("`, `entity_id="`, `{"entity_id": "` and a list given to any of them
+  - `domain`: the domains that have actions - `hass.services.async_call("`
+  - `service` or `action`: the actions of the domain already given - `hass.services.async_call("light", "`
+  - `entry_id` or `config_entry_id`: config entry ids, with their integration and title
+- Inside `sql("` (or `sql("""` over several lines), table names complete after `from` and `join`, a table's columns after its name or alias and a `.`, and elsewhere the columns of the tables the query names so far. `sql.table("` completes table names. This is local, from `sql.tables`
 - Enter on a completion picked from the menu just takes it, without running the line
 - Completion inside Home Assistant needs the server at 0.14.0 or later. Without it, the shell completes only what's local, and says so when it starts
+
+### Under the Prompt
+
+While something is typed, the line under the prompt shows:
+
+- Where it will run: `HA` or `local`, or `local then HA` for input with statements for each, decided as Enter decides it. A variable a Home Assistant statement assigns is shown as living there afterwards, though it comes back if it's plain data
+- Why it won't run, if Enter would refuse it - a statement using both `sql` and `hass`, say, or a local value that can't be copied over - with the same explanation Enter would give, before it's sent
+- The signature of the call the cursor is in, as above
+- A syntax error, once the cursor is on another line. On the line being typed, most input is just unfinished, so nothing is said about it until Enter
 
 ## Help
 
@@ -762,6 +777,8 @@ Data is serialized as Apache Arrow using the `nanofeather` library - this provid
 | `sql.table("<name>")`              | Returns the `Table` object that describes the named table and its contents, or raises `KeyError` if there is no such table                   |
 | `sql.table("<name>", legacy=True)` | The same, with the table's [legacy columns](#legacy-columns) included                                                                        |
 | `sql.tables`                       | Returns a list of `Table` objects that describe each table and its contents, with a `VirtualTable` for each [virtual table](#virtual-tables) |
+
+In the shell, Tab completes inside the query: table names after `from` and `join`, a table's columns after its name or alias and a `.`, and elsewhere the columns of the tables named so far - see [Completion](https://homeassistant-repl.rhizomatics.org.uk/modes/live_mode/#completion).
 
 For example this will show the size of the `statistics` table.
 

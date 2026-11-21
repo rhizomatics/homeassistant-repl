@@ -1076,6 +1076,8 @@
       
         
       
+        
+      
     
     
     
@@ -1175,6 +1177,34 @@
     
   
     RFC 0002: Auto Complete Support
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../developer/design/rfcs/0003-event-assistance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RFC0003 - Event Assistance
   
 
     
@@ -1625,6 +1655,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Completion">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#under-the-prompt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Under the Prompt
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1967,7 +2014,7 @@
 </span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="n">shout</span><span class="p">(</span><span class="n">hass</span><span class="o">.</span><span class="n">states</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"sun.sun"</span><span class="p">)</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
 </span></code></pre></div>
 <h2 id="completion">Completion<a class="headerlink" href="#completion" title="Permanent link">&para;</a></h2>
-<p>Tab completes names, attributes and keys, and a menu opens by itself after a <code>.</code>, inside <code>obj["</code> or <code>obj.find("</code>, and after two letters of a name.</p>
+<p>Tab completes names, attributes, keys and strings, and a menu opens by itself after a <code>.</code>, inside a string it can complete, and after two letters of a name.</p>
 <ul>
 <li>What's typed matches anywhere in a name, in any case, so <code>hass.states.set</code> finds <code>async_set</code> - names starting with it come first</li>
 <li>
@@ -1978,8 +2025,24 @@
 </li>
 <li>Nothing is run to find a completion - no property, call, or lookup in anything but a plain <code>dict</code>, <code>list</code> or <code>tuple</code>, or the object tree. <code>hass.states.get("sun.sun").</code> completes from what <code>get</code> is declared to return, a <code>State</code>, without calling it</li>
 <li><code>obj["</code> completes paths, and entity ids at the root. A key that isn't there completes nothing</li>
+<li>Inside a string, what can go there is completed by the name it's given to - a parameter, a keyword argument or a dict key:<ul>
+<li><code>entity_id</code> or <code>entity_ids</code>: entity ids, with their names - <code>hass.states.get("</code>, <code>entity_id="</code>, <code>{"entity_id": "</code> and a list given to any of them</li>
+<li><code>domain</code>: the domains that have actions - <code>hass.services.async_call("</code></li>
+<li><code>service</code> or <code>action</code>: the actions of the domain already given - <code>hass.services.async_call("light", "</code></li>
+<li><code>entry_id</code> or <code>config_entry_id</code>: config entry ids, with their integration and title</li>
+</ul>
+</li>
+<li>Inside <code>sql("</code> (or <code>sql("""</code> over several lines), table names complete after <code>from</code> and <code>join</code>, a table's columns after its name or alias and a <code>.</code>, and elsewhere the columns of the tables the query names so far. <code>sql.table("</code> completes table names. This is local, from <code>sql.tables</code></li>
 <li>Enter on a completion picked from the menu just takes it, without running the line</li>
 <li>Completion inside Home Assistant needs the server at 0.14.0 or later. Without it, the shell completes only what's local, and says so when it starts</li>
+</ul>
+<h3 id="under-the-prompt">Under the Prompt<a class="headerlink" href="#under-the-prompt" title="Permanent link">&para;</a></h3>
+<p>While something is typed, the line under the prompt shows:</p>
+<ul>
+<li>Where it will run: <code>HA</code> or <code>local</code>, or <code>local then HA</code> for input with statements for each, decided as Enter decides it. A variable a Home Assistant statement assigns is shown as living there afterwards, though it comes back if it's plain data</li>
+<li>Why it won't run, if Enter would refuse it - a statement using both <code>sql</code> and <code>hass</code>, say, or a local value that can't be copied over - with the same explanation Enter would give, before it's sent</li>
+<li>The signature of the call the cursor is in, as above</li>
+<li>A syntax error, once the cursor is on another line. On the line being typed, most input is just unfinished, so nothing is said about it until Enter</li>
 </ul>
 <h2 id="help">Help<a class="headerlink" href="#help" title="Permanent link">&para;</a></h2>
 <p>As in IPython:</p>
