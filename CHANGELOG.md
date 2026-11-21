@@ -4,6 +4,20 @@
     For live mode, generally the client and server component have to be on the same version. Different versions *might* work
     with each other for point releases
 
+# 0.15.0
+
+## ✨ Enhancements
+- For selected string values, completion offers what Home Assistant has for the name the string is given to - a parameter, keyword argument or dict key
+    - Entity ids, with their names, for `entity_id` and `entity_ids`: `hass.states.get("`, `entity_id="`, `target={"entity_id": "`, and a list given to any of them
+    - Action domains for `domain`, and the actions of the domain already given for `service` and `action`: `hass.services.async_call("light", "`
+    - Config entry ids, with their integration and title, for `entry_id` and `config_entry_id`
+    - In live mode from Home Assistant itself, which needs the server at this version; in API mode from the cached states and actions, for `hass_api` calls too
+    - Implements step 4 of [RFC 0002](https://homeassistant-repl.rhizomatics.org.uk/developer/design/rfcs/0002-auto-completed/
+- The line under the prompt shows where what's typed will run, `HA` or `local`, and why Enter would refuse it, if it would - a statement using both `sql` and `hass`, or a local value that can't be copied over - before it's sent
+    - And a syntax error, once the cursor has left the line it's on, in API mode too
+    - Implements step 5 of [RFC 0002](https://homeassistant-repl.rhizomatics.org.uk/developer/design/rfcs/0002-auto-completed/)
+- `sql("` completes table names after `from` and `join`, a table's columns after its name or alias and a `.`, and elsewhere the columns of the tables named so far - in single or triple quotes, over several lines. `sql.table("` completes table names
+
 # 0.14.1
 
 ## 🐛 Bug Fixes

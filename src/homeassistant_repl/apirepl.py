@@ -51,7 +51,7 @@ async def run_api_repl(
         {"obj": ApiObjTree(cache), "hass_api": rest_client}, auto_await=auto_await
     )
 
-    completer = HaCompleter(session.globals_)
+    completer = HaCompleter(session.globals_, strings=cache.strings)
     prompt = python_prompt(HISTORY, completer)
     bind_context(session.globals_, "api", server_name)
     bind_rebind(session.globals_, plugins, local_runner(session))

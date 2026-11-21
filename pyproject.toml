@@ -1,6 +1,6 @@
 [project]
 name = "homeassistant-repl"
-version = "0.14.1"
+version = "0.15.0"
 description = "Home Assistant REPL - the powerful developer shell for custom component developers"
 readme = "README.md"
 requires-python = ">=3.14.2"
@@ -148,6 +148,11 @@ output="cov.xml"
 directory="htmlcov"
 
 # only one of the two Home Assistant test helper packages is installed at a time (same as supernotify)
+[tool.ty.analysis]
+# Optional extras (to_polars()/to_pandas()), imported only when asked for -
+# not installed by a plain `uv sync`, as the prek hook's environment is.
+allowed-unresolved-imports = ["polars", "pandas"]
+
 [[tool.ty.overrides]]
 include = ["tests/ha_testing.py"]
 

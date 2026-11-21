@@ -39,6 +39,7 @@ from nanoarrow.ipc import StreamWriter
 from rich.table import Table
 
 from .client import HaReplError
+from .complete import Completions, Item, matches, rank
 
 DEFAULT_MAX_ROWS = 1000
 DEFAULT_SHOW_ROWS = 30
@@ -625,3 +626,69 @@ class SqlTool:
             f"<sql(query, max_rows=..., raw=False) - default max_rows={self.max_rows!r}; "
             "see sql.tables, sql.table(name)>"
         )
+
+
+# The words after which a table's name is what comes next, and the words
+# that start a clause - the last of either before the cursor says which.
+_TABLE_BEFORE = frozenset({"from", "join"})
+_CLAUSES = _TABLE_BEFORE | frozenset({
+    "select", "where", "on", "by", "having", "and", "or", "not", "set",
+    "when", "then", "else", "case", "distinct", "as", "limit", "offset",
+})  # fmt: skip
+_ALIASED = re.compile(r"\b(?:from|join)\s+(\w+)(?:\s+(?:as\s+)?(\w+))?", re.IGNORECASE)
+_LITERAL = re.compile(r"'[^']*'?")
+
+
+def complete_query(
+    text: str, tables: list[SqlTable], *, tables_only: bool = False
+) -> Completions:
+    """What can go at the end of `text`, the start of a query: a table's
+    name after `from` or `join` (or anywhere, if `tables_only`), a table's
+    own columns after its name or alias and a `.`, and elsewhere the
+    columns of the tables the query names so far - of all of them if it
+    names none yet. Going by its words, not a parse, since it isn't
+    finished."""
+    typed = re.search(r"\w*$", text).group()  # type: ignore[union-attr]  # ty: ignore[missing-union-attribute]
+    before = _LITERAL.sub("''", text[: len(text) - len(typed)])
+    by_name = {t.name.lower(): t for t in tables}
+    if tables_only:
+        items = [_table_item(t) for t in tables]
+    elif qualified := re.search(r"(\w+)\.$", before):
+        aliases = {
+            (alias or name).lower(): name.lower()
+            for name, alias in _ALIASED.findall(before)
+            if (alias or name).lower() not in _CLAUSES
+        }
+        name = qualified.group(1).lower()
+        table = by_name.get(aliases.get(name, name))
+        items = _column_items([table] if table else [])
+    else:
+        words = [w.lower() for w in re.findall(r"[A-Za-z_]\w*", before)]
+        clause = next((w for w in reversed(words) if w in _CLAUSES), "")
+        if clause in _TABLE_BEFORE and before.rstrip().lower().endswith((clause, ",")):
+            items = [_table_item(t) for t in tables]
+        else:
+            named = [by_name[w] for w in dict.fromkeys(words) if w in by_name]
+            items = _column_items(named or [t for t in tables if not t.virtual])
+    items = [i for i in items if matches(i.label, typed)]
+    if typed:
+        items.sort(key=lambda i: rank(i.label, typed))
+    return Completions(items, len(typed))
+
+
+def _table_item(table: SqlTable) -> Item:
+    return Item(table.name, "table", "virtual" if table.virtual else table.class_name)
+
+
+def _column_items(tables: list[SqlTable]) -> list[Item]:
+    """Each column once, saying which of `tables` it's in."""
+    found: dict[str, list[str]] = {}
+    types: dict[str, str] = {}
+    for table in tables:
+        for column in table.columns:
+            found.setdefault(column.name, []).append(table.name)
+            types.setdefault(column.name, column.type)
+    return [
+        Item(name, "column", f"{types[name]} in {', '.join(names)}")
+        for name, names in found.items()
+    ]

@@ -88,3 +88,8 @@ repos:
     rev: v0.0.101
     hooks:
       - id: ty
+        # The hook's own entry, but without ~/.config/uv/uv.toml, as for
+        # uv-lock above: `uv check` locks the project first, and would
+        # otherwise write its settings into uv.lock. Keep --ty-version in
+        # step with rev.
+        entry: env XDG_CONFIG_HOME=/dev/null uv check --quiet --preview-features=check-command --ty-version=0.0.101

@@ -25,6 +25,7 @@ from homeassistant.loader import async_get_integration
 from .complete import complete, describe, signature, source
 from .const import DEFAULT_MAX_ROWS, DEFAULT_SESSION, DOMAIN
 from .objtree import async_load_action_descriptions
+from .providers import ha_strings
 from .session import SessionManager
 
 if TYPE_CHECKING:
@@ -224,6 +225,7 @@ async def ws_complete(
         namespace,
         limit=manager.complete_limit,
         budget=manager.complete_budget,
+        strings=ha_strings(hass),
     )
     _LOGGER.debug("%s completes %r", _who(connection), msg["source"][: msg["cursor"]])
     if result is None:

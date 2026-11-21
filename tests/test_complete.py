@@ -10,6 +10,7 @@ import pytest
 
 from homeassistant_repl import complete as complete_module
 from homeassistant_repl.complete import (
+    Item,
     call_at,
     complete,
     context_start,
@@ -17,6 +18,7 @@ from homeassistant_repl.complete import (
     expression_at,
     signature,
     source,
+    string_at,
 )
 
 ROOT = Path(__file__).parent.parent
@@ -400,3 +402,87 @@ def test_describe_an_attribute_by_what_its_class_says_about_it() -> None:
     assert found.doc == "`.items` the things it holds - `.item(n)` picks one."
     assert found.owner.endswith("Tool")
     assert describe("t", {"t": tool}).owner == ""  # type: ignore[union-attr]  # ty: ignore[missing-union-attribute]
+
+
+class Services:
+    def async_call(
+        self,
+        domain: str,
+        service: str,
+        service_data: dict | None = None,
+        target: dict | None = None,
+    ) -> None:
+        touched.append("call")
+
+    def turn_on(self, entity_ids: list[str]) -> None:
+        touched.append("call")
+
+
+asked: list[tuple[str, dict[str, str]]] = []
+
+
+def offered(name: str, given) -> list[Item] | None:
+    asked.append((name, dict(given)))
+    if name in ("entity_id", "entity_ids"):
+        return [Item("light.kitchen", "entity", "Kitchen"), Item("sun.sun", "entity")]
+    if name == "service" and given.get("domain") == "light":
+        return [Item("turn_on", "action"), Item("toggle", "action")]
+    return None
+
+
+def strung(source: str, ns) -> list[str] | None:
+    asked.clear()
+    result = complete(source, len(source), {**ns, "s": Services()}, strings=offered)
+    assert result is not None
+    return [item.label for item in result.items]
+
+
+@pytest.mark.parametrize(
+    ("source", "expected", "name"),
+    [
+        # by parameter, by position or keyword, and by dict key
+        ('w.get("', ["light.kitchen", "sun.sun"], "entity_id"),
+        ('w.get("kit', ["light.kitchen"], "entity_id"),
+        ('anything(entity_id="', ["light.kitchen", "sun.sun"], "entity_id"),
+        ('s.async_call("light", "turn_on", target={"entity_id": "', None, "entity_id"),
+        ("{'entity_id': 'sun", ["sun.sun"], "entity_id"),
+        # in a list given to the name
+        ('anything(entity_id=["sun.sun", "', None, "entity_id"),
+        ('s.turn_on(["', None, "entity_ids"),
+        # what else is given by name goes along
+        ('s.async_call("light", "t', ["toggle", "turn_on"], "service"),
+        ('s.async_call(domain="light", service="', None, "service"),
+    ],
+)
+def test_strings_given_to_a_name_complete_from_strings(ns, source, expected, name):
+    found = strung(source, ns)
+    assert found == expected or (expected is None and found)
+    assert asked[0][0] == name
+
+
+def test_what_else_is_given_by_name_is_passed_along(ns):
+    strung('s.async_call("light", "', ns)
+    assert asked == [("service", {"domain": "light"})]
+    strung('s.async_call(domain="light", service="', ns)
+    assert asked == [("service", {"domain": "light"})]
+
+
+def test_strings_is_not_asked_about_keys_paths_or_strings_given_to_nothing(ns):
+    assert strung('d["', ns) == ["sensor"]
+    assert strung('tree.find("/m', ns) == ["/mqtt", "/mqtt/sensor"]
+    assert strung('print("', ns) == []
+    assert strung('a == "', ns) == []
+    assert strung('nothing.known("', ns) == []
+    assert all(name != "entity_id" for name, _ in asked)
+
+
+def test_nothing_offered_completes_nothing(ns):
+    assert strung('s.async_call("', ns) == []
+    assert asked == [("domain", {})]
+
+
+def test_string_at_finds_any_open_string():
+    assert string_at('sql("sel') == 5
+    assert string_at('sql("""select\nfrom st') == 7
+    assert string_at("f('''a''') ") is None
+    assert string_at('x = "a" + ') is None

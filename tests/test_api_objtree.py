@@ -619,3 +619,27 @@ async def test_registry_entry_keys_complete_as_attributes(tree: ApiObjTree):
     entry = entity.registry_entry
     assert "unique_id" in dir(entry)
     assert "items" in dir(entry)
+
+
+async def test_cache_offers_entity_ids_domains_and_actions_for_strings(
+    client: FakeClient,
+):
+    cache = Cache(client, ttl=30)
+    await cache.refresh()
+    entities = list(cache.strings("entity_id", {}) or [])
+    assert [i.label for i in entities][:2] == [
+        "light.kitchen_lights",
+        "light.lounge_lamp",
+    ]
+    assert entities[0].detail == "Kitchen Lights"
+    assert [i.label for i in cache.strings("domain", {}) or []] == [
+        "hue",
+        "mqtt",
+        "weather",
+    ]
+    assert [i.label for i in cache.strings("service", {"domain": "mqtt"}) or []] == [
+        "publish",
+        "dump",
+    ]
+    assert cache.strings("service", {}) is None
+    assert cache.strings("topic", {}) is None

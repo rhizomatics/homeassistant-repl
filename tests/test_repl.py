@@ -490,3 +490,67 @@ async def test_interrupt_asks_the_server_to_stop_only_while_it_runs_something():
     client.release.set()
     await running
     assert not live.interrupt()
+
+
+def _sides(live: LiveSession, source: str) -> tuple[str, ...]:
+    plan = live.plan(source)
+    assert plan is not None
+    return plan.sides
+
+
+def test_plan_says_where_input_would_run_without_running_it():
+    client = FakeClient()
+    live = _live(client, sql=object())
+    live.local.globals_["n"] = 3
+    live.remote_names = {"s"}
+
+    assert live.plan("") is None
+    assert _sides(live, "x = n + 1") == ("local",)
+    assert _sides(live, "hass.states.get('a')") == ("HA",)
+    assert _sides(live, "s.state") == ("HA",)
+    # A plan for each step, as run() makes them: here, then there.
+    plan = live.plan("x = 1\ny = hass.states.get('a')\ny.state")
+    assert plan is not None and plan.sides == ("local", "HA")
+    # Unfinished: by the names typed so far.
+    assert _sides(live, "for e in hass.states.async_all():\n    e.") == ("HA",)
+    assert client.executed == []
+
+
+def test_plan_gives_the_reason_enter_would_refuse():
+    client = FakeClient()
+    live = _live(client, sql=object())
+    live.local.globals_["df"] = object()
+    live.local.globals_["n"] = 3
+
+    mixed = live.plan("sql('x') + hass.x")
+    assert mixed is not None and mixed.refusal is not None
+    assert mixed.refusal.startswith("`sql` only works locally and `hass` only inside")
+    stuck = live.plan("hass.states.get(df)")
+    assert stuck is not None and stuck.refusal is not None
+    assert "`df` only exists in the local session" in stuck.refusal
+    copied = live.plan("hass.states.get(n)")
+    assert copied is not None and copied.refusal is None
+    # Bound by the statement itself, so not the local one.
+    bound = live.plan("[df for df in hass.states.async_all()]")
+    assert bound is not None and bound.refusal is None
+
+
+async def test_whether_a_value_can_be_copied_is_kept_until_the_next_run(monkeypatch):
+    from homeassistant_repl import repl
+
+    shipped: list[str] = []
+    real = repl._ship
+
+    def counting(name: str, value: Any) -> str | None:
+        shipped.append(name)
+        return real(name, value)
+
+    monkeypatch.setattr(repl, "_ship", counting)
+    live = _live(FakeClient())
+    live.local.globals_["df"] = object()
+    for _ in range(3):
+        live.plan("hass.states.get(df)")
+    assert shipped == ["df"]
+    await live.run("1")
+    live.plan("hass.states.get(df)")
+    assert shipped == ["df", "df"]

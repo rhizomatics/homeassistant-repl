@@ -44,10 +44,14 @@ INDENT = "    "
 # starts a level shallower.
 _DEDENT_AFTER = ("return", "pass", "break", "continue", "raise")
 
-# The toolbar holds only the signature of the call being typed: plain, not
-# the usual reversed bar.
+# The toolbar holds where the input runs, the signature of the call being
+# typed and any warning: plain, not the usual reversed bar.
 _STYLE = Style.from_dict({
     "bottom-toolbar": "noreverse",
+    "where": "",
+    "where.ha": "reverse fg:ansicyan",
+    "where.local": "reverse",
+    "warning": "fg:ansiyellow",
     "signature": "",
     "signature.active": "bold underline",
     "signature.doc": "italic",

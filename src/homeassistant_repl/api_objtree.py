@@ -49,6 +49,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, NamedTuple, Protocol, Self
 
+from .complete import Item
+
 
 class _ApiClient(Protocol):
     """What Cache actually needs from a client - just enough to let tests use
@@ -519,6 +521,27 @@ class Cache:
             for service, described in described_services.items()
         }
         self._fetched_at = time.monotonic()
+
+    def strings(self, name: str, given: Mapping[str, str]) -> Iterable[Item] | None:
+        """Entity ids, action domains and actions inside a string given to a
+        parameter, keyword or dict key of that name - complete.py's
+        `strings`, from what's cached here, as the server's providers.py
+        does from Home Assistant itself."""
+        if name in ("entity_id", "entity_ids"):
+            return [
+                Item(entity_id, "entity", entity.name or "")
+                for entity_id, entity in self.entities.items()
+            ]
+        if name == "domain":
+            domains = sorted({domain for domain, _ in self.actions})
+            return [Item(domain, "domain") for domain in domains]
+        if name in ("service", "action") and (domain := given.get("domain")):
+            return [
+                Item(action, "action", domain)
+                for action_domain, action in self.actions
+                if action_domain == domain
+            ]
+        return None
 
 
 def _resolve_from_cache(

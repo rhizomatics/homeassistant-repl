@@ -26,6 +26,7 @@ import json
 import sys
 import types
 from collections.abc import Sequence
+from collections.abc import Set as AbstractSet
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -81,6 +82,16 @@ class Captured:
     truncated: bool = False
 
 
+@dataclass(frozen=True)
+class Plan:
+    """Where input would run, worked out without running it - for the
+    toolbar, while it's typed. `sides` in order, "HA" and "local"; the
+    reason it wouldn't run at all, if it wouldn't."""
+
+    sides: tuple[str, ...]
+    refusal: str | None = None
+
+
 @dataclass
 class _Chunk:
     """Consecutive statements that run on the same side."""
@@ -126,6 +137,9 @@ class LiveSession:
     # A statement is running in Home Assistant now.
     _remote_busy: bool = field(default=False, init=False)
     _sends: set[asyncio.Task[None]] = field(default_factory=set, init=False)
+    # Whether a local value can be copied over, by its name and id() -
+    # asked on every keystroke by plan(), so kept until the next run.
+    _shippable: dict[tuple[str, int], bool] = field(default_factory=dict, init=False)
 
     async def refresh_remote_names(self) -> None:
         """Pick up what an existing server session already holds (it
@@ -140,6 +154,7 @@ class LiveSession:
         """Run source, stopping at the first statement that fails. Only the
         final statement's value is echoed, and not even that with `echo`
         off. Returns False on any failure."""
+        self._shippable.clear()
         try:
             tree = ast.parse(source)
         except SyntaxError, ValueError:
@@ -184,13 +199,94 @@ class LiveSession:
         sys.stderr.write(quiet.stdout)
         return quiet.error
 
-    def _next_chunk(self, body: list[ast.stmt]) -> _Chunk:
+    def plan(self, source: str) -> Plan | None:
+        """Where `source` would run, and why it wouldn't if it wouldn't -
+        as run() would decide, without running anything. Input that isn't
+        finished goes by the names in it so far, and isn't refused. None
+        for nothing at all."""
+        if not source.strip():
+            return None
+        local = self._local_names()
+        remote = (REMOTE_ONLY | self.remote_names) - local
+        try:
+            body = ast.parse(source).body
+        except SyntaxError, ValueError:
+            return Plan(("HA",) if names_read(source) & remote else ("local",))
+        if not body:
+            return None
+        sides: list[str] = []
+        refusal = None
+        while body:
+            chunk = self._next_chunk(body, local, remote)
+            body = body[chunk.count :]
+            side = "HA" if chunk.remote else "local"
+            if side not in sides:
+                sides.append(side)
+            # What a statement assigns lives where it ran - assuming
+            # Home Assistant's doesn't come back, which only running tells.
+            if chunk.remote:
+                refusal = refusal or self.refusal(chunk.names)
+                local = local - chunk.names.assigned
+                remote = remote | chunk.names.assigned
+            else:
+                local = local | chunk.names.assigned
+                remote = remote - chunk.names.assigned
+        return Plan(tuple(sides), refusal)
+
+    def refusal(self, names: _Names) -> str | None:
+        """Why a statement reading `names` can't run in Home Assistant, if
+        it can't: it also uses something that only works locally, or a
+        local value that can't be copied over."""
+        local_names = self._local_names()
+        via = ", ".join(
+            f"`{n}`" for n in sorted(names.loaded & (REMOTE_ONLY | self.remote_names))
+        )
+        local_only = sorted(names.loaded & self.shared & local_names)
+        if local_only:
+            return (
+                f"{', '.join(f'`{n}`' for n in local_only)} only "
+                f"work{'s' if len(local_only) == 1 else ''} locally and {via} only "
+                "inside Home Assistant, so one statement can't use both. Assign "
+                "the Home Assistant part to a variable in a statement of its own "
+                "first - plain data (strings, numbers, lists/dicts of them) comes back."
+            )
+        stuck = [
+            name
+            for name in sorted(names.loaded & (local_names - self.shared))
+            if name not in names.bound and not self._can_ship(name)
+        ]
+        if stuck:
+            return (
+                f"this would run inside Home Assistant (it uses {via}), but "
+                f"{', '.join(f'`{n}`' for n in stuck)} only "
+                f"exist{'s' if len(stuck) == 1 else ''} in the local session and can't "
+                "be copied over (only plain data, small sql results and imported modules can)."
+            )
+        return None
+
+    def _can_ship(self, name: str) -> bool:
+        value = self.local.globals_[name]
+        key = (name, id(value))
+        if key not in self._shippable:
+            self._shippable[key] = _ship(name, value) is not None
+        return self._shippable[key]
+
+    def _next_chunk(
+        self,
+        body: list[ast.stmt],
+        local: AbstractSet[str] | None = None,
+        remote: AbstractSet[str] | None = None,
+    ) -> _Chunk:
         """The leading statements of `body` that run together: a run of
         local ones, or a single server-side one - what a server-side
         statement assigns may come back as local data (see _run_remote),
-        which changes where the statements after it belong."""
-        local = self._local_names()
-        remote = (REMOTE_ONLY | self.remote_names) - local
+        which changes where the statements after it belong. `local` and
+        `remote` are the names living on each side, if not as they are
+        now."""
+        local = set(self._local_names() if local is None else local)
+        remote = set(
+            (REMOTE_ONLY | self.remote_names) - local if remote is None else remote
+        )
         chunk: _Chunk | None = None
         for stmt in body:
             names = _Names()
@@ -245,36 +341,14 @@ class LiveSession:
         return ok
 
     async def _run_remote(self, source: str, names: _Names, *, echo: bool) -> bool:
-        local_names = self._local_names()
-        via = ", ".join(
-            f"`{n}`" for n in sorted(names.loaded & (REMOTE_ONLY | self.remote_names))
-        )
-        local_only = sorted(names.loaded & self.shared & local_names)
-        if local_only:
-            self._refuse(
-                f"not run - {', '.join(f'`{n}`' for n in local_only)} only "
-                f"work{'s' if len(local_only) == 1 else ''} locally and {via} only "
-                "inside Home Assistant, so one statement can't use both. Assign "
-                "the Home Assistant part to a variable in a statement of its own "
-                "first - plain data (strings, numbers, lists/dicts of them) comes back."
-            )
+        if (refusal := self.refusal(names)) is not None:
+            self._refuse(f"not run - {refusal}")
             return False
         preamble: list[str] = []
-        stuck: list[str] = []
-        for name in sorted(names.loaded & (local_names - self.shared)):
+        for name in sorted(names.loaded & (self._local_names() - self.shared)):
             line = _ship(name, self.local.globals_[name])
             if line is not None:
                 preamble.append(line)
-            elif name not in names.bound:
-                stuck.append(name)
-        if stuck:
-            self._refuse(
-                f"not run - this would run inside Home Assistant (it uses {via}), but "
-                f"{', '.join(f'`{n}`' for n in stuck)} only "
-                f"exist{'s' if len(stuck) == 1 else ''} in the local session and can't "
-                "be copied over (only plain data, small sql results and imported modules can)."
-            )
-            return False
         if preamble:
             copied = await self._exec_remote("\n".join(preamble), echo=False)
             if copied is None:

@@ -272,6 +272,43 @@ async def test_ws_complete_follows_real_home_assistant_objects(
     assert await labels('obj["/nothing') == []
 
 
+async def test_ws_complete_offers_what_home_assistant_has_inside_strings(
+    recorder_mock, hass: HomeAssistant, enable_custom_integrations: None, hass_ws_client
+):
+    await _setup(hass)
+    hass.states.async_set("sensor.test", "42", {"friendly_name": "Test sensor"})
+    hass.services.async_register("demo", "ping", lambda call: None)
+    hass.services.async_register("demo", "pong", lambda call: None)
+    client = await hass_ws_client(hass)
+    ids = iter(range(1, 20))
+
+    async def items(source: str) -> dict[str, str]:
+        await client.send_json({
+            "id": next(ids),
+            "type": "ha_repl_server/complete",
+            "source": source,
+            "cursor": len(source),
+        })
+        result = (await client.receive_json())["result"]
+        return {item["label"]: item["detail"] for item in result["items"]}
+
+    # By parameter name, read from the real signatures.
+    assert await items('hass.states.get("sensor.t') == {"sensor.test": "Test sensor"}
+    assert "demo" in await items('hass.services.async_call("de')
+    assert await items('hass.services.async_call("demo", "') == {
+        "ping": "demo",
+        "pong": "demo",
+    }
+    # By keyword and by dict key, whatever the call.
+    assert "sensor.test" in await items(
+        'hass.services.async_call("demo", "ping", target={"entity_id": "'
+    )
+    assert "sensor.test" in await items('anything(entity_id="sens')
+    # Config entries, with their integration and title.
+    entries = await items('hass.config_entries.async_get_entry("')
+    assert any(detail.startswith(f"{DOMAIN}: ") for detail in entries.values())
+
+
 async def test_ws_complete_answers_while_code_runs_and_sees_its_variables(
     recorder_mock, hass: HomeAssistant, enable_custom_integrations: None, hass_ws_client
 ):

@@ -23,7 +23,7 @@ import reprlib
 import sys
 import time
 import types
-from collections.abc import Iterable, Iterator, Mapping
+from collections.abc import Callable, Iterable, Iterator, Mapping
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -35,7 +35,17 @@ BUDGET = 0.5
 # The methods whose first argument is a path in the tree they're called on.
 _PATH_METHODS = frozenset({"find", "find_paths", "find_names"})
 
+# What a string being typed is given to, named: a parameter, a keyword
+# argument or a dict key - `entity_id` in `hass.states.get("`, in
+# `entity_id="` and in `{"entity_id": "` - with the strings given by name
+# alongside it (`domain`, for `service`). A caller with something to offer
+# for a name, as Home Assistant has entity ids, passes one of these; None
+# from it is nothing to offer.
+Strings = Callable[[str, Mapping[str, str]], Iterable["Item"] | None]
+
 _IDENTIFIER_END = re.compile(r"\w*$")
+_DICT_KEY = re.compile(r"""(["'])(\w+)\1\s*:$""")
+_KEYWORD = re.compile(r"\b(\w+)\s*=$")
 _IMPORTING = re.compile(r"(^|[\s;])(import|from)\s[\w.,\s]*$")
 _MISSING = object()
 
@@ -168,12 +178,14 @@ def complete(
     *,
     limit: int = LIMIT,
     budget: float | None = BUDGET,
+    strings: Strings | None = None,
 ) -> Completions | None:
     """The completions at `cursor` in `source`, against `namespace`. None
     when the expression before the cursor can't be followed without running
-    something, for a caller with another way to try."""
+    something, for a caller with another way to try. Inside a string given
+    to a name, `strings` is asked what can go there."""
     clock = _Budget(budget)
-    found = _complete(source[:cursor], namespace, limit, clock)
+    found = _complete(source[:cursor], namespace, limit, clock, strings)
     if found is not None:
         found.incomplete |= clock.ran_out
     return found
@@ -199,10 +211,14 @@ class _Budget:
 
 
 def _complete(
-    text: str, namespace: Mapping[str, Any], limit: int, clock: _Budget
+    text: str,
+    namespace: Mapping[str, Any],
+    limit: int,
+    clock: _Budget,
+    strings: Strings | None = None,
 ) -> Completions | None:
     if (quote := _open_string(text)) is not None:
-        return _complete_string(text, quote, namespace, limit, clock)
+        return _complete_string(text, quote, namespace, limit, clock, strings)
     prefix = _IDENTIFIER_END.search(text).group()  # type: ignore[union-attr]  # ty: ignore[missing-union-attribute]
     before = text[: len(text) - len(prefix)]
     if before.endswith("."):
@@ -224,8 +240,30 @@ def call_at(text: str) -> tuple[int, int, str | None] | None:
     """The innermost call the end of `text` is inside: where its `(` is,
     which argument is being typed (counting from 0), and the keyword it's
     being given as, if any. None outside a call's brackets."""
-    stack: list[list[Any]] = []  # bracket, where, commas, last comma
+    stack = _brackets(text)
+    if not stack or stack[-1][0] != "(":
+        return None
+    _, paren, commas, last = stack[-1]
+    named = re.match(r"\s*(\w+)\s*=(?!=)", text[last + 1 :])
+    return paren, commas, named.group(1) if named else None
+
+
+def _brackets(text: str) -> list[list[Any]]:
+    """The brackets open at the end of `text`, innermost last: each the
+    bracket, where it is, the commas inside it and where the last is."""
+    return _scan(text)[0]
+
+
+def string_at(text: str) -> int | None:
+    """Where the inside of the string literal open at the end of `text`
+    starts, if one is - triple quoted and over several lines, too."""
+    return _scan(text)[1]
+
+
+def _scan(text: str) -> tuple[list[list[Any]], int | None]:
+    stack: list[list[Any]] = []
     quote = ""
+    opened = 0
     i = 0
     while i < len(text):
         ch = text[i]
@@ -241,6 +279,7 @@ def call_at(text: str) -> tuple[int, int, str | None] | None:
         elif ch in "'\"":
             quote = ch * 3 if text.startswith(ch * 3, i) else ch
             i += len(quote) - 1
+            opened = i + 1
         elif ch in "([{":
             stack.append([ch, i, 0, i])
         elif ch in ")]}" and stack:
@@ -249,11 +288,7 @@ def call_at(text: str) -> tuple[int, int, str | None] | None:
             stack[-1][2] += 1
             stack[-1][3] = i
         i += 1
-    if not stack or stack[-1][0] != "(":
-        return None
-    _, paren, commas, last = stack[-1]
-    named = re.match(r"\s*(\w+)\s*=(?!=)", text[last + 1 :])
-    return paren, commas, named.group(1) if named else None
+    return stack, opened if quote else None
 
 
 def signature(
@@ -337,31 +372,99 @@ def _keywords(text: str, namespace: Mapping[str, Any]) -> dict[str, Item]:
 
 
 def _complete_string(
-    text: str, quote: int, namespace: Mapping[str, Any], limit: int, clock: _Budget
+    text: str,
+    quote: int,
+    namespace: Mapping[str, Any],
+    limit: int,
+    clock: _Budget,
+    strings: Strings | None = None,
 ) -> Completions:
-    """Keys inside `x["`, and paths inside `obj.find("`. Nothing anywhere
-    else in a string - not file names, say."""
+    """Keys inside `x["`, paths inside `obj.find("`, and whatever `strings`
+    has for a string given to a name. Nothing anywhere else in a string -
+    not file names, say."""
     partial = text[quote + 1 :]
     before = text[:quote].rstrip()
     while before and before[-1] in "rRbBuU":
         before = before[:-1]
-    keys: Iterable[str] = ()
-    if before.endswith("["):
-        if (expr := _expression_before(before[:-1])) is not None:
-            target = _resolve(expr, namespace)
-            if isinstance(target, _Value):
-                keys = _keys(target.obj)
+    keys: Iterable[str] | None = None
+    if before.endswith("[") and (expr := _expression_before(before[:-1])):
+        keys = ()
+        target = _resolve(expr, namespace)
+        if isinstance(target, _Value):
+            keys = _keys(target.obj)
     elif before.endswith("("):
         call = _expression_before(before[:-1])
         if isinstance(call, ast.Attribute) and call.attr in _PATH_METHODS:
             target = _resolve(call.value, namespace)
             if isinstance(target, _Value) and _inspectable(target.obj):
                 keys = (k for k in _keys(target.obj) if k.startswith("/"))
-    items = [Item(k, "key") for k in clock.take(keys) if partial.lower() in k.lower()]
+    offered: Iterable[Item] = ()
+    if keys is not None:
+        offered = (Item(k, "key") for k in keys)
+    elif strings is not None and (slot := _slot(before, namespace)) is not None:
+        offered = strings(*slot) or ()
+    items = [i for i in clock.take(offered) if partial.lower() in i.label.lower()]
     items.sort(key=lambda i: rank(i.label, partial))
     result = Completions(items[:limit], len(partial))
     result.incomplete = len(items) > limit
     return result
+
+
+def _slot(
+    before: str, namespace: Mapping[str, Any]
+) -> tuple[str, dict[str, str]] | None:
+    """The name a string starting after `before` is given to, and the
+    strings given by name before it in the same call: `("service",
+    {"domain": "light"})` for `hass.services.async_call("light", "`.
+    A string in a list, `entity_id=["a", "`, is given to the list's name."""
+    stack = _brackets(before)
+    if (key := _DICT_KEY.search(before)) is not None:
+        return key.group(2), {}
+    if (named := _KEYWORD.search(before)) is not None:
+        found = None
+        if stack and stack[-1][0] == "(":
+            found = signature(before, len(before), namespace)
+        return named.group(1), _given(found, before, stack[-1]) if found else {}
+    if not before.endswith(("(", "[", ",")) or not stack:
+        return None
+    bracket, where, commas, _ = stack[-1]
+    if bracket == "[":
+        outer = before[:where].rstrip()
+        if _expression_before(outer) is not None:
+            return None  # a subscript, not a list
+        return _slot(outer, namespace)
+    if bracket != "(":
+        return None
+    found = signature(before, len(before), namespace)
+    if found is None or (active := found.active(commas, None)) is None:
+        return None
+    return found.params[active].name, _given(found, before, stack[-1])
+
+
+def _given(found: Signature, before: str, open_: list[Any]) -> dict[str, str]:
+    """The string literals among the arguments already given to `found`,
+    the call open at `open_` in `before`, by the names of the parameters
+    they go to."""
+    _, where, commas, last = open_
+    args = before[where + 1 : last] if commas else ""
+    try:
+        call = ast.parse(f"_({args})", mode="eval").body
+    except SyntaxError, ValueError:
+        return {}
+    if not isinstance(call, ast.Call):
+        return {}
+    given: dict[str, ast.expr] = {}
+    for position, arg in enumerate(call.args):
+        if (active := found.active(position, None)) is not None:
+            given[found.params[active].name] = arg
+    for named in call.keywords:
+        if named.arg is not None:
+            given[named.arg] = named.value
+    return {
+        name: value.value
+        for name, value in given.items()
+        if isinstance(value, ast.Constant) and isinstance(value.value, str)
+    }
 
 
 def _open_string(text: str) -> int | None:

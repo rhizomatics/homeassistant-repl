@@ -2,9 +2,9 @@
 
 | | |
 | --- | --- |
-| Status | Partially Complete |
-| Date | 2026-10-28, updated 2026-10-29 |
-| Progress | Steps 0 to 3 and 6 done in 0.14.0, and most of 5 - see [Step 0 Findings](#step-0-findings) and [As Built](#as-built) |
+| Status | Complete, except step 7 |
+| Date | 2026-10-28, updated 2026-11-21 |
+| Progress | Steps 0 to 3 and 6 done in 0.14.0, and most of 5; steps 4 and 5 finished after 0.14.1; step 7 deferred - see [Step 0 Findings](#step-0-findings), [As Built](#as-built) and [What's Left](#whats-left) |
 | Affects | Live and API modes, `homeassistant_repl.connect()`, a new server command for live mode |
 
 ## Summary
@@ -278,15 +278,40 @@ Steps 1 to 3 went in as planned, except:
 
 - **The server uses the standard library, not jedi**, following step 0. `complete.py` follows the expression at the cursor with `inspect.getattr_static`, return and property annotations (read as strings, with `annotationlib`'s `STRING` format, never evaluated), and subscripts of a plain `dict`, `list` or `tuple`, or a class marked `_ha_repl_inspectable` - the object trees and registry entries. A missing key there completes nothing, rather than guessing
 - **The client uses the same walk first, and jedi only where it can't follow** - a loop or comprehension variable, an import. jedi also completes file names inside any string, so inside a string only the walk answers: keys after `[`, and tree paths in `obj.find("`. The same `complete.py` is in both packages, and a test keeps the two copies identical
-- **The `obj` paths and `hass.data` keys of step 4 came early**, since the walk completes keys of any subscript it can follow. Entity ids by parameter name, actions and config entries are still step 4
+- **The `obj` paths and `hass.data` keys of step 4 came early**, since the walk completes keys of any subscript it can follow
 - **Where a completion runs** is decided from the names in the input so far, found with `tokenize`, against the same remote names `LiveSession` keeps - not by moving `_Names` into a shared module, since `ast` can't parse unfinished input. If Home Assistant can't follow an expression, the client tries locally
 - **A bare name** completes from both sides without a round trip: the client already knows the names the server session holds
 - **`evaluate`** in `config.toml` waits for step 7, since `static` is the only setting until then
-- **Step 5** shows the signature under the prompt only inside a call's brackets, cut to fit with the argument being typed kept in view, and adds `name=` completion of the parameters not given yet. The marker for where a statement runs, and the routing and syntax warnings, are still to do
+- **Step 5** shows the signature under the prompt inside a call's brackets, cut to fit with the argument being typed kept in view, and adds `name=` completion of the parameters not given yet. The marker for where a statement runs, and the routing and syntax warnings, followed after 0.14.1 - see below
 - **Step 6** is `?` and `??`, but differently: `thing?` runs the shell's own `help(thing)` where `thing` lives, refusing any expression with a call in it, rather than a new `doc` kind. `thing??` gives the file and line, and a GitHub link at the version running, rather than the source text, since what runs in Home Assistant may be any version. `?` alone shows the shell's own help for its mode. For an attribute its class declares or documents, `thing?` shows the declared type and the paragraphs of the class's docstring that mention it, rather than `help()` on the value's type. Ctrl-Space describes the name under the cursor, or the call it's in, statically, with the new `doc` kind of `ha_repl_server/complete`. `ha-repl inspect` gives the same description and source location, routed as `exec` is, with `--json`
 - What's typed matches anywhere in a name, case-insensitively, names starting with it first - prefix matching hid what was wanted behind `async_` and `get_`
 - The item cap and time budget are options on the live server's *Configure* form, 500 items and 500ms by default, as Open Question 4 settled. The budget is checked while going through keys and members, and an answer cut short is `incomplete`
 - `ha_repl_server/complete` runs on the event loop, takes no lock, and is logged at `debug` only, since it runs nothing. Its answer has `resolved: false` when the expression couldn't be followed
+
+Step 4, after 0.14.1:
+
+- **A string is completed by the name it's given to**, found in the order: a dict key (`{"entity_id": "`), a keyword (`entity_id="`, wherever it is), then the parameter the argument goes to, from the callee's signature as for step 5. A string in a list is given to the list's name, so `entity_id=["a", "` works too. This is how `target={"entity_id": "` in `hass.services.async_call` completes, though the entity id there is no parameter of anything
+- **The strings already given by name go along with it**, positional or keyword, so `service` knows its `domain`
+- **`complete.py` asks, but knows nothing of Home Assistant.** It takes a `strings(name, given)` callback, which keeps the two copies identical and free of Home Assistant imports. On the server, `providers.py` answers from the state machine, the action registry and the config entries, on the event loop with the rest of `ha_repl_server/complete`. In API mode, `Cache.strings` answers entity ids, domains and actions from what `obj` already holds - and since `homeassistant_api`'s client names its parameters the same way, `hass_api` calls complete too
+- **Names, not methods**: `entity_id`, `entity_ids`, `domain`, `service`, `action`, `entry_id` and `config_entry_id`. Nothing is matched by the callable's qualified name - none was needed
+- **`sql` is completed on the client**, from `sql.tables`, before anything else is tried: tables after `from` and `join`, a table's columns after its name or alias and a `.`, and elsewhere the columns of the tables the query names so far (of every real table, if none yet). Going by the query's words, not a parse. `string_at`, in `complete.py`, finds a string open over several lines and in triple quotes, which a query often is and the rest of completion doesn't look inside. `sql.table("` completes table names
+- Still not completed: a string given to a name in a local statement in live mode (`hass_api` there, say), since the local side has no copy of the states
+
+Step 5's marker and warnings, after 0.14.1:
+
+- **The toolbar is shown whenever there's something to say**: in live mode, whenever anything is typed; otherwise inside a call, or with a syntax error to report. The marker comes first, then the signature, and a warning on the lines below, wrapped to fit
+- **`LiveSession.plan()` decides the marker as `run()` would**, chunk by chunk with the same `_next_chunk`, from a copy of the names living on each side - so input with statements for both shows `local then HA`. What a Home Assistant statement assigns is taken to stay there, which only running it can tell otherwise. Input that doesn't parse yet goes by its names, read with `tokenize`, as completion's routing does, and is never refused
+- **One check of what Enter would refuse**, `LiveSession.refusal()`, taken out of `_run_remote`, which still prints it as before. Whether a local value can be copied over is kept by its name and `id()` until the next command runs, so a large dataframe isn't tried on every keystroke
+- **A syntax error is shown only on a line other than the cursor's.** Nearly everything on the line being typed is a syntax error until it's finished - `x = `, `hass.` - so this catches the error left behind in a block brought back by Up and edited, which is when it's wanted. It's compiled as a whole (`exec`), not as one statement, so several statements on separate lines aren't an error
+- The `HA` mark before a signature is left out in live mode, where the marker says it already
+
+### What's Left
+
+**Step 7**, `evaluate = "properties"`, is deferred, and may be dropped:
+
+- Step 0 and the steps since show annotations cover Home Assistant core well, and the object trees cover the dynamic cases
+- `ha_repl_server/complete` now runs on the event loop, not in a thread as first planned. A property that does I/O would block Home Assistant, and the time budget, checked between items, can't stop it. Running properties would mean moving that branch back to an executor thread, and revising [Security](#security)
+- A cheaper step comes first: values already computed can be read without running anything. A `functools.cached_property` already computed is in the instance's `__dict__`, which `getattr_static` finds already; one made with propcache's `under_cached_property`, which Home Assistant uses widely, is in the instance's `_cache` dict, which can be read the same way. Only if that leaves real gaps is running properties worth its risk
 
 ## Gaps with Home Assistant's Debug Console
 

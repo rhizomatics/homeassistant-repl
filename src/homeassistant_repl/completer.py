@@ -20,10 +20,14 @@ and narrowed locally as more is typed.
 
 from __future__ import annotations
 
+import ast
 import asyncio
+import codeop
 import contextlib
 import io
 import keyword
+import re
+import textwrap
 import tokenize
 from collections.abc import Iterable, Iterator
 from typing import TYPE_CHECKING, Any
@@ -41,6 +45,7 @@ from .complete import (
     Item,
     Signature,
     Source,
+    Strings,
     call_at,
     complete,
     context_start,
@@ -50,7 +55,9 @@ from .complete import (
     rank,
     signature,
     source,
+    string_at,
 )
+from .sql import SqlTool, complete_query
 
 if TYPE_CHECKING:
     from prompt_toolkit import PromptSession
@@ -60,6 +67,15 @@ if TYPE_CHECKING:
 # The same rule as complete.py's, for jedi: nothing is evaluated (though
 # jedi still calls __getattr__ and __dir__ - see RFC 0002's Step 0 Findings).
 jedi.settings.allow_unsafe_interpreter_executions = False  # ty: ignore[invalid-assignment]
+
+# The start of a string that's a query, `sql("` or `sql(query="""`, or a
+# table's name, `sql.table("`.
+_SQL_OPENER = re.compile(
+    r"""(\w+)(\.table)?\s*\(\s*(?:(?:query|name)\s*=\s*)?[rRuU]?(?:'{1,3}|"{1,3})$"""
+)
+
+_compiler = codeop.CommandCompiler()
+_compiler.compiler.flags |= ast.PyCF_ALLOW_TOP_LEVEL_AWAIT
 
 # Seconds to wait for Home Assistant while typing, and after Tab.
 REMOTE_WAIT = 0.3
@@ -80,10 +96,15 @@ def names_read(text: str) -> set[str]:
 
 class HaCompleter(Completer):
     def __init__(
-        self, namespace: dict[str, Any], live: LiveSession | None = None
+        self,
+        namespace: dict[str, Any],
+        live: LiveSession | None = None,
+        strings: Strings | None = None,
     ) -> None:
         self.namespace = namespace
         self.live = live
+        # What can go in a string given to a name - entity ids in API mode.
+        self.strings = strings
         # Whether the server can complete: False for one older than this.
         self.remote = live is not None
         self._answers: dict[str, dict[str, Any]] = {}
@@ -169,9 +190,32 @@ class HaCompleter(Completer):
                 yield completion
 
     def _walk(self, document: Document) -> list[Completion] | None:
-        found = complete(document.text, document.cursor_position, self.namespace)
+        if (query := self._sql(document.text_before_cursor)) is not None:
+            return query
+        found = complete(
+            document.text,
+            document.cursor_position,
+            self.namespace,
+            strings=self.strings,
+        )
         if found is None:
             return None
+        return [_completion(item, found.replace) for item in found.items]
+
+    def _sql(self, text: str) -> list[Completion] | None:
+        """Tables and columns inside the query of `sql("`, and tables in
+        `sql.table("` - from `sql.tables`, already here."""
+        if (start := string_at(text)) is None:
+            return None
+        opener = _SQL_OPENER.search(text[:start])
+        if opener is None:
+            return None
+        tool = self.namespace.get(opener.group(1))
+        if not isinstance(tool, SqlTool):
+            return None
+        found = complete_query(
+            text[start:], tool.tables, tables_only=bool(opener.group(2))
+        )
         return [_completion(item, found.replace) for item in found.items]
 
     def _jedi(self, document: Document) -> list[Completion]:
@@ -263,10 +307,13 @@ class HaCompleter(Completer):
 
 
 class SignatureHelp:
-    """The signature of the call being typed, under the prompt, with the
-    argument the cursor is on in bold - shown only inside a call's brackets.
-    Found locally, or by Home Assistant by the same rule as completion, and
-    kept, by the call, until the next command runs."""
+    """The toolbar under the prompt. In live mode, where what's typed will
+    run - `HA` or `local` - and why it won't, if it won't, as Enter would
+    say. Inside a call's brackets, its signature, with the argument the
+    cursor is on in bold: found locally, or by Home Assistant by the same
+    rule as completion, and kept, by the call, until the next command runs.
+    And a syntax error, once it's on a line the cursor has left - before
+    then it's usually just unfinished."""
 
     def __init__(self, completer: HaCompleter) -> None:
         self.completer = completer
@@ -286,19 +333,57 @@ class SignatureHelp:
 
     def _moved(self, buffer: Buffer) -> None:
         assert self._session is not None
-        inside = call_at(buffer.document.text_before_cursor) is not None
-        self._session.bottom_toolbar = self.toolbar if inside else None
+        document = buffer.document
+        shows = (
+            call_at(document.text_before_cursor) is not None
+            or (self.completer.live is not None and bool(document.text.strip()))
+            or _syntax_error(document) is not None
+        )
+        self._session.bottom_toolbar = self.toolbar if shows else None
 
     def toolbar(self) -> StyleAndTextTuples:
         assert self._session is not None
-        return self.render(
-            self._session.default_buffer.document.text_before_cursor,
+        return self.compose(
+            self._session.default_buffer.document,
             get_app().output.get_size().columns,
         )
 
-    def render(self, text: str, width: int | None = None) -> StyleAndTextTuples:
-        """The toolbar for `text`: nothing yet if Home Assistant hasn't
-        answered, the toolbar being redrawn when it does."""
+    def compose(
+        self, document: Document, width: int | None = None
+    ) -> StyleAndTextTuples:
+        """The whole toolbar for what's typed, the cursor where it is."""
+        parts: StyleAndTextTuples = []
+        warning = _syntax_error(document)
+        live = self.completer.live
+        if live is not None and (plan := live.plan(document.text)) is not None:
+            for i, side in enumerate(plan.sides):
+                if i:
+                    parts.append(("class:where", " then "))
+                parts.append((f"class:where.{side.lower()}", f" {side} "))
+            warning = warning or (
+                f"won't run - {plan.refusal}" if plan.refusal else None
+            )
+        room = None if width is None else max(width - _width(parts) - 1, 10)
+        found = self.render(document.text_before_cursor, room, prefix=live is None)
+        if parts and found:
+            parts.append(("", " "))
+        parts += found
+        if warning is not None:
+            if parts:
+                parts.append(("", "\n"))
+            lines = textwrap.wrap(
+                warning, (width or 80) - 1, max_lines=4, placeholder=" …"
+            )
+            parts.append(("class:warning", "\n".join(lines)))
+        return parts
+
+    def render(
+        self, text: str, width: int | None = None, *, prefix: bool = True
+    ) -> StyleAndTextTuples:
+        """The signature for `text`: nothing yet if Home Assistant hasn't
+        answered, the toolbar being redrawn when it does. Marked `HA` if
+        Home Assistant gave it, and `prefix` - where there's no marker for
+        the whole input already saying so."""
         if (call := call_at(text)) is None:
             return []
         key = text[: call[0] + 1]
@@ -311,7 +396,10 @@ class SignatureHelp:
         if found is None:
             return []
         return _formatted(
-            found, found.active(call[1], call[2]), remote=remote, width=width
+            found,
+            found.active(call[1], call[2]),
+            remote=remote and prefix,
+            width=width,
         )
 
     def _local(self, key: str) -> Signature | None:
@@ -388,6 +476,25 @@ def _formatted(
     if width is not None:
         parts = _cut(parts, width)
     return parts
+
+
+def _width(parts: StyleAndTextTuples) -> int:
+    return sum(len(text) for _, text, *_ in parts)
+
+
+def _syntax_error(document: Document) -> str | None:
+    """What's wrong with what's typed, if it can't be compiled - only for
+    an error on a line other than the cursor's, since on the line being
+    typed it's nearly always only unfinished (`x = `, `hass.`)."""
+    try:
+        _compiler(document.text, "<ha_repl>", "exec")
+    except SyntaxError as err:
+        line = (err.lineno or 1) - 1
+        if line != document.cursor_position_row:
+            return f"syntax error on line {line + 1}: {err.msg}"
+    except OverflowError, ValueError:
+        pass
+    return None
 
 
 def _length(found: Signature, first: int, active: int) -> int:

@@ -59,6 +59,10 @@ ApiEntity(
 
 In `live` mode the entities returned are the actual `Entity` objects from Home Assistant, with their full set of methods and other attributes.
 
+## Completion
+
+Completion works as it does in [live mode](live_mode.md#completion), from the objects in the shell itself. Inside a string given to `entity_id`, `domain`, `service` or `action` - `hass_api.get_state(entity_id="`, `hass_api.trigger_service("light", "` - it completes entity ids, domains and actions from the cached states and actions `obj` holds.
+
 ### Code That Works in Both Modes
 
 An `ApiEntity` uses the real `Entity` names wherever it has the data, so the same expression reads the same in `api` and `live` mode:
