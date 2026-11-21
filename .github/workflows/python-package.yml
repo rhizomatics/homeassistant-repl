@@ -9,6 +9,9 @@ on:
   pull_request:
     branches: [ "main" ]
 
+# Nothing by default; each job grants only what it needs (OpenSSF Scorecard Token-Permissions).
+permissions: {}
+
 jobs:
   typecheck:
     runs-on: ubuntu-latest
@@ -20,17 +23,21 @@ jobs:
         python-version: ["3.14"]
 
     steps:
-      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Install uv
-        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
         with:
           python-version: ${{ matrix.python-version }}
 
       # docs group: ty also checks docs_hooks, which imports properdocs; extras: sql.py imports polars and pandas
       - name: Install dependencies
+        env:
+          PYTHON_VERSION: ${{ matrix.python-version }}
         run: |
-          uv sync --all-extras --group docs --python ${{ matrix.python-version }}
+          uv sync --all-extras --group docs --python "$PYTHON_VERSION"
 
       - name: mypy
         run: uv run mypy --explicit-package-bases --follow-untyped-imports src custom_components
@@ -41,43 +48,77 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
     steps:
-    - uses: actions/checkout@v7.0.1
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
     - name: Install uv
-      uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2
+      uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
       with:
         python-version: 3.14
     - name: Install dependencies
       run: uv sync --locked --all-extras --dev
-       
+
     - name: Ruff
-      uses:  astral-sh/ruff-action@278981a28ce3188b1e39527901f38254bf3aac89
+      uses: astral-sh/ruff-action@278981a28ce3188b1e39527901f38254bf3aac89 # v4.1.0
     - name: Test with pytest
       run: uv run pytest tests
     - name: Build a binary wheel and a source tarball
       run: uv build
-    # Publishing steps: on main only, never from a pull request's merge ref.
-    - name: Generate badges
+    - name: Keep the test results for the badges and the docs' coverage page
       if: github.event_name == 'push'
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+      with:
+        name: test-results
+        path: |
+          cov.xml
+          junit/test-results.xml
+          htmlcov/
+        retention-days: 1
+
+  # Badges and docs, from main only - never from a pull request. The only job here that can write, and the token
+  # is given to just the two steps that push, never left in the checkout.
+  publish:
+    if: github.event_name == 'push'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      # to push the badges branch and the gh-pages branch the docs are served from
+      contents: write
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+    - name: Install uv
+      uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+      with:
+        python-version: 3.14
+    - name: Install dependencies
+      run: uv sync --locked --dev --group docs
+    - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+      with:
+        name: test-results
+
+    - name: Generate badges
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ github.token }}
       run: |
         uv run genbadge coverage -i cov.xml -o badges/coverage.svg
         uv run genbadge tests -i junit/test-results.xml -o badges/tests.svg
 
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
         TEMP_DIR=$(mktemp -d)
-        cd $TEMP_DIR
-        REMOTE_URL="https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+        cd "$TEMP_DIR"
+        REMOTE_URL="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
         if ! git clone --single-branch --branch badges "$REMOTE_URL" . 2>/dev/null; then
           # First run: the badges branch doesn't exist on the remote yet.
           git init
           git remote add origin "$REMOTE_URL"
           git checkout --orphan badges
         fi
-        cp -r ${{ github.workspace }}/badges .
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        cp -r "$GITHUB_WORKSPACE/badges" .
         git add badges
         if git commit -m "Update badges [skip ci]"; then
           git push origin badges --force
@@ -85,13 +126,20 @@ jobs:
         else
           echo "No changes to badges"
         fi
+        rm -rf "$TEMP_DIR"
 
     - name: ProperDocs
-      if: github.event_name == 'push'
-      run:  |
-        git pull
-        uv sync --dev --group docs
-        export HTMLPROOFER_EXT_URLS=True
+      env:
+        GH_TOKEN: ${{ github.token }}
+        HTMLPROOFER_EXT_URLS: "True"
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        # The token as actions/checkout would give it, but in this step's environment only, not .git/config
+        export GIT_CONFIG_COUNT=1
+        export GIT_CONFIG_KEY_0="http.https://github.com/.extraheader"
+        GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+        export GIT_CONFIG_VALUE_0
         uv run properdocs gh-deploy
 
   # The build job tests the locked Home Assistant; this tests the oldest supported (hacs.json,
@@ -112,10 +160,12 @@ jobs:
             ha-test-package: pytest-homeassistant
 
     steps:
-      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Install uv
-        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
         with:
           python-version: "3.14"
 
@@ -127,14 +177,18 @@ jobs:
       # Assistant's own pytest-homeassistant from 2026.11, pytest-homeassistant-custom-component
       # before that (see tests/ha_testing.py)
       - name: Pin Home Assistant ${{ matrix.ha-version }}
+        env:
+          HA_VERSION: ${{ matrix.ha-version }}
+          HA_OVERRIDE: ${{ matrix.ha-override }}
+          HA_TEST_PACKAGE: ${{ matrix.ha-test-package }}
         run: |
           uv pip uninstall pytest-homeassistant pytest-homeassistant-custom-component
-          if [ "${{ matrix.ha-test-package }}" = "pytest-homeassistant" ]; then
-            uv pip install --no-config "homeassistant==${{ matrix.ha-override }}" "pytest-homeassistant==${{ matrix.ha-override }}"
+          if [ "$HA_TEST_PACKAGE" = "pytest-homeassistant" ]; then
+            uv pip install --no-config "homeassistant==$HA_OVERRIDE" "pytest-homeassistant==$HA_OVERRIDE"
           else
-            uv pip install --no-config "homeassistant==${{ matrix.ha-override }}" pytest-homeassistant-custom-component
+            uv pip install --no-config "homeassistant==$HA_OVERRIDE" pytest-homeassistant-custom-component
           fi
-          uv run --no-sync python -c "import homeassistant.const as c; v = c.__version__; print('Home Assistant', v); assert v.startswith('${{ matrix.ha-version }}.'), v"
+          uv run --no-sync python -c "import os, homeassistant.const as c; v = c.__version__; print('Home Assistant', v); assert v.startswith(os.environ['HA_VERSION'] + '.'), v"
 
       # --no-sync: a plain uv run would re-sync to the lock and undo the pin above
       - name: Test with pytest

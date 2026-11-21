@@ -1,30 +1,63 @@
 name: Publish Python 🐍 distribution 📦 to PyPI and TestPyPI
 
-on: 
-  push:
-  release:
-    types: [published]
+# Every push proves the distribution builds. Publishing is started by release.yml once it has published a release,
+# with the release's tag: the wheel and source tarball attached to the release, already attested, are what's
+# published - to PyPI, or to TestPyPI for a pre-release. PyPI's trusted publisher names this workflow and the
+# `pypi`/`testpypi` environments, so this file keeps its name.
 
-permissions:
-  contents: read
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag of the published release, such as v0.8.0"
+        required: true
+        type: string
+
+# Nothing by default; each job grants only what it needs (OpenSSF Scorecard Token-Permissions).
+permissions: {}
 
 jobs:
   build:
     name: Build distribution 📦
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: read
     steps:
-    - uses: actions/checkout@v7.0.1
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         persist-credentials: false
     - name: Install uv
-      uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2
+      uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
       with:
-        python-version: 3.14
-    - name: Install dependencies
-      run: uv sync --locked --all-extras --dev
+        python-version: "3.14"
     - name: Build a binary wheel and a source tarball
       run: uv build
+
+  release:
+    name: Fetch the release's distribution 📦
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      prerelease: ${{ steps.release.outputs.prerelease }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: ${{ inputs.tag }}
+    steps:
+    - name: Download the wheel and source tarball
+      id: release
+      run: |
+        release=$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json isDraft,isPrerelease)
+        if [ "$(jq -r .isDraft <<<"$release")" = "true" ]; then
+          echo "::error::$TAG is still a draft - release.yml publishes it, then starts this"
+          exit 1
+        fi
+        echo "prerelease=$(jq -r .isPrerelease <<<"$release")" >> "$GITHUB_OUTPUT"
+        gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --dir dist --pattern "*.whl" --pattern "*.tar.gz"
+        ls -l dist
     - name: Store the distribution packages
       uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
       with:
@@ -34,10 +67,10 @@ jobs:
   publish-to-pypi:
     name: >-
       Publish Python 🐍 distribution 📦 to PyPI
-    # Only publish to PyPI on full releases (not pre-releases)
-    if: github.event_name == 'release' && github.event.action == 'published' && github.event.release.prerelease == false
+    # Only full releases (not pre-releases)
+    if: needs.release.outputs.prerelease == 'false'
     needs:
-    - build
+    - release
     runs-on: ubuntu-latest
     environment:
       name: pypi
@@ -54,13 +87,12 @@ jobs:
     - name: Publish distribution 📦 to PyPI
       uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
 
-
   publish-to-testpypi:
     name: Publish Python 🐍 distribution 📦 to TestPyPI
-    # Publish to TestPyPI on pre-releases
-    if: github.event_name == 'release' && github.event.action == 'published' && github.event.release.prerelease == true
+    # Pre-releases
+    if: needs.release.outputs.prerelease == 'true'
     needs:
-    - build
+    - release
     runs-on: ubuntu-latest
 
     environment:
@@ -78,7 +110,6 @@ jobs:
         path: dist/
     - name: Publish distribution 📦 to TestPyPI
       uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
-
       with:
         repository-url: https://test.pypi.org/legacy/
         skip-existing: true
