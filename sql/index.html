@@ -1604,7 +1604,7 @@
 
 <h1 id="sql-access">SQL Access<a class="headerlink" href="#sql-access" title="Permanent link">&para;</a></h1>
 <p>Home Assistant has an internal SQL database front-ended by the <a href="https://www.home-assistant.io/integrations/recorder/">Recorder</a> integration. It holds, history, activity, long term statistics and more. Underneath it can by Sqlite (most common), MariaDB, MySQL or PostgreSQL.</p>
-<p>When in <code>live</code> mode, the <code>ha-repl</code> exposes an <code>sql</code> variable, which allows access to this database, via the Recorder interface. </p>
+<p>When in <code>live</code> mode, the <code>ha-repl</code> exposes an <code>sql</code> variable, which allows access to this database, via the Recorder interface. It also adds helpful virtual tables for common joins, and auto-complete on table and column names.</p>
 <p><code>sql</code> and its results are local objects. A query is sent to Home Assistant, the rows come back as one download, and everything after that - <code>show()</code>, slicing, dataframes, CSV export - works on that local copy, with whatever libraries you have installed locally. Nothing extra needs installing in Home Assistant.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
@@ -1650,6 +1650,8 @@
 </tbody>
 </table>
 <p>In the shell, Tab completes inside the query: table names after <code>from</code> and <code>join</code>, a table's columns after its name or alias and a <code>.</code>, and elsewhere the columns of the tables named so far - see <a href="../modes/live_mode/#completion">Completion</a>.</p>
+<p><img alt="Table Completion" src="../assets/screenshots/sql_table_help.png" width="300" /></p>
+<p><img alt="Column Completion" src="../assets/screenshots/sql_col_help.png" width="300" /></p>
 <p>For example this will show the size of the <code>statistics</code> table.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">results</span><span class="o">=</span><span class="n">sql</span><span class="p">(</span><span class="s1">'select * from event_types'</span><span class="p">)</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">sql</span><span class="p">(</span><span class="s1">'select count(*) from statistics'</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
