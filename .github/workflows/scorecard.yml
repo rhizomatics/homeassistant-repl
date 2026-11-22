@@ -1,3 +1,5 @@
+# Managed by rhizomatics/hq (admin/sync-admin.sh) - edit there, not here.
+#
 # This workflow uses actions that are not certified by GitHub. They are provided
 # by a third-party and are governed by separate terms of service, privacy
 # policy, and support documentation.
@@ -10,7 +12,7 @@ on:
   # To guarantee Maintained check is occasionally updated. See
   # https://github.com/ossf/scorecard/blob/main/docs/checks.md#maintained
   schedule:
-    - cron: '18 19 * * 3'
+    - cron: "22 3 * * 6"
   push:
     branches: [ "main" ]
 

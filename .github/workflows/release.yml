@@ -1,60 +1,32 @@
-# Releases are immutable once published, so everything attached to one - the zip Marketplace installs from (hacs.json
-# zip_release), and the wheel and source tarball PyPI gets - has to be attached while it's still a draft. Write the
-# release as a draft in GitHub as usual, with its notes and whether it's a pre-release, then run this from the Actions
-# tab with its tag: it builds and attests the files, attaches them, publishes the release, and then has
-# pypi-publish.yml publish those same files - to PyPI, or to TestPyPI for a pre-release.
+# Releases homeassistant-repl when a version tag (v0.15.1, v0.16.0-beta1) is pushed - see
+# policies/release_workflows.md in rhizomatics/hq. CI runs on the tag, then everything attached to the release - the
+# zip Marketplace installs from (hacs.json zip_release), and the wheel and source tarball PyPI gets - is built and
+# attested, and the GitHub release is published with them and the version's CHANGELOG.md notes. Releases are
+# immutable, so nothing can be added once one is published. Last, pypi-publish.yml publishes those same files - to
+# PyPI, or to TestPyPI for a pre-release.
 #
-# pypi-publish.yml is started from here rather than by the release being published, as a release published with this
+# pypi-publish.yml is started from here rather than by the release being published, as a release published with a
 # workflow's token starts no other workflow; and it stays a workflow of its own, as PyPI's trusted publisher names it.
 
 name: Publish Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: "Tag of the draft release, such as v0.8.0"
-        required: true
-        type: string
+  push:
+    tags: ["v*"]
 
 # Nothing by default; each job grants only what it needs (OpenSSF Scorecard Token-Permissions).
 permissions: {}
 
 jobs:
-  draft:
-    runs-on: ubuntu-latest
+  ci:
+    uses: ./.github/workflows/python-package.yml
     permissions:
-      # write, as only a token that can push sees draft releases - nothing is written here
-      contents: write
-    outputs:
-      ref: ${{ steps.draft.outputs.ref }}
-    steps:
-    - name: Find the draft release
-      id: draft
-      env:
-        GH_TOKEN: ${{ github.token }}
-        TAG: ${{ inputs.tag }}
-      run: |
-        release=$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json isDraft,targetCommitish)
-        if [ "$(jq -r .isDraft <<<"$release")" != "true" ]; then
-          echo "::error::$TAG is already published, and a published release can't have files added. Draft a new release."
-          exit 1
-        fi
-        # a tag chosen as new in the draft isn't made till the release is published, so till then the draft's
-        # target is what's released
-        if git ls-remote --exit-code --tags "https://github.com/$GITHUB_REPOSITORY" "refs/tags/$TAG" >/dev/null; then
-          ref="refs/tags/$TAG"
-        else
-          ref=$(jq -r .targetCommitish <<<"$release")
-        fi
-        echo "Releasing $TAG from $ref"
-        echo "ref=$ref" >> "$GITHUB_OUTPUT"
+      contents: read
 
   build:
-    needs: draft
+    needs: ci
     runs-on: ubuntu-latest
     permissions:
-      # to check out the release's source
       contents: read
       # for the build provenance attestation
       id-token: write
@@ -62,13 +34,14 @@ jobs:
     steps:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
-        ref: ${{ needs.draft.outputs.ref }}
         persist-credentials: false
 
     - name: Install uv
       uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
       with:
         python-version: "3.14"
+        # nothing cached is used to build what's released
+        enable-cache: false
 
     - name: Package release zip
       run: |
@@ -78,6 +51,11 @@ jobs:
 
     - name: Build a binary wheel and a source tarball
       run: uv build --out-dir release
+
+    - name: Checksums
+      run: |
+        cd release
+        sha256sum ha_repl_server.zip > ha_repl_server.zip.sha256
 
     - name: Attest build provenance
       uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
@@ -90,28 +68,23 @@ jobs:
         name: release
         path: release/
 
-  publish:
+  github-release:
     needs: build
+    permissions:
+      contents: write
+    uses: ./.github/workflows/github-release.yml
+    with:
+      artifact: release
+
+  pypi:
+    needs: github-release
     runs-on: ubuntu-latest
     permissions:
-      # to attach the files to the draft and publish it
-      contents: write
-      # to start pypi-publish.yml
+      # only to start pypi-publish.yml, in a job with no other steps or actions
       actions: write
     env:
       GH_TOKEN: ${{ github.token }}
-      TAG: ${{ inputs.tag }}
+      TAG: ${{ github.ref_name }}
     steps:
-    - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-      with:
-        name: release
-        path: release/
-
-    - name: Attach the files to the draft
-      run: gh release upload "$TAG" release/* --clobber --repo "$GITHUB_REPOSITORY"
-
-    - name: Publish
-      run: gh release edit "$TAG" --draft=false --repo "$GITHUB_REPOSITORY"
-
     - name: Publish to PyPI
       run: gh workflow run pypi-publish.yml --ref "$TAG" -f tag="$TAG" --repo "$GITHUB_REPOSITORY"

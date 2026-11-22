@@ -1,5 +1,5 @@
-# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+# Type checks, lint and tests, with a read-only token, so release.yml can run it on a tag. Badges and docs are
+# published from main by docs.yml, the one workflow here that writes to the repo.
 
 name: Github Deploy
 
@@ -8,6 +8,8 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  # release.yml runs this on the tag before building
+  workflow_call:
 
 # Nothing by default; each job grants only what it needs (OpenSSF Scorecard Token-Permissions).
 permissions: {}
@@ -66,85 +68,6 @@ jobs:
       run: uv run pytest tests
     - name: Build a binary wheel and a source tarball
       run: uv build
-    - name: Keep the test results for the badges and the docs' coverage page
-      if: github.event_name == 'push'
-      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-      with:
-        name: test-results
-        path: |
-          cov.xml
-          junit/test-results.xml
-          htmlcov/
-        retention-days: 1
-
-  # Badges and docs, from main only - never from a pull request. The only job here that can write, and the token
-  # is given to just the two steps that push, never left in the checkout.
-  publish:
-    if: github.event_name == 'push'
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      # to push the badges branch and the gh-pages branch the docs are served from
-      contents: write
-    steps:
-    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      with:
-        persist-credentials: false
-        # all of it, for each page's date of last change (git-revision-date-localized)
-        fetch-depth: 0
-    - name: Install uv
-      uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
-      with:
-        python-version: 3.14
-    - name: Install dependencies
-      run: uv sync --locked --dev --group docs
-    - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-      with:
-        name: test-results
-
-    - name: Generate badges
-      env:
-        GH_TOKEN: ${{ github.token }}
-      run: |
-        uv run genbadge coverage -i cov.xml -o badges/coverage.svg
-        uv run genbadge tests -i junit/test-results.xml -o badges/tests.svg
-
-        TEMP_DIR=$(mktemp -d)
-        cd "$TEMP_DIR"
-        REMOTE_URL="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-        if ! git clone --single-branch --branch badges "$REMOTE_URL" . 2>/dev/null; then
-          # First run: the badges branch doesn't exist on the remote yet.
-          git init
-          git remote add origin "$REMOTE_URL"
-          git checkout --orphan badges
-        fi
-        git config user.name "github-actions[bot]"
-        git config user.email "github-actions[bot]@users.noreply.github.com"
-        cp -r "$GITHUB_WORKSPACE/badges" .
-        git add badges
-        if git commit -m "Update badges [skip ci]"; then
-          git push origin badges --force
-          echo "Badges updated successfully"
-        else
-          echo "No changes to badges"
-        fi
-        rm -rf "$TEMP_DIR"
-
-    - name: ProperDocs
-      env:
-        GH_TOKEN: ${{ github.token }}
-        HTMLPROOFER_EXT_URLS: "True"
-      run: |
-        git config user.name "github-actions[bot]"
-        git config user.email "github-actions[bot]@users.noreply.github.com"
-        # The token as actions/checkout would give it, but in this step's environment only, not .git/config
-        export GIT_CONFIG_COUNT=1
-        export GIT_CONFIG_KEY_0="http.https://github.com/.extraheader"
-        GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
-        export GIT_CONFIG_VALUE_0
-        # gh-deploy adds its commit to origin/gh-pages, which the checkout of main alone doesn't have
-        git fetch --no-tags origin +gh-pages:refs/remotes/origin/gh-pages
-        uv run properdocs gh-deploy
 
   # The build job tests the locked Home Assistant; this tests the oldest supported (hacs.json,
   # 2026.8 by policy exception) and the newest
