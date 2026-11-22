@@ -2,7 +2,7 @@
 
 Home Assistant has an internal SQL database front-ended by the [Recorder](https://www.home-assistant.io/integrations/recorder/) integration. It holds, history, activity, long term statistics and more. Underneath it can by Sqlite (most common), MariaDB, MySQL or PostgreSQL.
 
-When in `live` mode, the `ha-repl` exposes an `sql` variable, which allows access to this database, via the Recorder interface. 
+When in `live` mode, the `ha-repl` exposes an `sql` variable, which allows access to this database, via the Recorder interface. It also adds helpful virtual tables for common joins, and auto-complete on table and column names.
 
 `sql` and its results are local objects. A query is sent to Home Assistant, the rows come back as one download, and everything after that - `show()`, slicing, dataframes, CSV export - works on that local copy, with whatever libraries you have installed locally. Nothing extra needs installing in Home Assistant.
 
@@ -23,6 +23,10 @@ When in `live` mode, the `ha-repl` exposes an `sql` variable, which allows acces
 
 In the shell, Tab completes inside the query: table names after `from` and `join`, a table's columns after its name or alias and a `.`, and elsewhere the columns of the tables named so far - see [Completion](modes/live_mode.md#completion).
 
+![Table Completion](assets/screenshots/sql_table_help.png){width=300}
+
+![Column Completion](assets/screenshots/sql_col_help.png){width=300}
+
 For example this will show the size of the `statistics` table.
 
 ```python
@@ -31,6 +35,8 @@ For example this will show the size of the `statistics` table.
 ```
 
 ![select count](assets/screenshots/select_count.png)
+
+
 
 ### Result Objects
 
