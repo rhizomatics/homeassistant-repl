@@ -1,0 +1,86 @@
+# Publishes the coverage and test badges, and the documentation site, from main. Kept apart from
+# python-package.yml, so CI, and release.yml which runs it on a tag, have a read-only token. Runs the tests once
+# more for the badge figures and the HTML coverage report, so docs are only published from code that passes.
+# The token is given to just the two steps that push, never left in the checkout.
+
+name: Badges and docs
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+# Nothing by default; each job grants only what it needs (OpenSSF Scorecard Token-Permissions).
+permissions: {}
+
+jobs:
+  publish:
+    name: Badges and docs
+    # deploys to gh-pages, so one at a time, or a later push is rejected as not a fast-forward
+    concurrency:
+      group: docs-deploy-main
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    permissions:
+      # to push the badges branch and the gh-pages branch the docs are served from
+      contents: write
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+        # all of it, for each page's date of last change (git-revision-date-localized)
+        fetch-depth: 0
+    - name: Install uv
+      uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+      with:
+        python-version: 3.14
+    - name: Install dependencies
+      run: uv sync --locked --all-extras --dev --group docs
+    # pytest's addopts write cov.xml, junit/test-results.xml and htmlcov/, which the docs publish as their
+    # coverage page
+    - name: Test, for badge figures and coverage report
+      run: uv run pytest tests
+
+    - name: Generate badges
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        uv run genbadge coverage -i cov.xml -o badges/coverage.svg
+        uv run genbadge tests -i junit/test-results.xml -o badges/tests.svg
+
+        TEMP_DIR=$(mktemp -d)
+        cd "$TEMP_DIR"
+        REMOTE_URL="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+        if ! git clone --single-branch --branch badges "$REMOTE_URL" . 2>/dev/null; then
+          # First run: the badges branch doesn't exist on the remote yet.
+          git init
+          git remote add origin "$REMOTE_URL"
+          git checkout --orphan badges
+        fi
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        cp -r "$GITHUB_WORKSPACE/badges" .
+        git add badges
+        if git commit -m "Update badges [skip ci]"; then
+          git push origin badges --force
+          echo "Badges updated successfully"
+        else
+          echo "No changes to badges"
+        fi
+        rm -rf "$TEMP_DIR"
+
+    - name: ProperDocs
+      env:
+        GH_TOKEN: ${{ github.token }}
+        HTMLPROOFER_EXT_URLS: "True"
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        # The token as actions/checkout would give it, but in this step's environment only, not .git/config
+        export GIT_CONFIG_COUNT=1
+        export GIT_CONFIG_KEY_0="http.https://github.com/.extraheader"
+        GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+        export GIT_CONFIG_VALUE_0
+        # gh-deploy adds its commit to origin/gh-pages, which the checkout of main alone doesn't have
+        git fetch --no-tags origin +gh-pages:refs/remotes/origin/gh-pages
+        uv run properdocs gh-deploy
