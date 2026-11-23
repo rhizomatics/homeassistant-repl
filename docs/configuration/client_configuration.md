@@ -30,11 +30,11 @@ default = "dev"          # server used when none is named
 
 [servers.dev]
 url = "http://localhost:8123"
-token = "eyJ..."
+token = "eyJ..."             # throwaway dev instance only
 
 [servers.house]
 url = "https://ha.example.org"
-token_command = "op read op://Private/ha-house/token"
+token_command = "fnox -c /Users/me/.config/fnox/fnox.toml get HA_HOUSE_TOKEN"
 
 [servers.test]
 url = "http://ha-test.local:8123"
@@ -68,6 +68,61 @@ $ ha-repl servers
   house  https://ha.example.org  (token_command)
   test   http://ha-test.local:8123  (token_env)
 ```
+
+### Keeping Tokens in a Vault
+
+A long-lived access token has full admin access to Home Assistant, so it's better kept out of `config.toml` altogether. Any secrets tool with a command that prints a secret to standard output works with `token_command`. [fnox](https://fnox.jdx.dev) is a simple one: it keeps secrets encrypted in a TOML file, with [age](https://github.com/FiloSottile/age), the macOS Keychain or a cloud vault behind it.
+
+Store the token once:
+
+```bash
+cd ~/.config/fnox
+fnox init                    # creates fnox.toml and chooses where secrets are kept
+fnox set HA_HOUSE_TOKEN      # prompts for the token
+fnox get HA_HOUSE_TOKEN      # check it comes back
+```
+
+Then point the server at it:
+
+```toml
+[servers.house]
+url = "https://ha.example.org"
+token_command = "fnox -c /Users/me/.config/fnox/fnox.toml get HA_HOUSE_TOKEN"
+```
+
+The command is split like a shell command line but not run by a shell, so:
+
+- `~`, `$HOME` and other variables are not expanded - give paths in full.
+- It runs in the current working directory, so pass the config file with `-c` rather than relying on fnox finding a `fnox.toml` from wherever `ha-repl` was started.
+- Pipes and redirects don't work. If you need one, wrap it in a script and name that script.
+- Anything the command prints to standard error, such as a passphrase or Touch ID prompt, goes straight to the terminal.
+
+The command is run each time `ha-repl` needs the token.
+
+The same pattern works with other tools:
+
+| Vault | `token_command` |
+| ----- | --------------- |
+| fnox | `fnox -c /Users/me/.config/fnox/fnox.toml get HA_HOUSE_TOKEN` |
+| 1Password | `op read op://Private/ha-house/token` |
+| macOS Keychain | `security find-generic-password -s ha-house -w` |
+| pass | `pass show home-assistant/house` |
+
+#### Using `fnox exec` Instead
+
+fnox can also put secrets into the environment of a command it runs. Pair that with `token_env`, and `ha-repl` reads the token from its environment:
+
+```toml
+[servers.house]
+url = "https://ha.example.org"
+token_env = "HA_HOUSE_TOKEN"
+```
+
+```bash
+fnox exec -- ha-repl --server house live
+```
+
+This suits a project directory with its own `fnox.toml`, where fnox finds the file itself.
 
 ### Which Server Is Used
 
