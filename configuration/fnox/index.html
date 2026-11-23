@@ -1685,7 +1685,7 @@
 <h2 id="three-ways-to-connect">Three Ways to Connect<a class="headerlink" href="#three-ways-to-connect" title="Permanent link">&para;</a></h2>
 <h3 id="no-config-file">No Config File<a class="headerlink" href="#no-config-file" title="Permanent link">&para;</a></h3>
 <p>Store the two secrets as <code>HASS_SERVER</code> and <code>HASS_TOKEN</code> instead, and <code>fnox exec</code> gives <code>ha-repl</code> everything it needs:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>fnox<span class="w"> </span>-P<span class="w"> </span>ha<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>--<span class="w"> </span>ha-repl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span><span class="s1">'hass.config.version'</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>fnox<span class="w"> </span>-P<span class="w"> </span>ha<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>--<span class="w"> </span>ha-repl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span><span class="s1">'hass.config.as_dict()["version"]'</span>
 </span></code></pre></div>
 <h3 id="a-named-server-reading-its-token-from-the-environment">A Named Server Reading Its Token from the Environment<a class="headerlink" href="#a-named-server-reading-its-token-from-the-environment" title="Permanent link">&para;</a></h3>
 <p>This keeps the server in <code>config.toml</code>, so <code>ha-repl servers</code> lists it and it can be the <code>default</code>, while the token stays in fnox:</p>
@@ -1718,7 +1718,7 @@
 </span></code></pre></div>
 <p>The daemon keeps the values in memory and serves them to later commands until it has been idle for <code>idle_timeout</code>, or until <code>fnox daemon stop</code>. An agent then runs:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>fnox<span class="w"> </span>-c<span class="w"> </span>/Users/me/.config/fnox/config.toml<span class="w"> </span>-P<span class="w"> </span>ha<span class="w"> </span>--non-interactive<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>--redact<span class="w"> </span>--<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span>ha-repl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span><span class="s1">'hass.config.version'</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span>ha-repl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span><span class="s1">'hass.config.as_dict()["version"]'</span>
 </span></code></pre></div>
 <p><code>--non-interactive</code> makes it fail at once, rather than wait for a passphrase, when nothing is unlocked.</p>
 <p>Some things to know, as of fnox 1.48.0:</p>
@@ -1750,7 +1750,7 @@
 </span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="n">run</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"fnox -c {{env.HOME}}/.config/fnox/config.toml -P ha --non-interactive exec --redact -- ha-repl"</span>
 </span></code></pre></div>
 <p>Extra arguments to <code>mise run</code> are appended to the task's command:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>mise<span class="w"> </span>run<span class="w"> </span>ha<span class="w"> </span><span class="nb">exec</span><span class="w"> </span><span class="s1">'hass.config.version'</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>mise<span class="w"> </span>run<span class="w"> </span>ha<span class="w"> </span><span class="nb">exec</span><span class="w"> </span><span class="s1">'hass.config.as_dict()["version"]'</span>
 </span></code></pre></div>
 <p>Without mise, install <code>ha-repl</code> with <code>uv tool install homeassistant-repl</code> and use a shell function for the same short name:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>ha<span class="o">()</span><span class="w"> </span><span class="o">{</span><span class="w"> </span>fnox<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span><span class="nv">$HOME</span><span class="s2">/.config/fnox/config.toml"</span><span class="w"> </span>-P<span class="w"> </span>ha<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>--<span class="w"> </span>ha-repl<span class="w"> </span><span class="s2">"</span><span class="nv">$@</span><span class="s2">"</span><span class="p">;</span><span class="w"> </span><span class="o">}</span>

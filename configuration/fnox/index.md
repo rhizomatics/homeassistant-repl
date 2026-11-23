@@ -23,7 +23,7 @@ Note
 Store the two secrets as `HASS_SERVER` and `HASS_TOKEN` instead, and `fnox exec` gives `ha-repl` everything it needs:
 
 ```bash
-fnox -P ha exec -- ha-repl exec 'hass.config.version'
+fnox -P ha exec -- ha-repl exec 'hass.config.as_dict()["version"]'
 ```
 
 ### A Named Server Reading Its Token from the Environment
@@ -82,7 +82,7 @@ The daemon keeps the values in memory and serves them to later commands until it
 
 ```bash
 fnox -c /Users/me/.config/fnox/config.toml -P ha --non-interactive exec --redact -- \
-  ha-repl exec 'hass.config.version'
+  ha-repl exec 'hass.config.as_dict()["version"]'
 ```
 
 `--non-interactive` makes it fail at once, rather than wait for a passphrase, when nothing is unlocked.
@@ -129,7 +129,7 @@ run = "fnox -c {{env.HOME}}/.config/fnox/config.toml -P ha --non-interactive exe
 Extra arguments to `mise run` are appended to the task's command:
 
 ```bash
-mise run ha exec 'hass.config.version'
+mise run ha exec 'hass.config.as_dict()["version"]'
 ```
 
 Without mise, install `ha-repl` with `uv tool install homeassistant-repl` and use a shell function for the same short name:
