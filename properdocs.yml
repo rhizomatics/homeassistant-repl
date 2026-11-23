@@ -88,6 +88,7 @@ plugins:
           - obj_tree.md: The `obj` object tree - path and entity id lookup, `find()` filters and `show()`
           - sql.md: The `sql` object for querying the Recorder database, and its result and table objects
           - developer/design/debug_console.md: How `ha-repl` compares with Home Assistant 2026.11's own browser Debug console, and which suits what
+          - configuration/fnox.md: Keeping the Home Assistant token and URL in fnox, for people and for coding agents with no terminal
           - configuration/alternative_integration.md: Using `homeassistant_repl.connect()` from plain Python, ipython or Marimo instead of the shell
         Optional:
           - developer/design/design_principles.md: Design principles behind the client/server split

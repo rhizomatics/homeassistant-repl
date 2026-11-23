@@ -108,21 +108,7 @@ The same pattern works with other tools:
 | macOS Keychain | `security find-generic-password -s ha-house -w` |
 | pass | `pass show home-assistant/house` |
 
-#### Using `fnox exec` Instead
-
-fnox can also put secrets into the environment of a command it runs. Pair that with `token_env`, and `ha-repl` reads the token from its environment:
-
-```toml
-[servers.house]
-url = "https://ha.example.org"
-token_env = "HA_HOUSE_TOKEN"
-```
-
-```bash
-fnox exec -- ha-repl --server house live
-```
-
-This suits a project directory with its own `fnox.toml`, where fnox finds the file itself.
+For agents and scripts, where nothing can type a passphrase, and for keeping the URL out of your dotfiles too, see [Secrets with fnox](fnox.md).
 
 ### Which Server Is Used
 
