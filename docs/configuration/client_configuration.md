@@ -55,7 +55,7 @@ A server needs a `url` and one of:
 
 ```bash
 ha-repl --server house live
-HASS_SERVER=test ha-repl exec 'hass.config.version'
+HASS_SERVER=test ha-repl exec 'hass.config.as_dict()["version"]'
 ha-repl live                        # uses `default`
 ha-repl --server http://10.0.0.5:8123 --token ... live
 ```
