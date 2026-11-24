@@ -163,6 +163,15 @@ Ctrl-C while something runs stops it, and leaves the shell and everything in it 
 
 Home Assistant itself has a [Stop button](../configuration/server_install.md#stopping-code-and-the-log) too, for when the shell that started something has gone.
 
+## Lost Connections
+
+When the connection to Home Assistant goes - left idle behind a proxy, or Home Assistant restarted - the shell makes it again on the next command, and says so.
+
+- Anything that only reads, such as `sql(...)` or completion, is simply asked again
+- Code for inside Home Assistant is never sent twice. After a quiet spell the connection is checked before the code goes, so a stale one is found and made again first. If it's lost while the code is running, the shell says it may or may not have finished
+- The session inside Home Assistant outlives the connection, so its variables are still there - unless Home Assistant restarted, in which case the shell says which have gone
+- If Home Assistant can't be reached yet, that's one line, and the shell stays up to try again
+
 ## One-Shot Snippets and Agents
 
 `ha-repl exec` runs a snippet exactly as the live shell would, then exits - see [Exec Mode](exec_mode.md), which covers its JSON output and use by coding agents.

@@ -4,6 +4,19 @@
     For live mode, generally the client and server component have to be on the same version. Different versions *might* work
     with each other for point releases
 
+# 0.16.0
+
+## ✨ Enhancements
+- A lost connection to Home Assistant is made again automatically, in live and API modes - after the shell was left idle behind a proxy, or Home Assistant restarted. See [Lost Connections](https://homeassistant-repl.rhizomatics.org.uk/modes/live_mode/#lost-connections)
+    - Commands that only read, such as `sql(...)`, are asked again on the new connection, so they just work
+    - Code for inside Home Assistant is never sent twice: after a quiet spell the connection is checked before the code goes. If it's lost while the code runs, the shell says it may or may not have finished
+    - Live mode says which session variables have gone, if Home Assistant restarted meanwhile
+    - When Home Assistant can't be reached, that's one line rather than a traceback, and the shell stays up. Before, losing the connection while running code in Home Assistant quit the shell
+
+## 🐛 Bug Fixes
+- `help` without calling it, and `help?`, say how to use help, rather than showing a function's address or a bare signature ([#44](https://github.com/rhizomatics/homeassistant-repl/issues/44))
+- `thing?` for a name the shell doesn't have says so in a line, rather than with a `NameError` traceback - `sql?` in API mode says `sql` is only in live mode ([#44](https://github.com/rhizomatics/homeassistant-repl/issues/44))
+
 # 0.15.0
 
 ## ✨ Enhancements

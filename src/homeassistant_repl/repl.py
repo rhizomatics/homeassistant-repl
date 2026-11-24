@@ -150,6 +150,25 @@ class LiveSession:
             if session["name"] == self.session_name:
                 self.remote_names = set(session["variables"]) - self._local_names()
 
+    async def after_reconnect(self) -> None:
+        """Once the connection has been made again: say so, and what the
+        server session no longer has, if Home Assistant restarted meanwhile."""
+        print(
+            "ha-repl: the connection to Home Assistant was made again", file=sys.stderr
+        )
+        before = self.remote_names - {"_"}
+        try:
+            await self.refresh_remote_names()
+        except HaReplError as err:
+            print(f"ha-repl: {err}", file=sys.stderr)
+            return
+        if gone := sorted(before - self.remote_names):
+            print(
+                "ha-repl: Home Assistant restarted? Its session no longer has "
+                + ", ".join(gone),
+                file=sys.stderr,
+            )
+
     async def run(self, source: str, *, echo: bool = True) -> bool:
         """Run source, stopping at the first statement that fails. Only the
         final statement's value is echoed, and not even that with `echo`
@@ -393,6 +412,11 @@ class LiveSession:
         self._remote_busy = True
         try:
             result = await self.client.call("ha_repl_server/exec", **payload)
+        except HaReplError as err:
+            # The connection, not the code: said in a line, and the shell
+            # carries on - on a connection made again, if it could be.
+            self._refuse(str(err))
+            return None
         finally:
             self._remote_busy = False
         if not echo:
@@ -647,6 +671,7 @@ async def run_repl(
             else "\nCompletion inside Home Assistant needs Live Server v0.14.0 or later."
         )
     )
+    reconnects = client.reconnects
     while True:
         try:
             source = await prompt.prompt_async(">>> ")
@@ -657,12 +682,26 @@ async def run_repl(
         if not source.strip():
             continue
         if (asked := help_request(source)) is not None:
-            await answer(asked, "live", live.run, completer.locate, completer.describe)
+            await answer(
+                asked,
+                "live",
+                live.run,
+                completer.locate,
+                completer.describe,
+                lambda: {*live.local.globals_, *live.remote_names_now()},
+            )
             continue
         if is_quit_call(source):
             return 0
+        if client.reconnects != reconnects:
+            # Made again while completing what was typed.
+            reconnects = client.reconnects
+            await live.after_reconnect()
         await run_interruptibly(live.run(source), live.interrupt)
         completer.forget()
+        if client.reconnects != reconnects:
+            reconnects = client.reconnects
+            await live.after_reconnect()
 
 
 def banner_address(url: str, server_name: str | None) -> str:
