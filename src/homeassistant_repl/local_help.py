@@ -39,10 +39,19 @@ _INTRO = (
 )
 
 
-def make_help(console: Console) -> Any:
-    """A `help` that prints to this console."""
+class ShellHelp:
+    __doc__ = _INTRO
 
-    def shell_help(*args: Any, full: bool = False) -> None:
+    def __init__(self, console: Console) -> None:
+        self._console = console
+
+    def __repr__(self) -> str:
+        # Typing `help` without calling it says how to, as Python's own
+        # help does, rather than showing a function's address.
+        return _INTRO
+
+    def __call__(self, *args: Any, full: bool = False) -> None:
+        console = self._console
         if not args:
             # Python's own help() with no arguments starts an interactive
             # prompt, which has no place inside this one.
@@ -51,6 +60,11 @@ def make_help(console: Console) -> Any:
         if len(args) > 1:
             raise TypeError(f"help() takes one object, not {len(args)}")
         (thing,) = args
+        if thing is self:
+            # help(help), and so `help?`: what it's for, not a summary of
+            # this class.
+            console.print(_INTRO, markup=False, highlight=False)
+            return
         if full or not _is_summarisable(thing):
             # An explicit output, so pydoc writes the page out rather than
             # opening a pager on top of the shell.
@@ -58,7 +72,10 @@ def make_help(console: Console) -> Any:
             return
         console.print(_summary(thing, console.width))
 
-    return shell_help
+
+def make_help(console: Console) -> ShellHelp:
+    """A `help` that prints to this console."""
+    return ShellHelp(console)
 
 
 # What rich lays out well as it stands; anything else is shown by its attributes.

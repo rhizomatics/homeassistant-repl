@@ -657,7 +657,14 @@ async def run_repl(
         if not source.strip():
             continue
         if (asked := help_request(source)) is not None:
-            await answer(asked, "live", live.run, completer.locate, completer.describe)
+            await answer(
+                asked,
+                "live",
+                live.run,
+                completer.locate,
+                completer.describe,
+                lambda: {*live.local.globals_, *live.remote_names_now()},
+            )
             continue
         if is_quit_call(source):
             return 0

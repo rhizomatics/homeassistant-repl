@@ -14,8 +14,9 @@ like quit(), and never run as code themselves.
 from __future__ import annotations
 
 import ast
+import builtins
 import re
-from collections.abc import Awaitable, Callable
+from collections.abc import Awaitable, Callable, Collection
 from typing import Any
 
 from rich.text import Text
@@ -81,10 +82,11 @@ async def answer(
     run: Callable[[str], Awaitable[Any]],
     locate: Callable[[str], Awaitable[Source | None]],
     describe: Callable[[str], Awaitable[Doc | None]],
+    bound: Callable[[], Collection[str]] | None = None,
 ) -> None:
     """Answer a help_request(): `run` runs code where the shell would,
     `locate` finds a source as `thing??` wants, `describe` what `thing` is
-    without running it."""
+    without running it, `bound` the names the shell has, on either side."""
     kind, expr = request
     if not expr:
         console.print(shell_help(mode))
@@ -100,6 +102,9 @@ async def answer(
             "ask about what's called instead, without the brackets",
             style="red",
         )
+        return
+    if bound is not None and (missing := _unbound(node, bound())):
+        console.print(_not_here(missing, mode), style="red")
         return
     if kind == "?":
         found = await describe(expr)
@@ -120,6 +125,28 @@ async def answer(
     else:
         # Unwrapped, so the link stays one link at any width.
         console.print(source_text(where), soft_wrap=True)
+
+
+def _unbound(node: ast.Expression, names: Collection[str]) -> str | None:
+    """The name a `thing.attr[key]` chain starts from, if the shell has
+    no such name - anything not a plain chain is left to help() itself."""
+    root = node.body
+    while isinstance(root, (ast.Attribute, ast.Subscript)):
+        root = root.value
+    if not isinstance(root, ast.Name):
+        return None
+    if root.id in names or hasattr(builtins, root.id):
+        return None
+    return root.id
+
+
+def _not_here(name: str, mode: str) -> str:
+    live_only = {name for name, _ in _NAMES["live"]} - {
+        name for name, _ in _NAMES["api"]
+    }
+    if mode == "api" and name in live_only:
+        return f"`{name}` is only in live mode (ha-repl live) - ? for what's here"
+    return f"`{name}` isn't defined - ? for what's here"
 
 
 def shell_help(mode: str) -> Text:

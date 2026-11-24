@@ -38,7 +38,12 @@ def test_shell_help_is_for_the_mode():
 
 
 async def _answer(
-    request, located: Source | None = None, described: Doc | None = None
+    request,
+    located: Source | None = None,
+    described: Doc | None = None,
+    *,
+    mode: str = "live",
+    bound: set[str] | None = None,
 ) -> list[str]:
     ran: list[str] = []
 
@@ -51,7 +56,9 @@ async def _answer(
     async def describe(expr: str) -> Doc | None:
         return described
 
-    await answer(request, "live", run, locate, describe)
+    await answer(
+        request, mode, run, locate, describe, None if bound is None else bound.copy
+    )
     return ran
 
 
@@ -96,3 +103,15 @@ async def test_an_attribute_its_class_documents_is_described_not_helped(capsys):
     # Anything else is help() as before.
     plain = Doc("x", "instance", "list")
     assert await _answer(("?", "x"), described=plain) == ["help(x)"]
+
+
+async def test_a_name_the_shell_lacks_is_said_plainly(capsys):
+    assert await _answer(("?", "sql.table"), mode="api", bound={"obj"}) == []
+    assert "only in live mode" in capsys.readouterr().out
+    assert await _answer(("?", "nope[0]"), bound={"obj"}) == []
+    assert "`nope` isn't defined" in capsys.readouterr().out
+
+
+async def test_bound_and_builtin_names_go_to_help():
+    assert await _answer(("?", "obj.x"), bound={"obj"}) == ["help(obj.x)"]
+    assert await _answer(("?", "len"), bound=set()) == ["help(len)"]
