@@ -2,7 +2,7 @@
 
 | | |
 | --- | --- |
-| Status | Accepted, implemented in 0.11.0 - see [Configuration](../../../configuration/client_configuration.md) and [Plugins](../../../configuration/plugins.md) |
+| Status | Closed: implemented in 0.11.0 - see [Configuration](../../../configuration/client_configuration.md) and [Plugins](../../../configuration/plugins.md) |
 | Date | 2026-10-07 |
 | Affects | `ha-repl` command, `homeassistant_repl.connect()`. No change to the server component |
 
