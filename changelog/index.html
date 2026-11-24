@@ -71,6 +71,7 @@
   
   
   
+  
   <script data-goatcounter="https://homeassistant-repl.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 
@@ -1512,6 +1513,14 @@ with each other for point releases</p>
 <li><code>help</code> without calling it, and <code>help?</code>, say how to use help, rather than showing a function's address or a bare signature (<a href="https://github.com/rhizomatics/homeassistant-repl/issues/44">#44</a>)</li>
 <li><code>thing?</code> for a name the shell doesn't have says so in a line, rather than with a <code>NameError</code> traceback - <code>sql?</code> in API mode says <code>sql</code> is only in live mode (<a href="https://github.com/rhizomatics/homeassistant-repl/issues/44">#44</a>)</li>
 </ul>
+<h2 id="-experimental">🧪 Experimental<a class="headerlink" href="#-experimental" title="Permanent link">&para;</a></h2>
+<ul>
+<li>An <a href="https://homeassistant-repl.rhizomatics.org.uk/events/">Event Catalogue</a>: the event types Home Assistant core declares and fires, which Home Assistant itself keeps no list of. Found each week by scanning core's source, with what each one is and how that was decided, in one table with a filter and sortable columns, and a CSV download for a spreadsheet<ul>
+<li>A first draft, to see whether it's worth building on: some verdicts are heuristics, marked <em>probably</em>, and only Home Assistant core is covered, not Marketplace integrations or other custom components</li>
+<li>Feedback welcome in <a href="https://github.com/rhizomatics/homeassistant-repl/discussions/categories/ideas">Ideas</a>: missing or wrong events, and what you'd use it for. <a href="https://homeassistant-repl.rhizomatics.org.uk/developer/design/rfcs/0003-event-assistance/">RFC 0003</a> has where it might go next</li>
+</ul>
+</li>
+</ul>
 <h1 id="0150">0.15.0<a class="headerlink" href="#0150" title="Permanent link">&para;</a></h1>
 <h2 id="-enhancements_1">✨ Enhancements<a class="headerlink" href="#-enhancements_1" title="Permanent link">&para;</a></h2>
 <ul>
@@ -1936,6 +1945,8 @@ with each other for point releases</p>
       <script src="../assets/javascripts/bundle.19ace10b.min.js"></script>
       
         <script src="../assets/mkdocs_pagetree_plugin.js"></script>
+      
+        <script src="../assets/javascripts/event_catalogue.js"></script>
       
     
   </body>

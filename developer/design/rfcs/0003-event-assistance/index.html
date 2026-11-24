@@ -71,6 +71,7 @@
   
   
   
+  
   <script data-goatcounter="https://homeassistant-repl.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 
@@ -1303,6 +1304,78 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#biggest-issue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Biggest Issue
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#direction-an-event-catalogue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Direction: An Event Catalogue
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Direction: An Event Catalogue">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#feasibility-first-scan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Feasibility: First Scan
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-as-built" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1, As Built
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-nobody-owns-an-event-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture: Nobody Owns an Event Type
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1632,6 +1705,137 @@
 <li>Run this callback from events</li>
 <li>Trigger an event</li>
 </ul>
+<h2 id="biggest-issue">Biggest Issue<a class="headerlink" href="#biggest-issue" title="Permanent link">&para;</a></h2>
+<p>Home Assistant has no static or dynamic registry of events, they are treated as ephemeral strings with dicts attached, and the only list possible is the one that have active listeners.</p>
+<p>Nothing checks an event type when something listens for it. <code>hass.bus.async_listen</code> keeps its listeners in a <code>defaultdict(list)</code>, so any string is accepted: a typo, or an event from an integration that isn't loaded, gives a listener that never fires. The websocket <code>subscribe_events</code> command checks only permission, and an automation's <code>event</code> trigger rejects only <code>state_reported</code>. This is deliberate, since listening for an event before its source has loaded is legitimate, but it means:</p>
+<ul>
+<li><code>hass.bus.async_listeners()</code> lists what something is listening for, not what fires. A misspelt listener appears in it as if it were real</li>
+<li>An event that fires with nothing listening for it doesn't appear at all</li>
+</ul>
+<h2 id="direction-an-event-catalogue">Direction: An Event Catalogue<a class="headerlink" href="#direction-an-event-catalogue" title="Permanent link">&para;</a></h2>
+<p>Rather than simplifying access to events first, build the catalogue that doesn't exist: incomplete, and not covering Marketplace integrations, but far better than nothing, and the place to send people who are told that no catalogue exists anywhere.</p>
+<ul>
+<li>A scheduled job, weekly to start with, scans Home Assistant core and writes a checked-in JSON file: the constant's name, the event type string, the domain and integration, the module it's declared in, and how it was found</li>
+<li><code>ha-repl</code> uses the file, and it generates web documentation</li>
+<li>A config file holds overrides and corrections, since integrations, even in core, vary in quality and style</li>
+<li>The list is checked against the event types with live listeners, and against what the recorder has seen fire</li>
+<li>Once the catalogue exists, return to showing events in the shell, perhaps in the object tree</li>
+</ul>
+<p>Sources, simplest first:</p>
+<ol>
+<li><code>EVENT_*</code> constants</li>
+<li><code>async_fire</code> calls, by AST or a language server</li>
+<li>Event entities and their <code>event_types</code></li>
+</ol>
+<h3 id="feasibility-first-scan">Feasibility: First Scan<a class="headerlink" href="#feasibility-first-scan" title="Permanent link">&para;</a></h3>
+<p>A rough AST scan of Home Assistant 2026.11.0 (1,564 integrations), module level assignments only:</p>
+<table>
+<thead>
+<tr>
+<th>Found</th>
+<th>Count</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>EVENT_*</code> constants</td>
+<td>318, 36 of them outside <code>components/</code></td>
+</tr>
+<tr>
+<td>Integrations declaring any</td>
+<td>94</td>
+</tr>
+<tr>
+<td>Of those constants, a string literal or <code>EventType("...")</code></td>
+<td>256, 230 distinct values</td>
+</tr>
+<tr>
+<td>Not events at all: timeouts, schemas, entity descriptions, logbook maps</td>
+<td>about 57</td>
+</tr>
+<tr>
+<td>Event data keys or event entity types rather than event types (<code>EVENT_DATA_*</code>, <code>EVENT_TYPE_*</code>)</td>
+<td>several dozen</td>
+</tr>
+<tr>
+<td>Built with an f-string, e.g. <code>f"{DOMAIN}_recording"</code></td>
+<td>5</td>
+</tr>
+<tr>
+<td>Values declared by more than one constant</td>
+<td>23</td>
+</tr>
+<tr>
+<td>Integrations with an <code>EventEntity</code></td>
+<td>69</td>
+</tr>
+</tbody>
+</table>
+<p>How <code>async_fire</code> is given its event type:</p>
+<table>
+<thead>
+<tr>
+<th>First argument</th>
+<th>Calls</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>An <code>EVENT_*</code> name</td>
+<td>136</td>
+</tr>
+<tr>
+<td>Another name or expression, e.g. <code>ATTR_HUE_EVENT</code>, <code>ZWAVE_JS_NOTIFICATION_EVENT</code>, a local <code>event_type</code></td>
+<td>44</td>
+</tr>
+<tr>
+<td>A string literal</td>
+<td>18, 15 of them matching no constant: <code>knx_event</code>, <code>lutron_event</code>, <code>nuki_event</code>, <code>xiaomi_aqara.click</code> …</td>
+</tr>
+<tr>
+<td>An f-string</td>
+<td>12</td>
+</tr>
+</tbody>
+</table>
+<p>So:</p>
+<ul>
+<li>Constants are most of it, but not 99%: a step 2 pass on <code>async_fire</code> is needed for the literals and for event types held in constants named <code>*_EVENT</code> rather than <code>EVENT_*</code></li>
+<li>The <code>EVENT_</code> prefix is noisy. A constant used as <code>async_fire</code>'s first argument, or as <code>async_listen</code>'s, is far stronger evidence than its name alone, so step 2 also cleans up step 1</li>
+<li>f-strings mostly resolve once <code>DOMAIN</code> is substituted. The rest, such as an event type held in a variable, go to the overrides file</li>
+<li><code>EventEntity</code> events aren't bus events of their own: they are <code>state_changed</code> on the entity, with <code>event_type</code> as an attribute. They belong in the catalogue, but as a separate kind</li>
+</ul>
+<h3 id="phase-1-as-built">Phase 1, As Built<a class="headerlink" href="#phase-1-as-built" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>dev/events/scan.py</code> parses Home Assistant's source with <code>ast</code>, with the standard library only, and resolves imports, so <code>const.EVENT_X</code> and <code>from .const import EVENT_X</code> count as uses of the constant they name. It writes <code>dev/events/events.json</code></li>
+<li>Each <code>EVENT_*</code> constant gets a kind (<code>event</code>, <code>entity_event_type</code>, <code>data_key</code>, <code>not_event</code> or <code>unknown</code>), whether that's certain, and the evidence for it:<ul>
+<li><strong>Certain</strong>, from how the code uses it: fired, listened for, typed <code>EventType</code>, given as a trigger's <code>event_type</code>, or used as an event entity's <code>event_types</code> or an event's data key. A value that isn't a string is not an event</li>
+<li><strong>Probable</strong>, from heuristics, and only for a value shaped like an event type (no spaces or <code>/</code>, with a <code>_</code> or <code>.</code>): named in a function that fires a variable, as timer's events are, or starting with its integration's domain. A single word, or a value with spaces or a <code>/</code>, is probably not an event</li>
+</ul>
+</li>
+<li>Event types fired as string literals, with no constant, are added as certain events</li>
+<li><code>dev/events/overrides.toml</code> corrects entries by module and constant, and adds events no scan of core can find. An override that matches nothing is reported, so a stale one is noticed</li>
+<li>A weekly GitHub Action scans the latest release and opens a pull request when the catalogue changes. Merging it publishes the page with the docs</li>
+<li>The page, <code>/events/</code>, has CSV and JSON downloads, and is unlisted while under review: not in the nav, the sitemap or the site's search, and marked <code>noindex</code></li>
+</ul>
+<p>On Home Assistant 2026.11.0: 128 events, 26 event entity types, 4 data keys, 123 not events, and 60 undecided, about half of them Traccar and Netatmo event types carried in another event's data.</p>
+<p>Checked against the listeners on a live server, every core event was found, all but <code>timer.finished</code> with certainty, except:</p>
+<ul>
+<li><code>mobile_app_notification_action</code> and <code>ios.action_fired</code>. The Companion apps name these, and fire them through <code>mobile_app</code>'s generic <code>fire_event</code> webhook, so they're only in core's source as data. They are in <code>overrides.toml</code>, the first of a class: events named outside Home Assistant</li>
+<li><code>persistent_notifications_updated</code>, which nothing in core fires on the bus. It's the name of a dispatcher signal, so the listener is waiting for an event that never comes: the case <a href="#biggest-issue">Biggest Issue</a> describes, seen in a real installation</li>
+</ul>
+<h2 id="architecture-nobody-owns-an-event-type">Architecture: Nobody Owns an Event Type<a class="headerlink" href="#architecture-nobody-owns-an-event-type" title="Permanent link">&para;</a></h2>
+<p>Firing is as unchecked as listening. Beyond a 64 character limit, <code>async_fire</code> accepts any event type from any caller, so an integration, or a live mode snippet, can fire <code>homeassistant_stop</code> or another integration's events, and every listener for it runs. Firing from outside needs an admin, through the websocket <code>fire_event</code> command or the REST API, and is marked <code>origin=remote</code>, but almost no listener checks that.</p>
+<p>Event types have no namespaces, owners or schemas. The catalogue can supply the first part: which integration declares and fires each event type. With that, "fired by an integration that doesn't own it" is something a tool can point out, whether <code>ha-repl</code> when a snippet fires one, or a check across the catalogue itself.</p>
+<h2 id="open-questions">Open Questions<a class="headerlink" href="#open-questions" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Where the job runs: a GitHub Action in this repo, against the latest Home Assistant release, beta, or both? <em>Phase 1: this repo, the latest release, weekly</em></li>
+<li>Does the JSON ship inside the <code>homeassistant-repl</code> package, be fetched from the docs site, or both?</li>
+<li>The overrides file's format: per integration, per constant, or per event type? <em>Phase 1: per module and constant, or event type for one with no constant</em></li>
+<li>Should Marketplace integrations be included later, for example the most installed ones from the Marketplace's own index?</li>
+<li>Events named outside Home Assistant, such as the Companion apps', can only come from overrides. Is there a source to take them from, such as the Companion app documentation?</li>
+<li>Should <code>ha-repl</code> warn when a snippet fires an event type the catalogue says another integration owns, or a core lifecycle event?</li>
+</ol>
 
 
 
@@ -1711,6 +1915,8 @@
       <script src="../../../../assets/javascripts/bundle.19ace10b.min.js"></script>
       
         <script src="../../../../assets/mkdocs_pagetree_plugin.js"></script>
+      
+        <script src="../../../../assets/javascripts/event_catalogue.js"></script>
       
     
   </body>

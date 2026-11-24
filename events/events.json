@@ -1,0 +1,4584 @@
+{
+ "home_assistant": "2026.11.0",
+ "counts": {
+  "event": 128,
+  "entity_event_type": 26,
+  "data_key": 4,
+  "not_event": 123,
+  "unknown": 60
+ },
+ "events": [
+  {
+   "event_type": "alexa_smart_home",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "alexa",
+   "integration": "Amazon Alexa",
+   "module": "homeassistant.components.alexa.const",
+   "line": 9,
+   "constant": "EVENT_ALEXA_SMART_HOME",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/alexa/const.py#L9"
+  },
+  {
+   "event_type": "amcrest",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired as a string, with no constant"
+   ],
+   "domain": "amcrest",
+   "integration": "Amcrest",
+   "module": "homeassistant.components.amcrest",
+   "line": 330,
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/amcrest/__init__.py#L330"
+  },
+  {
+   "event_type": "arcam_fmj.turn_on",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired",
+    "listened for"
+   ],
+   "domain": "arcam_fmj",
+   "integration": "Arcam FMJ Receivers",
+   "module": "homeassistant.components.arcam_fmj.const",
+   "line": 5,
+   "constant": "EVENT_TURN_ON",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/arcam_fmj/const.py#L5"
+  },
+  {
+   "event_type": "area_registry_updated",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired",
+    "listened for",
+    "typed EventType"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.helpers.area_registry",
+   "line": 36,
+   "constant": "EVENT_AREA_REGISTRY_UPDATED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/helpers/area_registry.py#L36"
+  },
+  {
+   "event_type": "assist_pipeline_recording",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "assist_pipeline",
+   "integration": "Assist pipeline",
+   "module": "homeassistant.components.assist_pipeline.const",
+   "line": 18,
+   "constant": "EVENT_RECORDING",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/assist_pipeline/const.py#L18"
+  },
+  {
+   "event_type": "automation_reloaded",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "automation",
+   "integration": "Automation",
+   "module": "homeassistant.components.automation.const",
+   "line": 17,
+   "constant": "EVENT_AUTOMATION_RELOADED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/automation/const.py#L17"
+  },
+  {
+   "event_type": "automation_triggered",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "automation",
+   "integration": "Automation",
+   "module": "homeassistant.components.automation.const",
+   "line": 18,
+   "constant": "EVENT_AUTOMATION_TRIGGERED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/automation/const.py#L18"
+  },
+  {
+   "event_type": "button_pressed",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "enocean",
+   "integration": "EnOcean",
+   "module": "homeassistant.components.enocean.binary_sensor",
+   "line": 24,
+   "constant": "EVENT_BUTTON_PRESSED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/enocean/binary_sensor.py#L24"
+  },
+  {
+   "event_type": "button_pressed",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "rflink",
+   "integration": "RFLink",
+   "module": "homeassistant.components.rflink.entity",
+   "line": 30,
+   "constant": "EVENT_BUTTON_PRESSED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/rflink/entity.py#L30"
+  },
+  {
+   "event_type": "call_service",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.const",
+   "line": 271,
+   "constant": "EVENT_CALL_SERVICE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L271"
+  },
+  {
+   "event_type": "category_registry_updated",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired",
+    "typed EventType"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.helpers.category_registry",
+   "line": 21,
+   "constant": "EVENT_CATEGORY_REGISTRY_UPDATED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/helpers/category_registry.py#L21"
+  },
+  {
+   "event_type": "cloud_event",
+   "kind": "event",
+   "certain": false,
+   "evidence": [
+    "value starts with its domain"
+   ],
+   "domain": "cloud",
+   "integration": "Home Assistant Cloud",
+   "module": "homeassistant.components.cloud.const",
+   "line": 27,
+   "constant": "EVENT_CLOUD_EVENT",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/cloud/const.py#L27"
+  },
+  {
+   "event_type": "component_loaded",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired",
+    "listened for"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.const",
+   "line": 272,
+   "constant": "EVENT_COMPONENT_LOADED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L272"
+  },
+  {
+   "event_type": "config_entry_discovered",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.config_entries",
+   "line": 215,
+   "constant": "EVENT_FLOW_DISCOVERED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/config_entries.py#L215"
+  },
+  {
+   "event_type": "core_config_updated",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired",
+    "listened for"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.const",
+   "line": 273,
+   "constant": "EVENT_CORE_CONFIG_UPDATE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L273"
+  },
+  {
+   "event_type": "data_entry_flow_progress_update",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.data_entry_flow",
+   "line": 44,
+   "constant": "EVENT_DATA_ENTRY_FLOW_PROGRESS_UPDATE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/data_entry_flow.py#L44"
+  },
+  {
+   "event_type": "data_entry_flow_progressed",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.data_entry_flow",
+   "line": 43,
+   "constant": "EVENT_DATA_ENTRY_FLOW_PROGRESSED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/data_entry_flow.py#L43"
+  },
+  {
+   "event_type": "demo_button_pressed",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired as a string, with no constant"
+   ],
+   "domain": "demo",
+   "integration": "Demo",
+   "module": "homeassistant.components.demo.button",
+   "line": 56,
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/demo/button.py#L56"
+  },
+  {
+   "event_type": "device_registry_updated",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired",
+    "listened for",
+    "typed EventType"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.helpers.device_registry",
+   "line": 79,
+   "constant": "EVENT_DEVICE_REGISTRY_UPDATED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/helpers/device_registry.py#L79"
+  },
+  {
+   "event_type": "device_tracker_new_device",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "device_tracker",
+   "integration": "Device tracker",
+   "module": "homeassistant.components.device_tracker.legacy",
+   "line": 138,
+   "constant": "EVENT_NEW_DEVICE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/device_tracker/legacy.py#L138"
+  },
+  {
+   "event_type": "downloader_download_completed",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired as a string, with no constant"
+   ],
+   "domain": "downloader",
+   "integration": "Downloader",
+   "module": "homeassistant.components.downloader.services",
+   "line": 136,
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/downloader/services.py#L136"
+  },
+  {
+   "event_type": "downloader_download_failed",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired as a string, with no constant"
+   ],
+   "domain": "downloader",
+   "integration": "Downloader",
+   "module": "homeassistant.components.downloader.services",
+   "line": 85,
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/downloader/services.py#L85"
+  },
+  {
+   "event_type": "dsmr_first_telegram_{}",
+   "kind": "event",
+   "certain": false,
+   "evidence": [
+    "value starts with its domain"
+   ],
+   "domain": "dsmr",
+   "integration": "DSMR Smart Meter",
+   "module": "homeassistant.components.dsmr.sensor",
+   "line": 69,
+   "constant": "EVENT_FIRST_TELEGRAM",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/dsmr/sensor.py#L69"
+  },
+  {
+   "event_type": "dynalite_packet",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired as a string, with no constant"
+   ],
+   "domain": "dynalite",
+   "integration": "Philips Dynalite",
+   "module": "homeassistant.components.dynalite.bridge",
+   "line": 82,
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/dynalite/bridge.py#L82"
+  },
+  {
+   "event_type": "dynalite_preset",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired as a string, with no constant"
+   ],
+   "domain": "dynalite",
+   "integration": "Philips Dynalite",
+   "module": "homeassistant.components.dynalite.bridge",
+   "line": 90,
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/dynalite/bridge.py#L90"
+  },
+  {
+   "event_type": "ecovacs_error",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired as a string, with no constant"
+   ],
+   "domain": "ecovacs",
+   "integration": "Ecovacs",
+   "module": "homeassistant.components.ecovacs.vacuum",
+   "line": 104,
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/ecovacs/vacuum.py#L104"
+  },
+  {
+   "event_type": "elkm1.keypad_key_pressed",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "elkm1",
+   "integration": "Elk-M1 Control",
+   "module": "homeassistant.components.elkm1.const",
+   "line": 40,
+   "constant": "EVENT_ELKM1_KEYPAD_KEY_PRESSED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/elkm1/const.py#L40"
+  },
+  {
+   "event_type": "entity_registry_updated",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired",
+    "listened for",
+    "typed EventType"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.helpers.entity_registry",
+   "line": 86,
+   "constant": "EVENT_ENTITY_REGISTRY_UPDATED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/helpers/entity_registry.py#L86"
+  },
+  {
+   "event_type": "event_knx_reloaded",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired as a string, with no constant"
+   ],
+   "domain": "knx",
+   "integration": "KNX",
+   "module": "homeassistant.components.knx.services",
+   "line": 386,
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/knx/services.py#L386"
+  },
+  {
+   "event_type": "event_mqtt_reloaded",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired as a string, with no constant"
+   ],
+   "domain": "mqtt",
+   "integration": "MQTT",
+   "module": "homeassistant.components.mqtt.services",
+   "line": 182,
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/mqtt/services.py#L182"
+  },
+  {
+   "event_type": "event_template_reloaded",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired as a string, with no constant"
+   ],
+   "domain": "template",
+   "integration": "Template",
+   "module": "homeassistant.components.template.services",
+   "line": 41,
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/template/services.py#L41"
+  },
+  {
+   "event_type": "flic_click",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "flic",
+   "integration": "Flic (legacy)",
+   "module": "homeassistant.components.flic.binary_sensor",
+   "line": 40,
+   "constant": "EVENT_NAME",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/flic/binary_sensor.py#L40"
+  },
+  {
+   "event_type": "floor_registry_updated",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired",
+    "listened for",
+    "typed EventType"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.helpers.floor_registry",
+   "line": 27,
+   "constant": "EVENT_FLOOR_REGISTRY_UPDATED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/helpers/floor_registry.py#L27"
+  },
+  {
+   "event_type": "foursquare.checkin",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "foursquare",
+   "integration": "Foursquare",
+   "module": "homeassistant.components.foursquare.const",
+   "line": 11,
+   "constant": "EVENT_CHECKIN",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/foursquare/const.py#L11"
+  },
+  {
+   "event_type": "foursquare.push",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "foursquare",
+   "integration": "Foursquare",
+   "module": "homeassistant.components.foursquare.const",
+   "line": 12,
+   "constant": "EVENT_PUSH",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/foursquare/const.py#L12"
+  },
+  {
+   "event_type": "google_assistant_command",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "google_assistant",
+   "integration": "Google Assistant",
+   "module": "homeassistant.components.google_assistant.const",
+   "line": 149,
+   "constant": "EVENT_COMMAND_RECEIVED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/google_assistant/const.py#L149"
+  },
+  {
+   "event_type": "google_assistant_query",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "google_assistant",
+   "integration": "Google Assistant",
+   "module": "homeassistant.components.google_assistant.const",
+   "line": 150,
+   "constant": "EVENT_QUERY_RECEIVED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/google_assistant/const.py#L150"
+  },
+  {
+   "event_type": "google_assistant_sync",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "google_assistant",
+   "integration": "Google Assistant",
+   "module": "homeassistant.components.google_assistant.const",
+   "line": 151,
+   "constant": "EVENT_SYNC_RECEIVED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/google_assistant/const.py#L151"
+  },
+  {
+   "event_type": "hdmi_cec_unavailable",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired",
+    "listened for"
+   ],
+   "domain": "hdmi_cec",
+   "integration": "HDMI-CEC",
+   "module": "homeassistant.components.hdmi_cec.const",
+   "line": 7,
+   "constant": "EVENT_HDMI_CEC_UNAVAILABLE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hdmi_cec/const.py#L7"
+  },
+  {
+   "event_type": "homeassistant_close",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired",
+    "listened for",
+    "typed EventType"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.const",
+   "line": 274,
+   "constant": "EVENT_HOMEASSISTANT_CLOSE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L274"
+  },
+  {
+   "event_type": "homeassistant_final_write",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired",
+    "listened for",
+    "typed EventType"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.const",
+   "line": 278,
+   "constant": "EVENT_HOMEASSISTANT_FINAL_WRITE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L278"
+  },
+  {
+   "event_type": "homeassistant_start",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired",
+    "listened for",
+    "typed EventType"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.const",
+   "line": 275,
+   "constant": "EVENT_HOMEASSISTANT_START",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L275"
+  },
+  {
+   "event_type": "homeassistant_started",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired",
+    "listened for",
+    "typed EventType"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.const",
+   "line": 276,
+   "constant": "EVENT_HOMEASSISTANT_STARTED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L276"
+  },
+  {
+   "event_type": "homeassistant_stop",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired",
+    "listened for",
+    "typed EventType"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.const",
+   "line": 277,
+   "constant": "EVENT_HOMEASSISTANT_STOP",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L277"
+  },
+  {
+   "event_type": "homekit_state_change",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "homekit",
+   "integration": "HomeKit Bridge",
+   "module": "homeassistant.components.homekit.const",
+   "line": 100,
+   "constant": "EVENT_HOMEKIT_CHANGED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/homekit/const.py#L100"
+  },
+  {
+   "event_type": "homekit_tv_remote_key_pressed",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "homekit",
+   "integration": "HomeKit Bridge",
+   "module": "homeassistant.components.homekit.const",
+   "line": 101,
+   "constant": "EVENT_HOMEKIT_TV_REMOTE_KEY_PRESSED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/homekit/const.py#L101"
+  },
+  {
+   "event_type": "homematic.error",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "homematic",
+   "integration": "Homematic",
+   "module": "homeassistant.components.homematic.const",
+   "line": 34,
+   "constant": "EVENT_ERROR",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/homematic/const.py#L34"
+  },
+  {
+   "event_type": "homematic.impulse",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "homematic",
+   "integration": "Homematic",
+   "module": "homeassistant.components.homematic.const",
+   "line": 33,
+   "constant": "EVENT_IMPULSE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/homematic/const.py#L33"
+  },
+  {
+   "event_type": "homematic.keypress",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "homematic",
+   "integration": "Homematic",
+   "module": "homeassistant.components.homematic.const",
+   "line": 32,
+   "constant": "EVENT_KEYPRESS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/homematic/const.py#L32"
+  },
+  {
+   "event_type": "homeworks_button_press",
+   "kind": "event",
+   "certain": false,
+   "evidence": [
+    "named where a variable is fired"
+   ],
+   "domain": "homeworks",
+   "integration": "Lutron Homeworks",
+   "module": "homeassistant.components.homeworks",
+   "line": 41,
+   "constant": "EVENT_BUTTON_PRESS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/homeworks/__init__.py#L41"
+  },
+  {
+   "event_type": "homeworks_button_release",
+   "kind": "event",
+   "certain": false,
+   "evidence": [
+    "named where a variable is fired"
+   ],
+   "domain": "homeworks",
+   "integration": "Lutron Homeworks",
+   "module": "homeassistant.components.homeworks",
+   "line": 42,
+   "constant": "EVENT_BUTTON_RELEASE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/homeworks/__init__.py#L42"
+  },
+  {
+   "event_type": "idteck_prox_keycard",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "idteck_prox",
+   "integration": "IDTECK Proximity Reader",
+   "module": "homeassistant.components.idteck_prox",
+   "line": 22,
+   "constant": "EVENT_IDTECK_PROX_KEYCARD",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/idteck_prox/__init__.py#L22"
+  },
+  {
+   "event_type": "ifttt_webhook_received",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "ifttt",
+   "integration": "IFTTT",
+   "module": "homeassistant.components.ifttt",
+   "line": 21,
+   "constant": "EVENT_RECEIVED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/ifttt/__init__.py#L21"
+  },
+  {
+   "event_type": "image_processing.detect_face",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "image_processing",
+   "integration": "Image processing",
+   "module": "homeassistant.components.image_processing.const",
+   "line": 16,
+   "constant": "EVENT_DETECT_FACE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/image_processing/const.py#L16"
+  },
+  {
+   "event_type": "image_processing.found_plate",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "openalpr_cloud",
+   "integration": "OpenALPR Cloud",
+   "module": "homeassistant.components.openalpr_cloud.image_processing",
+   "line": 40,
+   "constant": "EVENT_FOUND_PLATE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/openalpr_cloud/image_processing.py#L40"
+  },
+  {
+   "event_type": "imap_content",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "imap",
+   "integration": "IMAP",
+   "module": "homeassistant.components.imap.coordinator",
+   "line": 60,
+   "constant": "EVENT_IMAP",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/imap/coordinator.py#L60"
+  },
+  {
+   "event_type": "insteon.button_off",
+   "kind": "event",
+   "certain": false,
+   "evidence": [
+    "named where a variable is fired"
+   ],
+   "domain": "insteon",
+   "integration": "Insteon",
+   "module": "homeassistant.components.insteon.const",
+   "line": 132,
+   "constant": "EVENT_GROUP_OFF",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/insteon/const.py#L132"
+  },
+  {
+   "event_type": "insteon.button_off_fast",
+   "kind": "event",
+   "certain": false,
+   "evidence": [
+    "named where a variable is fired"
+   ],
+   "domain": "insteon",
+   "integration": "Insteon",
+   "module": "homeassistant.components.insteon.const",
+   "line": 134,
+   "constant": "EVENT_GROUP_OFF_FAST",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/insteon/const.py#L134"
+  },
+  {
+   "event_type": "insteon.button_on",
+   "kind": "event",
+   "certain": false,
+   "evidence": [
+    "named where a variable is fired"
+   ],
+   "domain": "insteon",
+   "integration": "Insteon",
+   "module": "homeassistant.components.insteon.const",
+   "line": 131,
+   "constant": "EVENT_GROUP_ON",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/insteon/const.py#L131"
+  },
+  {
+   "event_type": "insteon.button_on_fast",
+   "kind": "event",
+   "certain": false,
+   "evidence": [
+    "named where a variable is fired"
+   ],
+   "domain": "insteon",
+   "integration": "Insteon",
+   "module": "homeassistant.components.insteon.const",
+   "line": 133,
+   "constant": "EVENT_GROUP_ON_FAST",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/insteon/const.py#L133"
+  },
+  {
+   "event_type": "ios.action_fired",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "overrides.toml"
+   ],
+   "domain": "mobile_app",
+   "integration": "Mobile App",
+   "module": "",
+   "line": 0,
+   "note": "Fired by the iOS Companion app, through mobile_app's fire_event webhook, when one of its actions is run"
+  },
+  {
+   "event_type": "isy994_control",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "isy994",
+   "integration": "Universal Devices ISY/IoX",
+   "module": "homeassistant.components.isy994.const",
+   "line": 83,
+   "constant": "EVENT_ISY994_CONTROL",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/isy994/const.py#L83"
+  },
+  {
+   "event_type": "keyboard_remote_command_received",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "keyboard_remote",
+   "integration": "Keyboard Remote",
+   "module": "homeassistant.components.keyboard_remote.const",
+   "line": 32,
+   "constant": "EVENT_KEYBOARD_REMOTE_COMMAND_RECEIVED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/keyboard_remote/const.py#L32"
+  },
+  {
+   "event_type": "keyboard_remote_connected",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "keyboard_remote",
+   "integration": "Keyboard Remote",
+   "module": "homeassistant.components.keyboard_remote.const",
+   "line": 33,
+   "constant": "EVENT_KEYBOARD_REMOTE_CONNECTED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/keyboard_remote/const.py#L33"
+  },
+  {
+   "event_type": "keyboard_remote_disconnected",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "keyboard_remote",
+   "integration": "Keyboard Remote",
+   "module": "homeassistant.components.keyboard_remote.const",
+   "line": 34,
+   "constant": "EVENT_KEYBOARD_REMOTE_DISCONNECTED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/keyboard_remote/const.py#L34"
+  },
+  {
+   "event_type": "knx_event",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired as a string, with no constant"
+   ],
+   "domain": "knx",
+   "integration": "KNX",
+   "module": "homeassistant.components.knx.knx_module",
+   "line": 352,
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/knx/knx_module.py#L352"
+  },
+  {
+   "event_type": "kodi.turn_off",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "kodi",
+   "integration": "Kodi",
+   "module": "homeassistant.components.kodi.const",
+   "line": 12,
+   "constant": "EVENT_TURN_OFF",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/kodi/const.py#L12"
+  },
+  {
+   "event_type": "kodi.turn_on",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "kodi",
+   "integration": "Kodi",
+   "module": "homeassistant.components.kodi.const",
+   "line": 13,
+   "constant": "EVENT_TURN_ON",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/kodi/const.py#L13"
+  },
+  {
+   "event_type": "kodi_call_method_result",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "kodi",
+   "integration": "Kodi",
+   "module": "homeassistant.components.kodi.media_player",
+   "line": 49,
+   "constant": "EVENT_KODI_CALL_METHOD_RESULT",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/kodi/media_player.py#L49"
+  },
+  {
+   "event_type": "kodi_keypress",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired as a string, with no constant"
+   ],
+   "domain": "kodi",
+   "integration": "Kodi",
+   "module": "homeassistant.components.kodi.media_player",
+   "line": 214,
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/kodi/media_player.py#L214"
+  },
+  {
+   "event_type": "label_registry_updated",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired",
+    "typed EventType"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.helpers.label_registry",
+   "line": 24,
+   "constant": "EVENT_LABEL_REGISTRY_UPDATED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/helpers/label_registry.py#L24"
+  },
+  {
+   "event_type": "labs_updated",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired",
+    "listened for"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.const",
+   "line": 281,
+   "constant": "EVENT_LABS_UPDATED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L281"
+  },
+  {
+   "event_type": "lcn_send_keys",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired as a string, with no constant"
+   ],
+   "domain": "lcn",
+   "integration": "LCN",
+   "module": "homeassistant.components.lcn",
+   "line": 330,
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/lcn/__init__.py#L330"
+  },
+  {
+   "event_type": "logbook_entry",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired",
+    "listened for"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.const",
+   "line": 282,
+   "constant": "EVENT_LOGBOOK_ENTRY",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L282"
+  },
+  {
+   "event_type": "logging_changed",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired",
+    "listened for"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.const",
+   "line": 283,
+   "constant": "EVENT_LOGGING_CHANGED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L283"
+  },
+  {
+   "event_type": "lovelace_updated",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.const",
+   "line": 290,
+   "constant": "EVENT_LOVELACE_UPDATED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L290"
+  },
+  {
+   "event_type": "lutron_event",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired as a string, with no constant"
+   ],
+   "domain": "lutron",
+   "integration": "Lutron",
+   "module": "homeassistant.components.lutron.event",
+   "line": 117,
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/lutron/event.py#L117"
+  },
+  {
+   "event_type": "manual_alarm_bad_code_attempt",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired as a string, with no constant"
+   ],
+   "domain": "manual",
+   "integration": "Manual alarm control panel",
+   "module": "homeassistant.components.manual.alarm_control_panel",
+   "line": 424,
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/manual/alarm_control_panel.py#L424"
+  },
+  {
+   "event_type": "matrix_command",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "matrix",
+   "integration": "Matrix",
+   "module": "homeassistant.components.matrix",
+   "line": 71,
+   "constant": "EVENT_MATRIX_COMMAND",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/matrix/__init__.py#L71"
+  },
+  {
+   "event_type": "mobile_app_notification_action",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "overrides.toml"
+   ],
+   "domain": "mobile_app",
+   "integration": "Mobile App",
+   "module": "",
+   "line": 0,
+   "note": "Fired by the Companion apps, through mobile_app's fire_event webhook, when a notification's action is chosen"
+  },
+  {
+   "event_type": "netgear_lte_sms",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "netgear_lte",
+   "integration": "NETGEAR LTE",
+   "module": "homeassistant.components.netgear_lte",
+   "line": 25,
+   "constant": "EVENT_SMS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netgear_lte/__init__.py#L25"
+  },
+  {
+   "event_type": "notify",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "demo",
+   "integration": "Demo",
+   "module": "homeassistant.components.demo.notify",
+   "line": 15,
+   "constant": "EVENT_NOTIFY",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/demo/notify.py#L15"
+  },
+  {
+   "event_type": "nuki_event",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired as a string, with no constant"
+   ],
+   "domain": "nuki",
+   "integration": "Nuki Bridge",
+   "module": "homeassistant.components.nuki.coordinator",
+   "line": 96,
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/nuki/coordinator.py#L96"
+  },
+  {
+   "event_type": "nzbget_download_complete",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired as a string, with no constant"
+   ],
+   "domain": "nzbget",
+   "integration": "NZBGet",
+   "module": "homeassistant.components.nzbget.coordinator",
+   "line": 73,
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/nzbget/coordinator.py#L73"
+  },
+  {
+   "event_type": "opensky_entry",
+   "kind": "event",
+   "certain": false,
+   "evidence": [
+    "named where a variable is fired"
+   ],
+   "domain": "opensky",
+   "integration": "OpenSky Network",
+   "module": "homeassistant.components.opensky.const",
+   "line": 24,
+   "constant": "EVENT_OPENSKY_ENTRY",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/opensky/const.py#L24"
+  },
+  {
+   "event_type": "opensky_exit",
+   "kind": "event",
+   "certain": false,
+   "evidence": [
+    "named where a variable is fired"
+   ],
+   "domain": "opensky",
+   "integration": "OpenSky Network",
+   "module": "homeassistant.components.opensky.const",
+   "line": 25,
+   "constant": "EVENT_OPENSKY_EXIT",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/opensky/const.py#L25"
+  },
+  {
+   "event_type": "overseerr_event",
+   "kind": "event",
+   "certain": false,
+   "evidence": [
+    "value starts with its domain"
+   ],
+   "domain": "overseerr",
+   "integration": "Seerr",
+   "module": "homeassistant.components.overseerr.const",
+   "line": 21,
+   "constant": "EVENT_KEY",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/overseerr/const.py#L21"
+  },
+  {
+   "event_type": "panels_updated",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.const",
+   "line": 289,
+   "constant": "EVENT_PANELS_UPDATED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L289"
+  },
+  {
+   "event_type": "point_webhook_received",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "point",
+   "integration": "Minut Point",
+   "module": "homeassistant.components.point.const",
+   "line": 11,
+   "constant": "EVENT_RECEIVED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/point/const.py#L11"
+  },
+  {
+   "event_type": "recorder_5min_statistics_generated",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.const",
+   "line": 291,
+   "constant": "EVENT_RECORDER_5MIN_STATISTICS_GENERATED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L291"
+  },
+  {
+   "event_type": "recorder_hourly_statistics_generated",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.const",
+   "line": 292,
+   "constant": "EVENT_RECORDER_HOURLY_STATISTICS_GENERATED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L292"
+  },
+  {
+   "event_type": "repairs_issue_registry_updated",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired",
+    "typed EventType"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.helpers.issue_registry",
+   "line": 27,
+   "constant": "EVENT_REPAIRS_ISSUE_REGISTRY_UPDATED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/helpers/issue_registry.py#L27"
+  },
+  {
+   "event_type": "rfxtrx_event",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "rfxtrx",
+   "integration": "RFXCOM RFXtrx",
+   "module": "homeassistant.components.rfxtrx.const",
+   "line": 47,
+   "constant": "EVENT_RFXTRX_EVENT",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/rfxtrx/const.py#L47"
+  },
+  {
+   "event_type": "roku_command",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "emulated_roku",
+   "integration": "Emulated Roku",
+   "module": "homeassistant.components.emulated_roku.binding",
+   "line": 18,
+   "constant": "EVENT_ROKU_COMMAND",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/emulated_roku/binding.py#L18"
+  },
+  {
+   "event_type": "scene_reloaded",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "homeassistant",
+   "integration": "Home Assistant Core Integration",
+   "module": "homeassistant.components.homeassistant.scene",
+   "line": 87,
+   "constant": "EVENT_SCENE_RELOADED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/homeassistant/scene.py#L87"
+  },
+  {
+   "event_type": "script_started",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "script",
+   "integration": "Scripts",
+   "module": "homeassistant.components.script.const",
+   "line": 19,
+   "constant": "EVENT_SCRIPT_STARTED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/script/const.py#L19"
+  },
+  {
+   "event_type": "service_registered",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.const",
+   "line": 284,
+   "constant": "EVENT_SERVICE_REGISTERED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L284"
+  },
+  {
+   "event_type": "service_removed",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired",
+    "listened for"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.const",
+   "line": 285,
+   "constant": "EVENT_SERVICE_REMOVED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L285"
+  },
+  {
+   "event_type": "shelly.click",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "shelly",
+   "integration": "Shelly",
+   "module": "homeassistant.components.shelly.const",
+   "line": 124,
+   "constant": "EVENT_SHELLY_CLICK",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/shelly/const.py#L124"
+  },
+  {
+   "event_type": "shopping_list_updated",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.const",
+   "line": 295,
+   "constant": "EVENT_SHOPPING_LIST_UPDATED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L295"
+  },
+  {
+   "event_type": "sighthound.person_detected",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "sighthound",
+   "integration": "Sighthound",
+   "module": "homeassistant.components.sighthound.image_processing",
+   "line": 32,
+   "constant": "EVENT_PERSON_DETECTED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/sighthound/image_processing.py#L32"
+  },
+  {
+   "event_type": "SIMPLISAFE_EVENT",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "simplisafe",
+   "integration": "SimpliSafe",
+   "module": "homeassistant.components.simplisafe",
+   "line": 75,
+   "constant": "EVENT_SIMPLISAFE_EVENT",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/simplisafe/__init__.py#L75"
+  },
+  {
+   "event_type": "SIMPLISAFE_NOTIFICATION",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "simplisafe",
+   "integration": "SimpliSafe",
+   "module": "homeassistant.components.simplisafe",
+   "line": 76,
+   "constant": "EVENT_SIMPLISAFE_NOTIFICATION",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/simplisafe/__init__.py#L76"
+  },
+  {
+   "event_type": "smartthings.button",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "smartthings",
+   "integration": "SmartThings",
+   "module": "homeassistant.components.smartthings.const",
+   "line": 41,
+   "constant": "EVENT_BUTTON",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/smartthings/const.py#L41"
+  },
+  {
+   "event_type": "state_changed",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired",
+    "listened for",
+    "typed EventType"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.const",
+   "line": 286,
+   "constant": "EVENT_STATE_CHANGED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L286"
+  },
+  {
+   "event_type": "state_reported",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired",
+    "typed EventType"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.const",
+   "line": 287,
+   "constant": "EVENT_STATE_REPORTED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L287"
+  },
+  {
+   "event_type": "system_log_event",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "system_log",
+   "integration": "System Log",
+   "module": "homeassistant.components.system_log.const",
+   "line": 14,
+   "constant": "EVENT_SYSTEM_LOG",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/system_log/const.py#L14"
+  },
+  {
+   "event_type": "tag_scanned",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired",
+    "listened for"
+   ],
+   "domain": "tag",
+   "integration": "Tags",
+   "module": "homeassistant.components.tag.const",
+   "line": 8,
+   "constant": "EVENT_TAG_SCANNED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/tag/const.py#L8"
+  },
+  {
+   "event_type": "telegram_sent",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "telegram_bot",
+   "integration": "Telegram bot",
+   "module": "homeassistant.components.telegram_bot.const",
+   "line": 59,
+   "constant": "EVENT_TELEGRAM_SENT",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/telegram_bot/const.py#L59"
+  },
+  {
+   "event_type": "themes_updated",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.const",
+   "line": 288,
+   "constant": "EVENT_THEMES_UPDATED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L288"
+  },
+  {
+   "event_type": "timer.cancelled",
+   "kind": "event",
+   "certain": false,
+   "evidence": [
+    "named where a variable is fired"
+   ],
+   "domain": "timer",
+   "integration": "Timer",
+   "module": "homeassistant.components.timer.const",
+   "line": 30,
+   "constant": "EVENT_TIMER_CANCELLED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/timer/const.py#L30"
+  },
+  {
+   "event_type": "timer.changed",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "timer",
+   "integration": "Timer",
+   "module": "homeassistant.components.timer.const",
+   "line": 31,
+   "constant": "EVENT_TIMER_CHANGED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/timer/const.py#L31"
+  },
+  {
+   "event_type": "timer.finished",
+   "kind": "event",
+   "certain": false,
+   "evidence": [
+    "named where a variable is fired"
+   ],
+   "domain": "timer",
+   "integration": "Timer",
+   "module": "homeassistant.components.timer.const",
+   "line": 29,
+   "constant": "EVENT_TIMER_FINISHED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/timer/const.py#L29"
+  },
+  {
+   "event_type": "timer.paused",
+   "kind": "event",
+   "certain": false,
+   "evidence": [
+    "named where a variable is fired"
+   ],
+   "domain": "timer",
+   "integration": "Timer",
+   "module": "homeassistant.components.timer.const",
+   "line": 34,
+   "constant": "EVENT_TIMER_PAUSED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/timer/const.py#L34"
+  },
+  {
+   "event_type": "timer.restarted",
+   "kind": "event",
+   "certain": false,
+   "evidence": [
+    "named where a variable is fired"
+   ],
+   "domain": "timer",
+   "integration": "Timer",
+   "module": "homeassistant.components.timer.const",
+   "line": 33,
+   "constant": "EVENT_TIMER_RESTARTED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/timer/const.py#L33"
+  },
+  {
+   "event_type": "timer.started",
+   "kind": "event",
+   "certain": false,
+   "evidence": [
+    "named where a variable is fired"
+   ],
+   "domain": "timer",
+   "integration": "Timer",
+   "module": "homeassistant.components.timer.const",
+   "line": 32,
+   "constant": "EVENT_TIMER_STARTED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/timer/const.py#L32"
+  },
+  {
+   "event_type": "transmission_downloaded_torrent",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "transmission",
+   "integration": "Transmission",
+   "module": "homeassistant.components.transmission.const",
+   "line": 57,
+   "constant": "EVENT_DOWNLOADED_TORRENT",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/transmission/const.py#L57"
+  },
+  {
+   "event_type": "transmission_removed_torrent",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "transmission",
+   "integration": "Transmission",
+   "module": "homeassistant.components.transmission.const",
+   "line": 56,
+   "constant": "EVENT_REMOVED_TORRENT",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/transmission/const.py#L56"
+  },
+  {
+   "event_type": "transmission_started_torrent",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "transmission",
+   "integration": "Transmission",
+   "module": "homeassistant.components.transmission.const",
+   "line": 55,
+   "constant": "EVENT_STARTED_TORRENT",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/transmission/const.py#L55"
+  },
+  {
+   "event_type": "upb.scene_changed",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "domain": "upb",
+   "integration": "Universal Powerline Bus (UPB)",
+   "module": "homeassistant.components.upb.const",
+   "line": 16,
+   "constant": "EVENT_UPB_SCENE_CHANGED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/upb/const.py#L16"
+  },
+  {
+   "event_type": "user_added",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.auth",
+   "line": 38,
+   "constant": "EVENT_USER_ADDED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/auth/__init__.py#L38"
+  },
+  {
+   "event_type": "user_removed",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired",
+    "listened for"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.auth",
+   "line": 40,
+   "constant": "EVENT_USER_REMOVED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/auth/__init__.py#L40"
+  },
+  {
+   "event_type": "user_updated",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.auth",
+   "line": 39,
+   "constant": "EVENT_USER_UPDATED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/auth/__init__.py#L39"
+  },
+  {
+   "event_type": "xiaomi_aqara.click",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired as a string, with no constant"
+   ],
+   "domain": "xiaomi_aqara",
+   "integration": "Xiaomi Gateway (Aqara)",
+   "module": "homeassistant.components.xiaomi_aqara.binary_sensor",
+   "line": 628,
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/xiaomi_aqara/binary_sensor.py#L628"
+  },
+  {
+   "event_type": "xiaomi_aqara.cube_action",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired as a string, with no constant"
+   ],
+   "domain": "xiaomi_aqara",
+   "integration": "Xiaomi Gateway (Aqara)",
+   "module": "homeassistant.components.xiaomi_aqara.binary_sensor",
+   "line": 675,
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/xiaomi_aqara/binary_sensor.py#L675"
+  },
+  {
+   "event_type": "xiaomi_aqara.motion",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired as a string, with no constant"
+   ],
+   "domain": "xiaomi_aqara",
+   "integration": "Xiaomi Gateway (Aqara)",
+   "module": "homeassistant.components.xiaomi_aqara.binary_sensor",
+   "line": 321,
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/xiaomi_aqara/binary_sensor.py#L321"
+  },
+  {
+   "event_type": "xiaomi_aqara.movement",
+   "kind": "event",
+   "certain": true,
+   "evidence": [
+    "fired as a string, with no constant"
+   ],
+   "domain": "xiaomi_aqara",
+   "integration": "Xiaomi Gateway (Aqara)",
+   "module": "homeassistant.components.xiaomi_aqara.binary_sensor",
+   "line": 556,
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/xiaomi_aqara/binary_sensor.py#L556"
+  },
+  {
+   "event_type": "zwave_js_device_added_to_registry",
+   "kind": "event",
+   "certain": false,
+   "evidence": [
+    "named where a variable is fired"
+   ],
+   "domain": "zwave_js",
+   "integration": "Z-Wave",
+   "module": "homeassistant.components.zwave_js.const",
+   "line": 41,
+   "constant": "EVENT_DEVICE_ADDED_TO_REGISTRY",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/zwave_js/const.py#L41"
+  },
+  {
+   "event_type": "barrier_obstructed",
+   "kind": "entity_event_type",
+   "certain": true,
+   "evidence": [
+    "event entity type"
+   ],
+   "domain": "nice_go",
+   "integration": "Nice G.O.",
+   "module": "homeassistant.components.nice_go.event",
+   "line": 32,
+   "constant": "EVENT_BARRIER_OBSTRUCTED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/nice_go/event.py#L32"
+  },
+  {
+   "event_type": "camera_motion",
+   "kind": "entity_event_type",
+   "certain": true,
+   "evidence": [
+    "event entity type"
+   ],
+   "domain": "nest",
+   "integration": "Google Nest",
+   "module": "homeassistant.components.nest.events",
+   "line": 39,
+   "constant": "EVENT_CAMERA_MOTION",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/nest/events.py#L39"
+  },
+  {
+   "event_type": "camera_person",
+   "kind": "entity_event_type",
+   "certain": true,
+   "evidence": [
+    "event entity type"
+   ],
+   "domain": "nest",
+   "integration": "Google Nest",
+   "module": "homeassistant.components.nest.events",
+   "line": 40,
+   "constant": "EVENT_CAMERA_PERSON",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/nest/events.py#L40"
+  },
+  {
+   "event_type": "camera_sound",
+   "kind": "entity_event_type",
+   "certain": true,
+   "evidence": [
+    "event entity type"
+   ],
+   "domain": "nest",
+   "integration": "Google Nest",
+   "module": "homeassistant.components.nest.events",
+   "line": 41,
+   "constant": "EVENT_CAMERA_SOUND",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/nest/events.py#L41"
+  },
+  {
+   "event_type": "detected",
+   "kind": "entity_event_type",
+   "certain": true,
+   "evidence": [
+    "event entity type"
+   ],
+   "domain": "unifiprotect",
+   "integration": "UniFi Protect",
+   "module": "homeassistant.components.unifiprotect.const",
+   "line": 109,
+   "constant": "EVENT_TYPE_PACKAGE_DETECTED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/unifiprotect/const.py#L109"
+  },
+  {
+   "event_type": "detected",
+   "kind": "entity_event_type",
+   "certain": true,
+   "evidence": [
+    "event entity type"
+   ],
+   "domain": "unifiprotect",
+   "integration": "UniFi Protect",
+   "module": "homeassistant.components.unifiprotect.const",
+   "line": 108,
+   "constant": "EVENT_TYPE_VEHICLE_DETECTED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/unifiprotect/const.py#L108"
+  },
+  {
+   "event_type": "downloaded",
+   "kind": "entity_event_type",
+   "certain": true,
+   "evidence": [
+    "event entity type"
+   ],
+   "domain": "transmission",
+   "integration": "Transmission",
+   "module": "homeassistant.components.transmission.const",
+   "line": 61,
+   "constant": "EVENT_TYPE_DOWNLOADED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/transmission/const.py#L61"
+  },
+  {
+   "event_type": "event_type",
+   "kind": "entity_event_type",
+   "certain": true,
+   "evidence": [
+    "event entity type"
+   ],
+   "domain": "bthome",
+   "integration": "BTHome",
+   "module": "homeassistant.components.bthome.const",
+   "line": 12,
+   "constant": "EVENT_TYPE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/bthome/const.py#L12"
+  },
+  {
+   "event_type": "event_type",
+   "kind": "entity_event_type",
+   "certain": true,
+   "evidence": [
+    "event entity type"
+   ],
+   "domain": "xiaomi_ble",
+   "integration": "Xiaomi BLE",
+   "module": "homeassistant.components.xiaomi_ble.const",
+   "line": 15,
+   "constant": "EVENT_TYPE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/xiaomi_ble/const.py#L15"
+  },
+  {
+   "event_type": "feedreader",
+   "kind": "entity_event_type",
+   "certain": true,
+   "evidence": [
+    "event entity type"
+   ],
+   "domain": "feedreader",
+   "integration": "Feedreader",
+   "module": "homeassistant.components.feedreader.const",
+   "line": 14,
+   "constant": "EVENT_FEEDREADER",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/feedreader/const.py#L14"
+  },
+  {
+   "event_type": "identified",
+   "kind": "entity_event_type",
+   "certain": true,
+   "evidence": [
+    "event entity type"
+   ],
+   "domain": "unifiprotect",
+   "integration": "UniFi Protect",
+   "module": "homeassistant.components.unifiprotect.const",
+   "line": 105,
+   "constant": "EVENT_TYPE_FINGERPRINT_IDENTIFIED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/unifiprotect/const.py#L105"
+  },
+  {
+   "event_type": "long_press",
+   "kind": "entity_event_type",
+   "certain": true,
+   "evidence": [
+    "event entity type"
+   ],
+   "domain": "velbus",
+   "integration": "Velbus",
+   "module": "homeassistant.components.velbus.event",
+   "line": 18,
+   "constant": "EVENT_LONG_PRESS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/velbus/event.py#L18"
+  },
+  {
+   "event_type": "not_identified",
+   "kind": "entity_event_type",
+   "certain": true,
+   "evidence": [
+    "event entity type"
+   ],
+   "domain": "unifiprotect",
+   "integration": "UniFi Protect",
+   "module": "homeassistant.components.unifiprotect.const",
+   "line": 106,
+   "constant": "EVENT_TYPE_FINGERPRINT_NOT_IDENTIFIED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/unifiprotect/const.py#L106"
+  },
+  {
+   "event_type": "Pressed",
+   "kind": "entity_event_type",
+   "certain": true,
+   "evidence": [
+    "event entity type"
+   ],
+   "domain": "gentex_homelink",
+   "integration": "HomeLink",
+   "module": "homeassistant.components.gentex_homelink.const",
+   "line": 4,
+   "constant": "EVENT_PRESSED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/gentex_homelink/const.py#L4"
+  },
+  {
+   "event_type": "removed",
+   "kind": "entity_event_type",
+   "certain": true,
+   "evidence": [
+    "event entity type"
+   ],
+   "domain": "transmission",
+   "integration": "Transmission",
+   "module": "homeassistant.components.transmission.const",
+   "line": 60,
+   "constant": "EVENT_TYPE_REMOVED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/transmission/const.py#L60"
+  },
+  {
+   "event_type": "scanned",
+   "kind": "entity_event_type",
+   "certain": true,
+   "evidence": [
+    "event entity type"
+   ],
+   "domain": "unifiprotect",
+   "integration": "UniFi Protect",
+   "module": "homeassistant.components.unifiprotect.const",
+   "line": 107,
+   "constant": "EVENT_TYPE_NFC_SCANNED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/unifiprotect/const.py#L107"
+  },
+  {
+   "event_type": "session_authorized",
+   "kind": "entity_event_type",
+   "certain": true,
+   "evidence": [
+    "event entity type"
+   ],
+   "domain": "peblar",
+   "integration": "Peblar",
+   "module": "homeassistant.components.peblar.event",
+   "line": 19,
+   "constant": "EVENT_SESSION_AUTHORIZED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/peblar/event.py#L19"
+  },
+  {
+   "event_type": "short_press",
+   "kind": "entity_event_type",
+   "certain": true,
+   "evidence": [
+    "event entity type"
+   ],
+   "domain": "velbus",
+   "integration": "Velbus",
+   "module": "homeassistant.components.velbus.event",
+   "line": 17,
+   "constant": "EVENT_SHORT_PRESS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/velbus/event.py#L17"
+  },
+  {
+   "event_type": "started",
+   "kind": "entity_event_type",
+   "certain": true,
+   "evidence": [
+    "event entity type"
+   ],
+   "domain": "transmission",
+   "integration": "Transmission",
+   "module": "homeassistant.components.transmission.const",
+   "line": 59,
+   "constant": "EVENT_TYPE_STARTED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/transmission/const.py#L59"
+  },
+  {
+   "event_type": "telegram_attachment",
+   "kind": "entity_event_type",
+   "certain": true,
+   "evidence": [
+    "event entity type"
+   ],
+   "domain": "telegram_bot",
+   "integration": "Telegram bot",
+   "module": "homeassistant.components.telegram_bot.const",
+   "line": 58,
+   "constant": "EVENT_TELEGRAM_ATTACHMENT",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/telegram_bot/const.py#L58"
+  },
+  {
+   "event_type": "telegram_callback",
+   "kind": "entity_event_type",
+   "certain": true,
+   "evidence": [
+    "event entity type"
+   ],
+   "domain": "telegram_bot",
+   "integration": "Telegram bot",
+   "module": "homeassistant.components.telegram_bot.const",
+   "line": 55,
+   "constant": "EVENT_TELEGRAM_CALLBACK",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/telegram_bot/const.py#L55"
+  },
+  {
+   "event_type": "telegram_command",
+   "kind": "entity_event_type",
+   "certain": true,
+   "evidence": [
+    "event entity type"
+   ],
+   "domain": "telegram_bot",
+   "integration": "Telegram bot",
+   "module": "homeassistant.components.telegram_bot.const",
+   "line": 56,
+   "constant": "EVENT_TELEGRAM_COMMAND",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/telegram_bot/const.py#L56"
+  },
+  {
+   "event_type": "telegram_text",
+   "kind": "entity_event_type",
+   "certain": true,
+   "evidence": [
+    "event entity type"
+   ],
+   "domain": "telegram_bot",
+   "integration": "Telegram bot",
+   "module": "homeassistant.components.telegram_bot.const",
+   "line": 57,
+   "constant": "EVENT_TELEGRAM_TEXT",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/telegram_bot/const.py#L57"
+  },
+  {
+   "event_type": "transaction_created",
+   "kind": "entity_event_type",
+   "certain": true,
+   "evidence": [
+    "event entity type"
+   ],
+   "domain": "monzo",
+   "integration": "Monzo",
+   "module": "homeassistant.components.monzo.const",
+   "line": 14,
+   "constant": "EVENT_TRANSACTION_CREATED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/monzo/const.py#L14"
+  },
+  {
+   "event_type": "triggered",
+   "kind": "entity_event_type",
+   "certain": true,
+   "evidence": [
+    "event entity type"
+   ],
+   "domain": "alexa_devices",
+   "integration": "Alexa Devices",
+   "module": "homeassistant.components.alexa_devices.event",
+   "line": 29,
+   "constant": "EVENT_TYPE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/alexa_devices/event.py#L29"
+  },
+  {
+   "event_type": "triggered",
+   "kind": "entity_event_type",
+   "certain": true,
+   "evidence": [
+    "event entity type"
+   ],
+   "domain": "knocki",
+   "integration": "Knocki",
+   "module": "homeassistant.components.knocki.event",
+   "line": 45,
+   "constant": "EVENT_TRIGGERED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/knocki/event.py#L45"
+  },
+  {
+   "event_type": "button_address",
+   "kind": "data_key",
+   "certain": true,
+   "evidence": [
+    "data key"
+   ],
+   "domain": "flic",
+   "integration": "Flic (legacy)",
+   "module": "homeassistant.components.flic.binary_sensor",
+   "line": 42,
+   "constant": "EVENT_DATA_ADDRESS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/flic/binary_sensor.py#L42"
+  },
+  {
+   "event_type": "button_name",
+   "kind": "data_key",
+   "certain": true,
+   "evidence": [
+    "data key"
+   ],
+   "domain": "flic",
+   "integration": "Flic (legacy)",
+   "module": "homeassistant.components.flic.binary_sensor",
+   "line": 41,
+   "constant": "EVENT_DATA_NAME",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/flic/binary_sensor.py#L41"
+  },
+  {
+   "event_type": "click_type",
+   "kind": "data_key",
+   "certain": true,
+   "evidence": [
+    "data key"
+   ],
+   "domain": "flic",
+   "integration": "Flic (legacy)",
+   "module": "homeassistant.components.flic.binary_sensor",
+   "line": 43,
+   "constant": "EVENT_DATA_TYPE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/flic/binary_sensor.py#L43"
+  },
+  {
+   "event_type": "queued_time",
+   "kind": "data_key",
+   "certain": true,
+   "evidence": [
+    "data key"
+   ],
+   "domain": "flic",
+   "integration": "Flic (legacy)",
+   "module": "homeassistant.components.flic.binary_sensor",
+   "line": 44,
+   "constant": "EVENT_DATA_QUEUED_TIME",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/flic/binary_sensor.py#L44"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "apcupsd",
+   "integration": "APC UPS Daemon",
+   "module": "homeassistant.components.apcupsd.sensor",
+   "line": 53,
+   "constant": "EVENT_SENSORS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/apcupsd/sensor.py#L53"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "bang_olufsen",
+   "integration": "Bang & Olufsen",
+   "module": "homeassistant.components.bang_olufsen.const",
+   "line": 257,
+   "constant": "EVENT_TRANSLATION_MAP",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/bang_olufsen/const.py#L257"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "bthome",
+   "integration": "BTHome",
+   "module": "homeassistant.components.bthome.device_trigger",
+   "line": 37,
+   "constant": "EVENT_TYPES_BY_EVENT_CLASS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/bthome/device_trigger.py#L37"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "calendar",
+   "integration": "Calendar",
+   "module": "homeassistant.components.calendar.const",
+   "line": 19,
+   "constant": "EVENT_LISTENER_DEBOUNCE_COOLDOWN",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L19"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "calendar",
+   "integration": "Calendar",
+   "module": "homeassistant.components.calendar.const",
+   "line": 77,
+   "constant": "EVENT_TIME_FIELDS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L77"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "doorbird",
+   "integration": "DoorBird",
+   "module": "homeassistant.components.doorbird.event",
+   "line": 19,
+   "constant": "EVENT_DESCRIPTIONS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/doorbird/event.py#L19"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "event",
+   "integration": "Event",
+   "module": "homeassistant.components.event.trigger",
+   "line": 23,
+   "constant": "EVENT_RECEIVED_TRIGGER_SCHEMA",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/event/trigger.py#L23"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "flic_button",
+   "integration": "Flic",
+   "module": "homeassistant.components.flic_button.event",
+   "line": 39,
+   "constant": "EVENT_DESCRIPTION",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/flic_button/event.py#L39"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "google",
+   "integration": "Google Calendar",
+   "module": "homeassistant.components.google.api",
+   "line": 31,
+   "constant": "EVENT_PAGE_SIZE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/google/api.py#L31"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "hikvision",
+   "integration": "Hikvision",
+   "module": "homeassistant.components.hikvision.event",
+   "line": 33,
+   "constant": "EVENT_DESCRIPTIONS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hikvision/event.py#L33"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "hikvision",
+   "integration": "Hikvision",
+   "module": "homeassistant.components.hikvision.event",
+   "line": 27,
+   "constant": "EVENT_TYPES",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hikvision/event.py#L27"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "history",
+   "integration": "History",
+   "module": "homeassistant.components.history.const",
+   "line": 5,
+   "constant": "EVENT_COALESCE_TIME",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/history/const.py#L5"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "home_connect",
+   "integration": "Home Connect",
+   "module": "homeassistant.components.home_connect.sensor",
+   "line": 37,
+   "constant": "EVENT_OPTIONS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/home_connect/sensor.py#L37"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "home_connect",
+   "integration": "Home Connect",
+   "module": "homeassistant.components.home_connect.sensor",
+   "line": 197,
+   "constant": "EVENT_SENSORS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/home_connect/sensor.py#L197"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "homeassistant",
+   "integration": "Home Assistant Core Integration",
+   "module": "homeassistant.components.homeassistant.logbook",
+   "line": 18,
+   "constant": "EVENT_TO_NAME",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/homeassistant/logbook.py#L18"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "homee",
+   "integration": "Homee",
+   "module": "homeassistant.components.homee.event",
+   "line": 31,
+   "constant": "EVENT_DESCRIPTIONS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/homee/event.py#L31"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "homematicip_cloud",
+   "integration": "HomematicIP Cloud",
+   "module": "homeassistant.components.homematicip_cloud.event",
+   "line": 38,
+   "constant": "EVENT_DESCRIPTIONS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/homematicip_cloud/event.py#L38"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "hue",
+   "integration": "Philips Hue",
+   "module": "homeassistant.components.hue.v1.hue_event",
+   "line": 108,
+   "constant": "EVENT_CONFIG_MAP",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hue/v1/hue_event.py#L108"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "imap",
+   "integration": "IMAP",
+   "module": "homeassistant.components.imap.config_flow",
+   "line": 61,
+   "constant": "EVENT_MESSAGE_DATA_SELECTOR",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/imap/config_flow.py#L61"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "logbook",
+   "integration": "Activity",
+   "module": "homeassistant.components.logbook.models",
+   "line": 101,
+   "constant": "EVENT_DATA_POS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/logbook/models.py#L101"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "logbook",
+   "integration": "Activity",
+   "module": "homeassistant.components.logbook.models",
+   "line": 100,
+   "constant": "EVENT_TYPE_POS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/logbook/models.py#L100"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "logbook",
+   "integration": "Activity",
+   "module": "homeassistant.components.logbook.queries.common",
+   "line": 55,
+   "constant": "EVENT_COLUMNS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/logbook/queries/common.py#L55"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "logbook",
+   "integration": "Activity",
+   "module": "homeassistant.components.logbook.queries.common",
+   "line": 79,
+   "constant": "EVENT_COLUMNS_FOR_STATE_SELECT",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/logbook/queries/common.py#L79"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "logbook",
+   "integration": "Activity",
+   "module": "homeassistant.components.logbook.queries.common",
+   "line": 103,
+   "constant": "EVENT_ROWS_NO_STATES",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/logbook/queries/common.py#L103"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "logbook",
+   "integration": "Activity",
+   "module": "homeassistant.components.logbook.websocket_api",
+   "line": 32,
+   "constant": "EVENT_COALESCE_TIME",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/logbook/websocket_api.py#L32"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "matter",
+   "integration": "Matter",
+   "module": "homeassistant.components.matter.event",
+   "line": 26,
+   "constant": "EVENT_TYPES_MAP",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/matter/event.py#L26"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "mobile_app",
+   "integration": "Mobile App",
+   "module": "homeassistant.components.mobile_app.logbook",
+   "line": 24,
+   "constant": "EVENT_TO_DESCRIPTION",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/mobile_app/logbook.py#L24"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "motioneye",
+   "integration": "motionEye",
+   "module": "homeassistant.components.motioneye.const",
+   "line": 67,
+   "constant": "EVENT_FILE_STORED_KEYS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/motioneye/const.py#L67"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "motioneye",
+   "integration": "motionEye",
+   "module": "homeassistant.components.motioneye.const",
+   "line": 48,
+   "constant": "EVENT_MOTION_DETECTED_KEYS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/motioneye/const.py#L48"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "nest",
+   "integration": "Google Nest",
+   "module": "homeassistant.components.nest",
+   "line": 116,
+   "constant": "EVENT_MEDIA_CACHE_SIZE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/nest/__init__.py#L116"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "nest",
+   "integration": "Google Nest",
+   "module": "homeassistant.components.nest.events",
+   "line": 56,
+   "constant": "EVENT_NAME_MAP",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/nest/events.py#L56"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "netatmo",
+   "integration": "Netatmo",
+   "module": "homeassistant.components.netatmo.const",
+   "line": 163,
+   "constant": "EVENT_ID_MAP",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L163"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "overkiz",
+   "integration": "Overkiz",
+   "module": "homeassistant.components.overkiz.coordinator",
+   "line": 58,
+   "constant": "EVENT_HANDLERS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/overkiz/coordinator.py#L58"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "peblar",
+   "integration": "Peblar",
+   "module": "homeassistant.components.peblar.const",
+   "line": 27,
+   "constant": "EVENT_STREAM_RETRY_MAXIMUM",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/peblar/const.py#L27"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "peblar",
+   "integration": "Peblar",
+   "module": "homeassistant.components.peblar.const",
+   "line": 26,
+   "constant": "EVENT_STREAM_RETRY_MINIMUM",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/peblar/const.py#L26"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "point",
+   "integration": "Minut Point",
+   "module": "homeassistant.components.point.alarm_control_panel",
+   "line": 24,
+   "constant": "EVENT_MAP",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/point/alarm_control_panel.py#L24"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "recorder",
+   "integration": "Recorder",
+   "module": "homeassistant.components.recorder.const",
+   "line": 54,
+   "constant": "EVENT_TYPE_IDS_SCHEMA_VERSION",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/recorder/const.py#L54"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "recorder",
+   "integration": "Recorder",
+   "module": "homeassistant.components.recorder.db_schema",
+   "line": 875,
+   "constant": "EVENT_DATA_JSON",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/recorder/db_schema.py#L875"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "ring",
+   "integration": "Ring",
+   "module": "homeassistant.components.ring.event",
+   "line": 32,
+   "constant": "EVENT_DESCRIPTIONS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/ring/event.py#L32"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "risco",
+   "integration": "Risco",
+   "module": "homeassistant.components.risco.sensor",
+   "line": 27,
+   "constant": "EVENT_ATTRIBUTES",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/risco/sensor.py#L27"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "sleep_as_android",
+   "integration": "Sleep as Android",
+   "module": "homeassistant.components.sleep_as_android.event",
+   "line": 43,
+   "constant": "EVENT_DESCRIPTIONS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/sleep_as_android/event.py#L43"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "smartthings",
+   "integration": "SmartThings",
+   "module": "homeassistant.components.smartthings.diagnostics",
+   "line": 15,
+   "constant": "EVENT_WAIT_TIME",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/smartthings/diagnostics.py#L15"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "sofar",
+   "integration": "Sofar",
+   "module": "homeassistant.components.sofar.event",
+   "line": 41,
+   "constant": "EVENT_DESCRIPTIONS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/sofar/event.py#L41"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "sonos",
+   "integration": "Sonos",
+   "module": "homeassistant.components.sonos.speaker",
+   "line": 77,
+   "constant": "EVENT_CHARGING",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/sonos/speaker.py#L77"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "switchbot",
+   "integration": "SwitchBot Bluetooth",
+   "module": "homeassistant.components.switchbot.event",
+   "line": 28,
+   "constant": "EVENT_DESCRIPTIONS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/switchbot/event.py#L28"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "template",
+   "integration": "Template",
+   "module": "homeassistant.components.template.event",
+   "line": 53,
+   "constant": "EVENT_COMMON_SCHEMA",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/template/event.py#L53"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "template",
+   "integration": "Template",
+   "module": "homeassistant.components.template.event",
+   "line": 73,
+   "constant": "EVENT_CONFIG_ENTRY_SCHEMA",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/template/event.py#L73"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "template",
+   "integration": "Template",
+   "module": "homeassistant.components.template.event",
+   "line": 68,
+   "constant": "EVENT_YAML_SCHEMA",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/template/event.py#L68"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "unifi_access",
+   "integration": "UniFi Access",
+   "module": "homeassistant.components.unifi_access.event",
+   "line": 45,
+   "constant": "EVENT_DESCRIPTIONS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/unifi_access/event.py#L45"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "unifiprotect",
+   "integration": "UniFi Protect",
+   "module": "homeassistant.components.unifiprotect.binary_sensor",
+   "line": 519,
+   "constant": "EVENT_SENSORS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/unifiprotect/binary_sensor.py#L519"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "unifiprotect",
+   "integration": "UniFi Protect",
+   "module": "homeassistant.components.unifiprotect.event",
+   "line": 681,
+   "constant": "EVENT_DESCRIPTIONS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/unifiprotect/event.py#L681"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "unifiprotect",
+   "integration": "UniFi Protect",
+   "module": "homeassistant.components.unifiprotect.media_source",
+   "line": 61,
+   "constant": "EVENT_MAP",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/unifiprotect/media_source.py#L61"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "unifiprotect",
+   "integration": "UniFi Protect",
+   "module": "homeassistant.components.unifiprotect.media_source",
+   "line": 74,
+   "constant": "EVENT_NAME_MAP",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/unifiprotect/media_source.py#L74"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "velbus",
+   "integration": "Velbus",
+   "module": "homeassistant.components.velbus.event",
+   "line": 19,
+   "constant": "EVENT_TYPES",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/velbus/event.py#L19"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "weatherflow",
+   "integration": "WeatherFlow",
+   "module": "homeassistant.components.weatherflow.event",
+   "line": 32,
+   "constant": "EVENT_DESCRIPTIONS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/weatherflow/event.py#L32"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "domain": "xiaomi_ble",
+   "integration": "Xiaomi BLE",
+   "module": "homeassistant.components.xiaomi_ble.device_trigger",
+   "line": 121,
+   "constant": "EVENT_TYPES",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/xiaomi_ble/device_trigger.py#L121"
+  },
+  {
+   "kind": "not_event",
+   "certain": true,
+   "evidence": [
+    "not a string"
+   ],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.helpers.config_validation",
+   "line": 1493,
+   "constant": "EVENT_SCHEMA",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/helpers/config_validation.py#L1493"
+  },
+  {
+   "event_type": "/api/nest/event_media/{device_id}/{event_token}",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "not shaped like an event type"
+   ],
+   "domain": "nest",
+   "integration": "Google Nest",
+   "module": "homeassistant.components.nest.media_source",
+   "line": 65,
+   "constant": "EVENT_MEDIA_API_URL_FORMAT",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/nest/media_source.py#L65"
+  },
+  {
+   "event_type": "/api/nest/event_media/{device_id}/{event_token}/thumbnail",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "not shaped like an event type"
+   ],
+   "domain": "nest",
+   "integration": "Google Nest",
+   "module": "homeassistant.components.nest.media_source",
+   "line": 66,
+   "constant": "EVENT_THUMBNAIL_URL_FORMAT",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/nest/media_source.py#L66"
+  },
+  {
+   "event_type": "addon",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "hassio",
+   "integration": "Home Assistant Supervisor",
+   "module": "homeassistant.components.hassio.const",
+   "line": 97,
+   "constant": "EVENT_ADDON",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hassio/const.py#L97"
+  },
+  {
+   "event_type": "alarm",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "traccar",
+   "integration": "Traccar Client",
+   "module": "homeassistant.components.traccar.const",
+   "line": 34,
+   "constant": "EVENT_ALARM",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L34"
+  },
+  {
+   "event_type": "animal",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "netatmo",
+   "integration": "Netatmo",
+   "module": "homeassistant.components.netatmo.const",
+   "line": 112,
+   "constant": "EVENT_TYPE_ANIMAL",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L112"
+  },
+  {
+   "event_type": "button",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "bthome",
+   "integration": "BTHome",
+   "module": "homeassistant.components.bthome.const",
+   "line": 18,
+   "constant": "EVENT_CLASS_BUTTON",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/bthome/const.py#L18"
+  },
+  {
+   "event_type": "button",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "flic_button",
+   "integration": "Flic",
+   "module": "homeassistant.components.flic_button.const",
+   "line": 22,
+   "constant": "EVENT_CLASS_BUTTON",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/flic_button/const.py#L22"
+  },
+  {
+   "event_type": "button",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "insteon",
+   "integration": "Insteon",
+   "module": "homeassistant.components.insteon.const",
+   "line": 135,
+   "constant": "EVENT_CONF_BUTTON",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/insteon/const.py#L135"
+  },
+  {
+   "event_type": "button",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "xiaomi_ble",
+   "integration": "Xiaomi BLE",
+   "module": "homeassistant.components.xiaomi_ble.const",
+   "line": 20,
+   "constant": "EVENT_CLASS_BUTTON",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/xiaomi_ble/const.py#L20"
+  },
+  {
+   "event_type": "command",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "bthome",
+   "integration": "BTHome",
+   "module": "homeassistant.components.bthome.const",
+   "line": 20,
+   "constant": "EVENT_CLASS_COMMAND",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/bthome/const.py#L20"
+  },
+  {
+   "event_type": "command",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "rflink",
+   "integration": "RFLink",
+   "module": "homeassistant.components.rflink.const",
+   "line": 23,
+   "constant": "EVENT_KEY_COMMAND",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/rflink/const.py#L23"
+  },
+  {
+   "event_type": "connection",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "netatmo",
+   "integration": "Netatmo",
+   "module": "homeassistant.components.netatmo.const",
+   "line": 126,
+   "constant": "EVENT_TYPE_CONNECTION",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L126"
+  },
+  {
+   "event_type": "cube",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "xiaomi_ble",
+   "integration": "Xiaomi BLE",
+   "module": "homeassistant.components.xiaomi_ble.const",
+   "line": 21,
+   "constant": "EVENT_CLASS_CUBE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/xiaomi_ble/const.py#L21"
+  },
+  {
+   "event_type": "days",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "calendar",
+   "integration": "Calendar",
+   "module": "homeassistant.components.calendar.const",
+   "line": 75,
+   "constant": "EVENT_IN_DAYS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L75"
+  },
+  {
+   "event_type": "days",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "google",
+   "integration": "Google Calendar",
+   "module": "homeassistant.components.google.const",
+   "line": 43,
+   "constant": "EVENT_IN_DAYS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/google/const.py#L43"
+  },
+  {
+   "event_type": "description",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "calendar",
+   "integration": "Calendar",
+   "module": "homeassistant.components.calendar.const",
+   "line": 62,
+   "constant": "EVENT_DESCRIPTION",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L62"
+  },
+  {
+   "event_type": "description",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "google",
+   "integration": "Google Calendar",
+   "module": "homeassistant.components.google.const",
+   "line": 39,
+   "constant": "EVENT_DESCRIPTION",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/google/const.py#L39"
+  },
+  {
+   "event_type": "dimmer",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "bthome",
+   "integration": "BTHome",
+   "module": "homeassistant.components.bthome.const",
+   "line": 19,
+   "constant": "EVENT_CLASS_DIMMER",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/bthome/const.py#L19"
+  },
+  {
+   "event_type": "dimmer",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "xiaomi_ble",
+   "integration": "Xiaomi BLE",
+   "module": "homeassistant.components.xiaomi_ble.const",
+   "line": 22,
+   "constant": "EVENT_CLASS_DIMMER",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/xiaomi_ble/const.py#L22"
+  },
+  {
+   "event_type": "disconnection",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "netatmo",
+   "integration": "Netatmo",
+   "module": "homeassistant.components.netatmo.const",
+   "line": 127,
+   "constant": "EVENT_TYPE_DISCONNECTION",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L127"
+  },
+  {
+   "event_type": "dtend",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "calendar",
+   "integration": "Calendar",
+   "module": "homeassistant.components.calendar.const",
+   "line": 60,
+   "constant": "EVENT_END",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L60"
+  },
+  {
+   "event_type": "dtstart",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "calendar",
+   "integration": "Calendar",
+   "module": "homeassistant.components.calendar.const",
+   "line": 59,
+   "constant": "EVENT_START",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L59"
+  },
+  {
+   "event_type": "duration",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "calendar",
+   "integration": "Calendar",
+   "module": "homeassistant.components.calendar.const",
+   "line": 85,
+   "constant": "EVENT_DURATION",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L85"
+  },
+  {
+   "event_type": "end",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "calendar",
+   "integration": "Calendar",
+   "module": "homeassistant.components.calendar.trigger",
+   "line": 45,
+   "constant": "EVENT_END",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/trigger.py#L45"
+  },
+  {
+   "event_type": "enter",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "geo_location",
+   "integration": "Geolocation",
+   "module": "homeassistant.components.geo_location.trigger",
+   "line": 29,
+   "constant": "EVENT_ENTER",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/geo_location/trigger.py#L29"
+  },
+  {
+   "event_type": "enter",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "zone",
+   "integration": "Zone",
+   "module": "homeassistant.components.zone.trigger",
+   "line": 50,
+   "constant": "EVENT_ENTER",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/zone/trigger.py#L50"
+  },
+  {
+   "event_type": "error",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "xiaomi_ble",
+   "integration": "Xiaomi BLE",
+   "module": "homeassistant.components.xiaomi_ble.const",
+   "line": 23,
+   "constant": "EVENT_CLASS_ERROR",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/xiaomi_ble/const.py#L23"
+  },
+  {
+   "event_type": "fingerprint",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "xiaomi_ble",
+   "integration": "Xiaomi BLE",
+   "module": "homeassistant.components.xiaomi_ble.const",
+   "line": 24,
+   "constant": "EVENT_CLASS_FINGERPRINT",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/xiaomi_ble/const.py#L24"
+  },
+  {
+   "event_type": "human",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "netatmo",
+   "integration": "Netatmo",
+   "module": "homeassistant.components.netatmo.const",
+   "line": 113,
+   "constant": "EVENT_TYPE_HUMAN",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L113"
+  },
+  {
+   "event_type": "id",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "rflink",
+   "integration": "RFLink",
+   "module": "homeassistant.components.rflink.const",
+   "line": 24,
+   "constant": "EVENT_KEY_ID",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/rflink/const.py#L24"
+  },
+  {
+   "event_type": "in",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "calendar",
+   "integration": "Calendar",
+   "module": "homeassistant.components.calendar.const",
+   "line": 74,
+   "constant": "EVENT_IN",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L74"
+  },
+  {
+   "event_type": "in",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "google",
+   "integration": "Google Calendar",
+   "module": "homeassistant.components.google.const",
+   "line": 42,
+   "constant": "EVENT_IN",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/google/const.py#L42"
+  },
+  {
+   "event_type": "job",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "hassio",
+   "integration": "Home Assistant Supervisor",
+   "module": "homeassistant.components.hassio.const",
+   "line": 95,
+   "constant": "EVENT_JOB",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hassio/const.py#L95"
+  },
+  {
+   "event_type": "leave",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "geo_location",
+   "integration": "Geolocation",
+   "module": "homeassistant.components.geo_location.trigger",
+   "line": 30,
+   "constant": "EVENT_LEAVE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/geo_location/trigger.py#L30"
+  },
+  {
+   "event_type": "leave",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "zone",
+   "integration": "Zone",
+   "module": "homeassistant.components.zone.trigger",
+   "line": 51,
+   "constant": "EVENT_LEAVE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/zone/trigger.py#L51"
+  },
+  {
+   "event_type": "location",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "calendar",
+   "integration": "Calendar",
+   "module": "homeassistant.components.calendar.const",
+   "line": 63,
+   "constant": "EVENT_LOCATION",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L63"
+  },
+  {
+   "event_type": "location",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "google",
+   "integration": "Google Calendar",
+   "module": "homeassistant.components.google.const",
+   "line": 45,
+   "constant": "EVENT_LOCATION",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/google/const.py#L45"
+  },
+  {
+   "event_type": "lock",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "xiaomi_ble",
+   "integration": "Xiaomi BLE",
+   "module": "homeassistant.components.xiaomi_ble.const",
+   "line": 25,
+   "constant": "EVENT_CLASS_LOCK",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/xiaomi_ble/const.py#L25"
+  },
+  {
+   "event_type": "maintenance",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "traccar",
+   "integration": "Traccar Client",
+   "module": "homeassistant.components.traccar.const",
+   "line": 33,
+   "constant": "EVENT_MAINTENANCE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L33"
+  },
+  {
+   "event_type": "metadata updated",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "not shaped like an event type"
+   ],
+   "domain": "zwave_js",
+   "integration": "Z-Wave",
+   "module": "homeassistant.components.zwave_js.const",
+   "line": 45,
+   "constant": "EVENT_METADATA_UPDATED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/zwave_js/const.py#L45"
+  },
+  {
+   "event_type": "motion",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "xiaomi_ble",
+   "integration": "Xiaomi BLE",
+   "module": "homeassistant.components.xiaomi_ble.const",
+   "line": 26,
+   "constant": "EVENT_CLASS_MOTION",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/xiaomi_ble/const.py#L26"
+  },
+  {
+   "event_type": "movement",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "netatmo",
+   "integration": "Netatmo",
+   "module": "homeassistant.components.netatmo.const",
+   "line": 114,
+   "constant": "EVENT_TYPE_MOVEMENT",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L114"
+  },
+  {
+   "event_type": "off",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "netatmo",
+   "integration": "Netatmo",
+   "module": "homeassistant.components.netatmo.const",
+   "line": 130,
+   "constant": "EVENT_TYPE_OFF",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L130"
+  },
+  {
+   "event_type": "on",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "netatmo",
+   "integration": "Netatmo",
+   "module": "homeassistant.components.netatmo.const",
+   "line": 131,
+   "constant": "EVENT_TYPE_ON",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L131"
+  },
+  {
+   "event_type": "outdoor",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "netatmo",
+   "integration": "Netatmo",
+   "module": "homeassistant.components.netatmo.const",
+   "line": 115,
+   "constant": "EVENT_TYPE_OUTDOOR",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L115"
+  },
+  {
+   "event_type": "person",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "netatmo",
+   "integration": "Netatmo",
+   "module": "homeassistant.components.netatmo.const",
+   "line": 116,
+   "constant": "EVENT_TYPE_PERSON",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L116"
+  },
+  {
+   "event_type": "rrule",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "calendar",
+   "integration": "Calendar",
+   "module": "homeassistant.components.calendar.const",
+   "line": 66,
+   "constant": "EVENT_RRULE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L66"
+  },
+  {
+   "event_type": "schedule",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "netatmo",
+   "integration": "Netatmo",
+   "module": "homeassistant.components.netatmo.const",
+   "line": 108,
+   "constant": "EVENT_TYPE_SCHEDULE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L108"
+  },
+  {
+   "event_type": "sensor",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "rflink",
+   "integration": "RFLink",
+   "module": "homeassistant.components.rflink.const",
+   "line": 25,
+   "constant": "EVENT_KEY_SENSOR",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/rflink/const.py#L25"
+  },
+  {
+   "event_type": "shutdown",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "homeassistant",
+   "integration": "Home Assistant Core Integration",
+   "module": "homeassistant.components.homeassistant.triggers.homeassistant",
+   "line": 14,
+   "constant": "EVENT_SHUTDOWN",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/homeassistant/triggers/homeassistant.py#L14"
+  },
+  {
+   "event_type": "smarttub",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "smarttub",
+   "integration": "SmartTub",
+   "module": "homeassistant.components.smarttub.const",
+   "line": 5,
+   "constant": "EVENT_SMARTTUB",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/smarttub/const.py#L5"
+  },
+  {
+   "event_type": "start",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "calendar",
+   "integration": "Calendar",
+   "module": "homeassistant.components.calendar.trigger",
+   "line": 44,
+   "constant": "EVENT_START",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/trigger.py#L44"
+  },
+  {
+   "event_type": "start",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "homeassistant",
+   "integration": "Home Assistant Core Integration",
+   "module": "homeassistant.components.homeassistant.triggers.homeassistant",
+   "line": 13,
+   "constant": "EVENT_START",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/homeassistant/triggers/homeassistant.py#L13"
+  },
+  {
+   "event_type": "status",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "calendar",
+   "integration": "Calendar",
+   "module": "homeassistant.components.calendar.const",
+   "line": 67,
+   "constant": "EVENT_STATUS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L67"
+  },
+  {
+   "event_type": "summary",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "calendar",
+   "integration": "Calendar",
+   "module": "homeassistant.components.calendar.const",
+   "line": 61,
+   "constant": "EVENT_SUMMARY",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L61"
+  },
+  {
+   "event_type": "summary",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "google",
+   "integration": "Google Calendar",
+   "module": "homeassistant.components.google.const",
+   "line": 48,
+   "constant": "EVENT_SUMMARY",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/google/const.py#L48"
+  },
+  {
+   "event_type": "triggered",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "hikvision",
+   "integration": "Hikvision",
+   "module": "homeassistant.components.hikvision.event",
+   "line": 26,
+   "constant": "EVENT_TYPE_TRIGGERED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hikvision/event.py#L26"
+  },
+  {
+   "event_type": "uid",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "calendar",
+   "integration": "Calendar",
+   "module": "homeassistant.components.calendar.const",
+   "line": 58,
+   "constant": "EVENT_UID",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L58"
+  },
+  {
+   "event_type": "unit",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "rflink",
+   "integration": "RFLink",
+   "module": "homeassistant.components.rflink.const",
+   "line": 26,
+   "constant": "EVENT_KEY_UNIT",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/rflink/const.py#L26"
+  },
+  {
+   "event_type": "value added",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "not shaped like an event type"
+   ],
+   "domain": "zwave_js",
+   "integration": "Z-Wave",
+   "module": "homeassistant.components.zwave_js.const",
+   "line": 42,
+   "constant": "EVENT_VALUE_ADDED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/zwave_js/const.py#L42"
+  },
+  {
+   "event_type": "value removed",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "not shaped like an event type"
+   ],
+   "domain": "zwave_js",
+   "integration": "Z-Wave",
+   "module": "homeassistant.components.zwave_js.const",
+   "line": 43,
+   "constant": "EVENT_VALUE_REMOVED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/zwave_js/const.py#L43"
+  },
+  {
+   "event_type": "value updated",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "not shaped like an event type"
+   ],
+   "domain": "zwave_js",
+   "integration": "Z-Wave",
+   "module": "homeassistant.components.zwave_js.const",
+   "line": 44,
+   "constant": "EVENT_VALUE_UPDATED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/zwave_js/const.py#L44"
+  },
+  {
+   "event_type": "vehicle",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "netatmo",
+   "integration": "Netatmo",
+   "module": "homeassistant.components.netatmo.const",
+   "line": 118,
+   "constant": "EVENT_TYPE_VEHICLE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L118"
+  },
+  {
+   "event_type": "weeks",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "calendar",
+   "integration": "Calendar",
+   "module": "homeassistant.components.calendar.const",
+   "line": 76,
+   "constant": "EVENT_IN_WEEKS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L76"
+  },
+  {
+   "event_type": "weeks",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "a single word"
+   ],
+   "domain": "google",
+   "integration": "Google Calendar",
+   "module": "homeassistant.components.google.const",
+   "line": 44,
+   "constant": "EVENT_IN_WEEKS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/google/const.py#L44"
+  },
+  {
+   "event_type": "{}",
+   "kind": "not_event",
+   "certain": false,
+   "evidence": [
+    "not shaped like an event type"
+   ],
+   "domain": "hue",
+   "integration": "Philips Hue",
+   "module": "homeassistant.components.hue.v1.hue_event",
+   "line": 24,
+   "constant": "EVENT_NAME_FORMAT",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hue/v1/hue_event.py#L24"
+  },
+  {
+   "event_type": "_button",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "isy994",
+   "integration": "Universal Devices ISY/IoX",
+   "module": "homeassistant.components.isy994.event",
+   "line": 43,
+   "constant": "EVENT_BUTTON_UNIQUE_ID_SUFFIX",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/isy994/event.py#L43"
+  },
+  {
+   "event_type": "alarm_started",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "netatmo",
+   "integration": "Netatmo",
+   "module": "homeassistant.components.netatmo.const",
+   "line": 121,
+   "constant": "EVENT_TYPE_ALARM_STARTED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L121"
+  },
+  {
+   "event_type": "all_events",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "traccar",
+   "integration": "Traccar Client",
+   "module": "homeassistant.components.traccar.const",
+   "line": 39,
+   "constant": "EVENT_ALL_EVENTS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L39"
+  },
+  {
+   "event_type": "cancel_set_point",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "netatmo",
+   "integration": "Netatmo",
+   "module": "homeassistant.components.netatmo.const",
+   "line": 107,
+   "constant": "EVENT_TYPE_CANCEL_SET_POINT",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L107"
+  },
+  {
+   "event_type": "cec_command_received",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "hdmi_cec",
+   "integration": "HDMI-CEC",
+   "module": "homeassistant.components.hdmi_cec",
+   "line": 52,
+   "constant": "EVENT_CEC_COMMAND_RECEIVED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hdmi_cec/__init__.py#L52"
+  },
+  {
+   "event_type": "cec_keypress_received",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "hdmi_cec",
+   "integration": "HDMI-CEC",
+   "module": "homeassistant.components.hdmi_cec",
+   "line": 53,
+   "constant": "EVENT_CEC_KEYPRESS_RECEIVED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hdmi_cec/__init__.py#L53"
+  },
+  {
+   "event_type": "command_result",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "traccar",
+   "integration": "Traccar Client",
+   "module": "homeassistant.components.traccar.const",
+   "line": 24,
+   "constant": "EVENT_COMMAND_RESULT",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L24"
+  },
+  {
+   "event_type": "device_fuel_drop",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "traccar",
+   "integration": "Traccar Client",
+   "module": "homeassistant.components.traccar.const",
+   "line": 25,
+   "constant": "EVENT_DEVICE_FUEL_DROP",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L25"
+  },
+  {
+   "event_type": "device_moving",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "traccar",
+   "integration": "Traccar Client",
+   "module": "homeassistant.components.traccar.const",
+   "line": 23,
+   "constant": "EVENT_DEVICE_MOVING",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L23"
+  },
+  {
+   "event_type": "device_offline",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "traccar",
+   "integration": "Traccar Client",
+   "module": "homeassistant.components.traccar.const",
+   "line": 27,
+   "constant": "EVENT_DEVICE_OFFLINE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L27"
+  },
+  {
+   "event_type": "device_online",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "traccar",
+   "integration": "Traccar Client",
+   "module": "homeassistant.components.traccar.const",
+   "line": 31,
+   "constant": "EVENT_DEVICE_ONLINE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L31"
+  },
+  {
+   "event_type": "device_overspeed",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "traccar",
+   "integration": "Traccar Client",
+   "module": "homeassistant.components.traccar.const",
+   "line": 30,
+   "constant": "EVENT_DEVICE_OVERSPEED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L30"
+  },
+  {
+   "event_type": "device_stopped",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "traccar",
+   "integration": "Traccar Client",
+   "module": "homeassistant.components.traccar.const",
+   "line": 32,
+   "constant": "EVENT_DEVICE_STOPPED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L32"
+  },
+  {
+   "event_type": "device_unknown",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "traccar",
+   "integration": "Traccar Client",
+   "module": "homeassistant.components.traccar.const",
+   "line": 36,
+   "constant": "EVENT_DEVICE_UNKNOWN",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L36"
+  },
+  {
+   "event_type": "doorbell_chime",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "nest",
+   "integration": "Google Nest",
+   "module": "homeassistant.components.nest.events",
+   "line": 38,
+   "constant": "EVENT_DOORBELL_CHIME",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/nest/events.py#L38"
+  },
+  {
+   "event_type": "driver_changed",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "traccar",
+   "integration": "Traccar Client",
+   "module": "homeassistant.components.traccar.const",
+   "line": 28,
+   "constant": "EVENT_DRIVER_CHANGED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L28"
+  },
+  {
+   "event_type": "end_date",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "calendar",
+   "integration": "Calendar",
+   "module": "homeassistant.components.calendar.const",
+   "line": 71,
+   "constant": "EVENT_END_DATE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L71"
+  },
+  {
+   "event_type": "end_date",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "google",
+   "integration": "Google Calendar",
+   "module": "homeassistant.components.google.const",
+   "line": 40,
+   "constant": "EVENT_END_DATE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/google/const.py#L40"
+  },
+  {
+   "event_type": "end_date_time",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "calendar",
+   "integration": "Calendar",
+   "module": "homeassistant.components.calendar.const",
+   "line": 73,
+   "constant": "EVENT_END_DATETIME",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L73"
+  },
+  {
+   "event_type": "end_date_time",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "google",
+   "integration": "Google Calendar",
+   "module": "homeassistant.components.google.const",
+   "line": 41,
+   "constant": "EVENT_END_DATETIME",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/google/const.py#L41"
+  },
+  {
+   "event_type": "event_class",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "bthome",
+   "integration": "BTHome",
+   "module": "homeassistant.components.bthome.const",
+   "line": 13,
+   "constant": "EVENT_CLASS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/bthome/const.py#L13"
+  },
+  {
+   "event_type": "event_class",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "xiaomi_ble",
+   "integration": "Xiaomi BLE",
+   "module": "homeassistant.components.xiaomi_ble.const",
+   "line": 14,
+   "constant": "EVENT_CLASS",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/xiaomi_ble/const.py#L14"
+  },
+  {
+   "event_type": "event_properties",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "bthome",
+   "integration": "BTHome",
+   "module": "homeassistant.components.bthome.const",
+   "line": 14,
+   "constant": "EVENT_PROPERTIES",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/bthome/const.py#L14"
+  },
+  {
+   "event_type": "event_properties",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "xiaomi_ble",
+   "integration": "Xiaomi BLE",
+   "module": "homeassistant.components.xiaomi_ble.const",
+   "line": 17,
+   "constant": "EVENT_PROPERTIES",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/xiaomi_ble/const.py#L17"
+  },
+  {
+   "event_type": "event_subtype",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "xiaomi_ble",
+   "integration": "Xiaomi BLE",
+   "module": "homeassistant.components.xiaomi_ble.const",
+   "line": 16,
+   "constant": "EVENT_SUBTYPE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/xiaomi_ble/const.py#L16"
+  },
+  {
+   "event_type": "event_types",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "calendar",
+   "integration": "Calendar",
+   "module": "homeassistant.components.calendar.const",
+   "line": 84,
+   "constant": "EVENT_TYPES",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L84"
+  },
+  {
+   "event_type": "event_types",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "google",
+   "integration": "Google Calendar",
+   "module": "homeassistant.components.google.const",
+   "line": 49,
+   "constant": "EVENT_TYPES_CONF",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/google/const.py#L49"
+  },
+  {
+   "event_type": "file_stored",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "motioneye",
+   "integration": "motionEye",
+   "module": "homeassistant.components.motioneye.const",
+   "line": 46,
+   "constant": "EVENT_FILE_STORED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/motioneye/const.py#L46"
+  },
+  {
+   "event_type": "file_url",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "motioneye",
+   "integration": "motionEye",
+   "module": "homeassistant.components.motioneye.const",
+   "line": 82,
+   "constant": "EVENT_FILE_URL",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/motioneye/const.py#L82"
+  },
+  {
+   "event_type": "geofence_enter",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "traccar",
+   "integration": "Traccar Client",
+   "module": "homeassistant.components.traccar.const",
+   "line": 26,
+   "constant": "EVENT_GEOFENCE_ENTER",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L26"
+  },
+  {
+   "event_type": "geofence_exit",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "traccar",
+   "integration": "Traccar Client",
+   "module": "homeassistant.components.traccar.const",
+   "line": 29,
+   "constant": "EVENT_GEOFENCE_EXIT",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L29"
+  },
+  {
+   "event_type": "health_changed",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "hassio",
+   "integration": "Home Assistant Supervisor",
+   "module": "homeassistant.components.hassio.const",
+   "line": 91,
+   "constant": "EVENT_HEALTH_CHANGED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hassio/const.py#L91"
+  },
+  {
+   "event_type": "ignition_off",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "traccar",
+   "integration": "Traccar Client",
+   "module": "homeassistant.components.traccar.const",
+   "line": 37,
+   "constant": "EVENT_IGNITION_OFF",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L37"
+  },
+  {
+   "event_type": "ignition_on",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "traccar",
+   "integration": "Traccar Client",
+   "module": "homeassistant.components.traccar.const",
+   "line": 38,
+   "constant": "EVENT_IGNITION_ON",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L38"
+  },
+  {
+   "event_type": "issue_changed",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "hassio",
+   "integration": "Home Assistant Supervisor",
+   "module": "homeassistant.components.hassio.const",
+   "line": 93,
+   "constant": "EVENT_ISSUE_CHANGED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hassio/const.py#L93"
+  },
+  {
+   "event_type": "issue_removed",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "hassio",
+   "integration": "Home Assistant Supervisor",
+   "module": "homeassistant.components.hassio.const",
+   "line": 94,
+   "constant": "EVENT_ISSUE_REMOVED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hassio/const.py#L94"
+  },
+  {
+   "event_type": "light_mode",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "netatmo",
+   "integration": "Netatmo",
+   "module": "homeassistant.components.netatmo.const",
+   "line": 119,
+   "constant": "EVENT_TYPE_LIGHT_MODE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L119"
+  },
+  {
+   "event_type": "load_platform.{}",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "integration": "Home Assistant core",
+   "module": "homeassistant.helpers.discovery",
+   "line": 22,
+   "constant": "EVENT_LOAD_PLATFORM",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/helpers/discovery.py#L22"
+  },
+  {
+   "event_type": "media_content_id",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "motioneye",
+   "integration": "motionEye",
+   "module": "homeassistant.components.motioneye.const",
+   "line": 83,
+   "constant": "EVENT_MEDIA_CONTENT_ID",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/motioneye/const.py#L83"
+  },
+  {
+   "event_type": "module_connect",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "netatmo",
+   "integration": "Netatmo",
+   "module": "homeassistant.components.netatmo.const",
+   "line": 128,
+   "constant": "EVENT_TYPE_MODULE_CONNECT",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L128"
+  },
+  {
+   "event_type": "module_disconnect",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "netatmo",
+   "integration": "Netatmo",
+   "module": "homeassistant.components.netatmo.const",
+   "line": 129,
+   "constant": "EVENT_TYPE_MODULE_DISCONNECT",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L129"
+  },
+  {
+   "event_type": "motion_detected",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "motioneye",
+   "integration": "motionEye",
+   "module": "homeassistant.components.motioneye.const",
+   "line": 45,
+   "constant": "EVENT_MOTION_DETECTED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/motioneye/const.py#L45"
+  },
+  {
+   "event_type": "new_state",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "influxdb",
+   "integration": "InfluxDB",
+   "module": "homeassistant.components.influxdb.const",
+   "line": 74,
+   "constant": "EVENT_NEW_STATE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/influxdb/const.py#L74"
+  },
+  {
+   "event_type": "person_away",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "netatmo",
+   "integration": "Netatmo",
+   "module": "homeassistant.components.netatmo.const",
+   "line": 117,
+   "constant": "EVENT_TYPE_PERSON_AWAY",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L117"
+  },
+  {
+   "event_type": "recurrence_id",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "calendar",
+   "integration": "Calendar",
+   "module": "homeassistant.components.calendar.const",
+   "line": 64,
+   "constant": "EVENT_RECURRENCE_ID",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L64"
+  },
+  {
+   "event_type": "recurrence_range",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "calendar",
+   "integration": "Calendar",
+   "module": "homeassistant.components.calendar.const",
+   "line": 65,
+   "constant": "EVENT_RECURRENCE_RANGE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L65"
+  },
+  {
+   "event_type": "set_point",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "netatmo",
+   "integration": "Netatmo",
+   "module": "homeassistant.components.netatmo.const",
+   "line": 109,
+   "constant": "EVENT_TYPE_SET_POINT",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L109"
+  },
+  {
+   "event_type": "start_date",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "calendar",
+   "integration": "Calendar",
+   "module": "homeassistant.components.calendar.const",
+   "line": 70,
+   "constant": "EVENT_START_DATE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L70"
+  },
+  {
+   "event_type": "start_date",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "google",
+   "integration": "Google Calendar",
+   "module": "homeassistant.components.google.const",
+   "line": 46,
+   "constant": "EVENT_START_DATE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/google/const.py#L46"
+  },
+  {
+   "event_type": "start_date_time",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "calendar",
+   "integration": "Calendar",
+   "module": "homeassistant.components.calendar.const",
+   "line": 72,
+   "constant": "EVENT_START_DATETIME",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L72"
+  },
+  {
+   "event_type": "start_date_time",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "google",
+   "integration": "Google Calendar",
+   "module": "homeassistant.components.google.const",
+   "line": 47,
+   "constant": "EVENT_START_DATETIME",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/google/const.py#L47"
+  },
+  {
+   "event_type": "store_reloaded",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "hassio",
+   "integration": "Home Assistant Supervisor",
+   "module": "homeassistant.components.hassio.const",
+   "line": 96,
+   "constant": "EVENT_STORE_RELOADED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hassio/const.py#L96"
+  },
+  {
+   "event_type": "supervisor_event",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "hassio",
+   "integration": "Home Assistant Supervisor",
+   "module": "homeassistant.components.hassio.const",
+   "line": 89,
+   "constant": "EVENT_SUPERVISOR_EVENT",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hassio/const.py#L89"
+  },
+  {
+   "event_type": "supervisor_update",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "hassio",
+   "integration": "Home Assistant Supervisor",
+   "module": "homeassistant.components.hassio.const",
+   "line": 90,
+   "constant": "EVENT_SUPERVISOR_UPDATE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hassio/const.py#L90"
+  },
+  {
+   "event_type": "supported_changed",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "hassio",
+   "integration": "Home Assistant Supervisor",
+   "module": "homeassistant.components.hassio.const",
+   "line": 92,
+   "constant": "EVENT_SUPPORTED_CHANGED",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hassio/const.py#L92"
+  },
+  {
+   "event_type": "tag_big_move",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "netatmo",
+   "integration": "Netatmo",
+   "module": "homeassistant.components.netatmo.const",
+   "line": 122,
+   "constant": "EVENT_TYPE_TAG_BIG_MOVE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L122"
+  },
+  {
+   "event_type": "tag_open",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "netatmo",
+   "integration": "Netatmo",
+   "module": "homeassistant.components.netatmo.const",
+   "line": 123,
+   "constant": "EVENT_TYPE_TAG_OPEN",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L123"
+  },
+  {
+   "event_type": "tag_small_move",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "netatmo",
+   "integration": "Netatmo",
+   "module": "homeassistant.components.netatmo.const",
+   "line": 124,
+   "constant": "EVENT_TYPE_TAG_SMALL_MOVE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L124"
+  },
+  {
+   "event_type": "text_message",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "traccar",
+   "integration": "Traccar Client",
+   "module": "homeassistant.components.traccar.const",
+   "line": 35,
+   "constant": "EVENT_TEXT_MESSAGE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L35"
+  },
+  {
+   "event_type": "therm_mode",
+   "kind": "unknown",
+   "certain": false,
+   "evidence": [],
+   "domain": "netatmo",
+   "integration": "Netatmo",
+   "module": "homeassistant.components.netatmo.const",
+   "line": 110,
+   "constant": "EVENT_TYPE_THERM_MODE",
+   "url": "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L110"
+  }
+ ]
+}

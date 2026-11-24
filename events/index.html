@@ -1,0 +1,1588 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="The event types Home Assistant core declares and fires, found by scanning its source.">
+      
+      
+      
+        <link rel="canonical" href="https://homeassistant-repl.rhizomatics.org.uk/events/">
+      
+      
+      
+      
+        
+      
+      
+      
+      
+        
+        
+        
+          <link rel="icon" href="../assets/images/favicon.png">
+        
+      
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-materialx-10.2.2">
+    
+    
+      
+        <title>Event Catalogue - Home Assistant REPL</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.1d60cbd7.min.css">
+      
+    
+    
+
+    
+
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/mkdocs_pagetree_plugin.css">
+    
+      <link rel="stylesheet" href="../assets/stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+  
+    
+    <meta name="robots" content="noindex, nofollow">
+  
+  
+  
+  <script data-goatcounter="https://homeassistant-repl.goatcounter.com/count"
+          async src="//gc.zgo.at/count.js"></script>
+
+  </head>
+  
+  
+  
+  
+    <body dir="ltr" data-mx-topbar="glass">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="toc" type="checkbox" id="__toc" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <label class="md-overlay" for="__toc"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#event-catalogue" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Home Assistant REPL" class="md-header__button md-logo" aria-label="Home Assistant REPL" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Home Assistant REPL
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Event Catalogue
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10.25 2a8.25 8.25 0 0 1 6.34 13.53l5.69 5.69a.749.749 0 0 1-.326 1.275.75.75 0 0 1-.734-.215l-5.69-5.69A8.25 8.25 0 1 1 10.25 2M3.5 10.25a6.75 6.75 0 1 0 13.5 0 6.75 6.75 0 0 0-13.5 0"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10.25 2a8.25 8.25 0 0 1 6.34 13.53l5.69 5.69a.749.749 0 0 1-.326 1.275.75.75 0 0 1-.734-.215l-5.69-5.69A8.25 8.25 0 1 1 10.25 2M3.5 10.25a6.75 6.75 0 1 0 13.5 0 6.75 6.75 0 0 0-13.5 0"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 5.5a3.498 3.498 0 0 1-6.062 2.385l-5.112 3.021a3.5 3.5 0 0 1 0 2.188l5.112 3.021a3.5 3.5 0 1 1-.764 1.29l-5.112-3.02a3.499 3.499 0 1 1-3.843-5.642 3.5 3.5 0 0 1 3.843.872l5.112-3.021A3.5 3.5 0 1 1 20 5.5m-1.5 13a2 2 0 1 0-3.999-.001 2 2 0 0 0 3.999.001m0-13a2 2 0 1 0-3.999-.001A2 2 0 0 0 18.5 5.5M5.5 14a2 2 0 1 0 .001-3.999A2 2 0 0 0 5.5 14"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0">
+        <div class="md-search-result md-search-result--pagefind" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/rhizomatics/homeassistant-repl" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    rhizomatics/homeassistant-repl
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home Assistant REPL
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../changelog/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  What's New
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../examples/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Examples
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../obj_tree/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  The Object Tree
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../quick_start/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Quick Start
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../sql/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  SQL Access
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../configuration/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Configuration
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../developer/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Developer
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../modes/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Modes
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Home Assistant REPL" class="md-nav__button md-logo" aria-label="Home Assistant REPL" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Home Assistant REPL
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/rhizomatics/homeassistant-repl" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    rhizomatics/homeassistant-repl
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list">
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home Assistant REPL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    What's New
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../obj_tree/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Object Tree
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quick_start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sql/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SQL Access
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../configuration/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_7" id="__nav_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Configuration
+  
+
+          </label>
+          <ul class="md-nav__list">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/alternative_integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Alternative Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/client_configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Client Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/fnox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Secrets with fnox
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/plugins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plugins
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/server_install/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Server Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../developer/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Developer
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_8" id="__nav_8_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Developer
+  
+
+          </label>
+          <ul class="md-nav__list">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../developer/coverage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coverage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../developer/design/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_8_3" id="__nav_8_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Design
+  
+
+          </label>
+          <ul class="md-nav__list">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../developer/design/debug_console/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home Assistant's Debug Console
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../developer/design/design_principles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design principles
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../developer/design/roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8_3_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../developer/design/rfcs/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rfcs
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_8_3_5" id="__nav_8_3_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_3_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Rfcs
+  
+
+          </label>
+          <ul class="md-nav__list">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../developer/design/rfcs/0001-persistent-config/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RFC 0001: Persistent Configuration and Plugins
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../developer/design/rfcs/0002-auto-completed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RFC 0002: Auto Complete Support
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../developer/design/rfcs/0003-event-assistance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RFC0003 - Event Assistance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../modes/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modes
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_9" id="__nav_9_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Modes
+  
+
+          </label>
+          <ul class="md-nav__list">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modes/api_mode/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Mode
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modes/exec_mode/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exec Mode
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modes/live_mode/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Live Mode
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+              
+              
+              
+              <article class="md-content__inner md-typeset" >
+                
+  
+  
+                  
+  
+    <a href="https://github.com/rhizomatics/homeassistant-repl/edit/main/docs/events/index.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+    
+      
+    
+    <a href="https://github.com/rhizomatics/homeassistant-repl/raw/main/docs/events/index.md" title="View source of this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
+    </a>
+  
+
+
+<h1 id="event-catalogue">Event Catalogue<a class="headerlink" href="#event-catalogue" title="Permanent link">&para;</a></h1>
+<p>Home Assistant has no registry of the events it fires: an event type is any string given to <code>hass.bus.async_fire</code>. This catalogue is built by scanning Home Assistant core's source each week, without running any of it. It starts from the <code>EVENT_*</code> constants integrations declare, then adds the event types fired as plain strings. What each constant is depends on how the code uses it, not on its name, since the <code>EVENT_</code> prefix is also used for event data keys, event entity types and settings. Corrections and events the scan can't find come from <a href="https://github.com/rhizomatics/homeassistant-repl/blob/main/dev/events/overrides.toml"><code>dev/events/overrides.toml</code></a>.</p>
+<div class="admonition warning">
+<p class="admonition-title">A first draft</p>
+<p>Not yet reviewed. Some verdicts are heuristics, marked <em>probably</em>.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Home Assistant core only</p>
+<p>Only Home Assistant itself and the integrations that ship with it are covered. Events fired by Marketplace integrations, or any other custom component, aren't in the catalogue, though they share the same event bus.</p>
+</div>
+<p>Scanned from Home Assistant <strong>2026.11.0</strong>: 128 events, 26 event entity types, and 60 constants not yet decided.</p>
+<p>Download: <a href="events.csv">CSV, for a spreadsheet</a> · <a href="events.json">JSON</a></p>
+<h2 id="kinds">Kinds<a class="headerlink" href="#kinds" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Standard</strong>: An event type fired on Home Assistant's event bus.</li>
+<li><strong>Entity event</strong>: The <code>event_type</code> of an event entity's state, not an event on the bus of its own: an event entity fires <code>state_changed</code> on itself, with this as its <code>event_type</code> attribute.</li>
+<li><strong>Not yet decided</strong>: A constant named <code>EVENT_*</code> whose use the scan couldn't decide. Each wants a look at the code, and an entry in <code>overrides.toml</code>.</li>
+<li><strong>Data key</strong>: A key in the data of an event, named <code>EVENT_*</code>.</li>
+<li><strong>Not an event</strong>: A constant named <code>EVENT_*</code> that isn't an event type: a timeout, schema or field name.</li>
+</ul>
+<h2 id="catalogue">Catalogue<a class="headerlink" href="#catalogue" title="Permanent link">&para;</a></h2>
+<p>Click a column's heading to sort by it. Constants that aren't events are hidden to begin with: tick them under <em>Show</em> to review them.</p>
+<div class="event-catalogue"><div class="ec-controls" hidden><input type="search" placeholder="Filter by event type, integration, constant…" aria-label="Filter the catalogue"><fieldset><legend>Show</legend><label><input type="checkbox" data-kind="event" checked> Standard (128)</label><label><input type="checkbox" data-kind="entity_event_type" checked> Entity event (26)</label><label><input type="checkbox" data-kind="unknown"> Not yet decided (60)</label><label><input type="checkbox" data-kind="data_key"> Data key (4)</label><label><input type="checkbox" data-kind="not_event"> Not an event (123)</label><label><input type="checkbox" data-certain> Certain only</label></fieldset><span class="ec-count" aria-live="polite"></span></div><table><thead><tr><th><button type="button">Event type</button></th><th><button type="button">Kind</button></th><th><button type="button">Integration</button></th><th><button type="button">Constant</button></th><th><button type="button">How it was found</button></th><th><button type="button">Source</button></th></tr></thead><tbody><tr data-kind="event" data-certain="true"><td><code>alexa_smart_home</code></td><td>Standard</td><td>Amazon Alexa</td><td><code>EVENT_ALEXA_SMART_HOME</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/alexa/const.py#L9">components.alexa.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>amcrest</code></td><td>Standard</td><td>Amcrest</td><td></td><td>fired as a string, with no constant</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/amcrest/__init__.py#L330">components.amcrest</a></td></tr><tr data-kind="event" data-certain="true"><td><code>arcam_fmj.turn_on</code></td><td>Standard</td><td>Arcam FMJ Receivers</td><td><code>EVENT_TURN_ON</code></td><td>fired, listened for</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/arcam_fmj/const.py#L5">components.arcam_fmj.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>area_registry_updated</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_AREA_REGISTRY_UPDATED</code></td><td>fired, listened for, typed EventType</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/helpers/area_registry.py#L36">helpers.area_registry</a></td></tr><tr data-kind="event" data-certain="true"><td><code>assist_pipeline_recording</code></td><td>Standard</td><td>Assist pipeline</td><td><code>EVENT_RECORDING</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/assist_pipeline/const.py#L18">components.assist_pipeline.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>automation_reloaded</code></td><td>Standard</td><td>Automation</td><td><code>EVENT_AUTOMATION_RELOADED</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/automation/const.py#L17">components.automation.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>automation_triggered</code></td><td>Standard</td><td>Automation</td><td><code>EVENT_AUTOMATION_TRIGGERED</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/automation/const.py#L18">components.automation.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>button_pressed</code></td><td>Standard</td><td>EnOcean</td><td><code>EVENT_BUTTON_PRESSED</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/enocean/binary_sensor.py#L24">components.enocean.binary_sensor</a></td></tr><tr data-kind="event" data-certain="true"><td><code>button_pressed</code></td><td>Standard</td><td>RFLink</td><td><code>EVENT_BUTTON_PRESSED</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/rflink/entity.py#L30">components.rflink.entity</a></td></tr><tr data-kind="event" data-certain="true"><td><code>call_service</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_CALL_SERVICE</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L271">const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>category_registry_updated</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_CATEGORY_REGISTRY_UPDATED</code></td><td>fired, typed EventType</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/helpers/category_registry.py#L21">helpers.category_registry</a></td></tr><tr data-kind="event" data-certain="false"><td><code>cloud_event</code></td><td>Standard</td><td>Home Assistant Cloud</td><td><code>EVENT_CLOUD_EVENT</code></td><td><em>probably</em>: value starts with its domain</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/cloud/const.py#L27">components.cloud.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>component_loaded</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_COMPONENT_LOADED</code></td><td>fired, listened for</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L272">const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>config_entry_discovered</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_FLOW_DISCOVERED</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/config_entries.py#L215">config_entries</a></td></tr><tr data-kind="event" data-certain="true"><td><code>core_config_updated</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_CORE_CONFIG_UPDATE</code></td><td>fired, listened for</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L273">const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>data_entry_flow_progress_update</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_DATA_ENTRY_FLOW_PROGRESS_UPDATE</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/data_entry_flow.py#L44">data_entry_flow</a></td></tr><tr data-kind="event" data-certain="true"><td><code>data_entry_flow_progressed</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_DATA_ENTRY_FLOW_PROGRESSED</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/data_entry_flow.py#L43">data_entry_flow</a></td></tr><tr data-kind="event" data-certain="true"><td><code>demo_button_pressed</code></td><td>Standard</td><td>Demo</td><td></td><td>fired as a string, with no constant</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/demo/button.py#L56">components.demo.button</a></td></tr><tr data-kind="event" data-certain="true"><td><code>device_registry_updated</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_DEVICE_REGISTRY_UPDATED</code></td><td>fired, listened for, typed EventType</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/helpers/device_registry.py#L79">helpers.device_registry</a></td></tr><tr data-kind="event" data-certain="true"><td><code>device_tracker_new_device</code></td><td>Standard</td><td>Device tracker</td><td><code>EVENT_NEW_DEVICE</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/device_tracker/legacy.py#L138">components.device_tracker.legacy</a></td></tr><tr data-kind="event" data-certain="true"><td><code>downloader_download_completed</code></td><td>Standard</td><td>Downloader</td><td></td><td>fired as a string, with no constant</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/downloader/services.py#L136">components.downloader.services</a></td></tr><tr data-kind="event" data-certain="true"><td><code>downloader_download_failed</code></td><td>Standard</td><td>Downloader</td><td></td><td>fired as a string, with no constant</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/downloader/services.py#L85">components.downloader.services</a></td></tr><tr data-kind="event" data-certain="false"><td><code>dsmr_first_telegram_{}</code></td><td>Standard</td><td>DSMR Smart Meter</td><td><code>EVENT_FIRST_TELEGRAM</code></td><td><em>probably</em>: value starts with its domain</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/dsmr/sensor.py#L69">components.dsmr.sensor</a></td></tr><tr data-kind="event" data-certain="true"><td><code>dynalite_packet</code></td><td>Standard</td><td>Philips Dynalite</td><td></td><td>fired as a string, with no constant</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/dynalite/bridge.py#L82">components.dynalite.bridge</a></td></tr><tr data-kind="event" data-certain="true"><td><code>dynalite_preset</code></td><td>Standard</td><td>Philips Dynalite</td><td></td><td>fired as a string, with no constant</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/dynalite/bridge.py#L90">components.dynalite.bridge</a></td></tr><tr data-kind="event" data-certain="true"><td><code>ecovacs_error</code></td><td>Standard</td><td>Ecovacs</td><td></td><td>fired as a string, with no constant</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/ecovacs/vacuum.py#L104">components.ecovacs.vacuum</a></td></tr><tr data-kind="event" data-certain="true"><td><code>elkm1.keypad_key_pressed</code></td><td>Standard</td><td>Elk-M1 Control</td><td><code>EVENT_ELKM1_KEYPAD_KEY_PRESSED</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/elkm1/const.py#L40">components.elkm1.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>entity_registry_updated</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_ENTITY_REGISTRY_UPDATED</code></td><td>fired, listened for, typed EventType</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/helpers/entity_registry.py#L86">helpers.entity_registry</a></td></tr><tr data-kind="event" data-certain="true"><td><code>event_knx_reloaded</code></td><td>Standard</td><td>KNX</td><td></td><td>fired as a string, with no constant</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/knx/services.py#L386">components.knx.services</a></td></tr><tr data-kind="event" data-certain="true"><td><code>event_mqtt_reloaded</code></td><td>Standard</td><td>MQTT</td><td></td><td>fired as a string, with no constant</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/mqtt/services.py#L182">components.mqtt.services</a></td></tr><tr data-kind="event" data-certain="true"><td><code>event_template_reloaded</code></td><td>Standard</td><td>Template</td><td></td><td>fired as a string, with no constant</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/template/services.py#L41">components.template.services</a></td></tr><tr data-kind="event" data-certain="true"><td><code>flic_click</code></td><td>Standard</td><td>Flic (legacy)</td><td><code>EVENT_NAME</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/flic/binary_sensor.py#L40">components.flic.binary_sensor</a></td></tr><tr data-kind="event" data-certain="true"><td><code>floor_registry_updated</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_FLOOR_REGISTRY_UPDATED</code></td><td>fired, listened for, typed EventType</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/helpers/floor_registry.py#L27">helpers.floor_registry</a></td></tr><tr data-kind="event" data-certain="true"><td><code>foursquare.checkin</code></td><td>Standard</td><td>Foursquare</td><td><code>EVENT_CHECKIN</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/foursquare/const.py#L11">components.foursquare.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>foursquare.push</code></td><td>Standard</td><td>Foursquare</td><td><code>EVENT_PUSH</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/foursquare/const.py#L12">components.foursquare.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>google_assistant_command</code></td><td>Standard</td><td>Google Assistant</td><td><code>EVENT_COMMAND_RECEIVED</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/google_assistant/const.py#L149">components.google_assistant.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>google_assistant_query</code></td><td>Standard</td><td>Google Assistant</td><td><code>EVENT_QUERY_RECEIVED</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/google_assistant/const.py#L150">components.google_assistant.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>google_assistant_sync</code></td><td>Standard</td><td>Google Assistant</td><td><code>EVENT_SYNC_RECEIVED</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/google_assistant/const.py#L151">components.google_assistant.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>hdmi_cec_unavailable</code></td><td>Standard</td><td>HDMI-CEC</td><td><code>EVENT_HDMI_CEC_UNAVAILABLE</code></td><td>fired, listened for</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hdmi_cec/const.py#L7">components.hdmi_cec.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>homeassistant_close</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_HOMEASSISTANT_CLOSE</code></td><td>fired, listened for, typed EventType</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L274">const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>homeassistant_final_write</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_HOMEASSISTANT_FINAL_WRITE</code></td><td>fired, listened for, typed EventType</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L278">const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>homeassistant_start</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_HOMEASSISTANT_START</code></td><td>fired, listened for, typed EventType</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L275">const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>homeassistant_started</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_HOMEASSISTANT_STARTED</code></td><td>fired, listened for, typed EventType</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L276">const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>homeassistant_stop</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_HOMEASSISTANT_STOP</code></td><td>fired, listened for, typed EventType</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L277">const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>homekit_state_change</code></td><td>Standard</td><td>HomeKit Bridge</td><td><code>EVENT_HOMEKIT_CHANGED</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/homekit/const.py#L100">components.homekit.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>homekit_tv_remote_key_pressed</code></td><td>Standard</td><td>HomeKit Bridge</td><td><code>EVENT_HOMEKIT_TV_REMOTE_KEY_PRESSED</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/homekit/const.py#L101">components.homekit.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>homematic.error</code></td><td>Standard</td><td>Homematic</td><td><code>EVENT_ERROR</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/homematic/const.py#L34">components.homematic.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>homematic.impulse</code></td><td>Standard</td><td>Homematic</td><td><code>EVENT_IMPULSE</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/homematic/const.py#L33">components.homematic.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>homematic.keypress</code></td><td>Standard</td><td>Homematic</td><td><code>EVENT_KEYPRESS</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/homematic/const.py#L32">components.homematic.const</a></td></tr><tr data-kind="event" data-certain="false"><td><code>homeworks_button_press</code></td><td>Standard</td><td>Lutron Homeworks</td><td><code>EVENT_BUTTON_PRESS</code></td><td><em>probably</em>: named where a variable is fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/homeworks/__init__.py#L41">components.homeworks</a></td></tr><tr data-kind="event" data-certain="false"><td><code>homeworks_button_release</code></td><td>Standard</td><td>Lutron Homeworks</td><td><code>EVENT_BUTTON_RELEASE</code></td><td><em>probably</em>: named where a variable is fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/homeworks/__init__.py#L42">components.homeworks</a></td></tr><tr data-kind="event" data-certain="true"><td><code>idteck_prox_keycard</code></td><td>Standard</td><td>IDTECK Proximity Reader</td><td><code>EVENT_IDTECK_PROX_KEYCARD</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/idteck_prox/__init__.py#L22">components.idteck_prox</a></td></tr><tr data-kind="event" data-certain="true"><td><code>ifttt_webhook_received</code></td><td>Standard</td><td>IFTTT</td><td><code>EVENT_RECEIVED</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/ifttt/__init__.py#L21">components.ifttt</a></td></tr><tr data-kind="event" data-certain="true"><td><code>image_processing.detect_face</code></td><td>Standard</td><td>Image processing</td><td><code>EVENT_DETECT_FACE</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/image_processing/const.py#L16">components.image_processing.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>image_processing.found_plate</code></td><td>Standard</td><td>OpenALPR Cloud</td><td><code>EVENT_FOUND_PLATE</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/openalpr_cloud/image_processing.py#L40">components.openalpr_cloud.image_processing</a></td></tr><tr data-kind="event" data-certain="true"><td><code>imap_content</code></td><td>Standard</td><td>IMAP</td><td><code>EVENT_IMAP</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/imap/coordinator.py#L60">components.imap.coordinator</a></td></tr><tr data-kind="event" data-certain="false"><td><code>insteon.button_off</code></td><td>Standard</td><td>Insteon</td><td><code>EVENT_GROUP_OFF</code></td><td><em>probably</em>: named where a variable is fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/insteon/const.py#L132">components.insteon.const</a></td></tr><tr data-kind="event" data-certain="false"><td><code>insteon.button_off_fast</code></td><td>Standard</td><td>Insteon</td><td><code>EVENT_GROUP_OFF_FAST</code></td><td><em>probably</em>: named where a variable is fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/insteon/const.py#L134">components.insteon.const</a></td></tr><tr data-kind="event" data-certain="false"><td><code>insteon.button_on</code></td><td>Standard</td><td>Insteon</td><td><code>EVENT_GROUP_ON</code></td><td><em>probably</em>: named where a variable is fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/insteon/const.py#L131">components.insteon.const</a></td></tr><tr data-kind="event" data-certain="false"><td><code>insteon.button_on_fast</code></td><td>Standard</td><td>Insteon</td><td><code>EVENT_GROUP_ON_FAST</code></td><td><em>probably</em>: named where a variable is fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/insteon/const.py#L133">components.insteon.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>ios.action_fired</code></td><td>Standard</td><td>Mobile App</td><td></td><td>overrides.toml. Fired by the iOS Companion app, through mobile_app&#x27;s fire_event webhook, when one of its actions is run</td><td></td></tr><tr data-kind="event" data-certain="true"><td><code>isy994_control</code></td><td>Standard</td><td>Universal Devices ISY/IoX</td><td><code>EVENT_ISY994_CONTROL</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/isy994/const.py#L83">components.isy994.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>keyboard_remote_command_received</code></td><td>Standard</td><td>Keyboard Remote</td><td><code>EVENT_KEYBOARD_REMOTE_COMMAND_RECEIVED</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/keyboard_remote/const.py#L32">components.keyboard_remote.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>keyboard_remote_connected</code></td><td>Standard</td><td>Keyboard Remote</td><td><code>EVENT_KEYBOARD_REMOTE_CONNECTED</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/keyboard_remote/const.py#L33">components.keyboard_remote.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>keyboard_remote_disconnected</code></td><td>Standard</td><td>Keyboard Remote</td><td><code>EVENT_KEYBOARD_REMOTE_DISCONNECTED</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/keyboard_remote/const.py#L34">components.keyboard_remote.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>knx_event</code></td><td>Standard</td><td>KNX</td><td></td><td>fired as a string, with no constant</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/knx/knx_module.py#L352">components.knx.knx_module</a></td></tr><tr data-kind="event" data-certain="true"><td><code>kodi.turn_off</code></td><td>Standard</td><td>Kodi</td><td><code>EVENT_TURN_OFF</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/kodi/const.py#L12">components.kodi.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>kodi.turn_on</code></td><td>Standard</td><td>Kodi</td><td><code>EVENT_TURN_ON</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/kodi/const.py#L13">components.kodi.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>kodi_call_method_result</code></td><td>Standard</td><td>Kodi</td><td><code>EVENT_KODI_CALL_METHOD_RESULT</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/kodi/media_player.py#L49">components.kodi.media_player</a></td></tr><tr data-kind="event" data-certain="true"><td><code>kodi_keypress</code></td><td>Standard</td><td>Kodi</td><td></td><td>fired as a string, with no constant</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/kodi/media_player.py#L214">components.kodi.media_player</a></td></tr><tr data-kind="event" data-certain="true"><td><code>label_registry_updated</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_LABEL_REGISTRY_UPDATED</code></td><td>fired, typed EventType</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/helpers/label_registry.py#L24">helpers.label_registry</a></td></tr><tr data-kind="event" data-certain="true"><td><code>labs_updated</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_LABS_UPDATED</code></td><td>fired, listened for</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L281">const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>lcn_send_keys</code></td><td>Standard</td><td>LCN</td><td></td><td>fired as a string, with no constant</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/lcn/__init__.py#L330">components.lcn</a></td></tr><tr data-kind="event" data-certain="true"><td><code>logbook_entry</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_LOGBOOK_ENTRY</code></td><td>fired, listened for</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L282">const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>logging_changed</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_LOGGING_CHANGED</code></td><td>fired, listened for</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L283">const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>lovelace_updated</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_LOVELACE_UPDATED</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L290">const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>lutron_event</code></td><td>Standard</td><td>Lutron</td><td></td><td>fired as a string, with no constant</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/lutron/event.py#L117">components.lutron.event</a></td></tr><tr data-kind="event" data-certain="true"><td><code>manual_alarm_bad_code_attempt</code></td><td>Standard</td><td>Manual alarm control panel</td><td></td><td>fired as a string, with no constant</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/manual/alarm_control_panel.py#L424">components.manual.alarm_control_panel</a></td></tr><tr data-kind="event" data-certain="true"><td><code>matrix_command</code></td><td>Standard</td><td>Matrix</td><td><code>EVENT_MATRIX_COMMAND</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/matrix/__init__.py#L71">components.matrix</a></td></tr><tr data-kind="event" data-certain="true"><td><code>mobile_app_notification_action</code></td><td>Standard</td><td>Mobile App</td><td></td><td>overrides.toml. Fired by the Companion apps, through mobile_app&#x27;s fire_event webhook, when a notification&#x27;s action is chosen</td><td></td></tr><tr data-kind="event" data-certain="true"><td><code>netgear_lte_sms</code></td><td>Standard</td><td>NETGEAR LTE</td><td><code>EVENT_SMS</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netgear_lte/__init__.py#L25">components.netgear_lte</a></td></tr><tr data-kind="event" data-certain="true"><td><code>notify</code></td><td>Standard</td><td>Demo</td><td><code>EVENT_NOTIFY</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/demo/notify.py#L15">components.demo.notify</a></td></tr><tr data-kind="event" data-certain="true"><td><code>nuki_event</code></td><td>Standard</td><td>Nuki Bridge</td><td></td><td>fired as a string, with no constant</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/nuki/coordinator.py#L96">components.nuki.coordinator</a></td></tr><tr data-kind="event" data-certain="true"><td><code>nzbget_download_complete</code></td><td>Standard</td><td>NZBGet</td><td></td><td>fired as a string, with no constant</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/nzbget/coordinator.py#L73">components.nzbget.coordinator</a></td></tr><tr data-kind="event" data-certain="false"><td><code>opensky_entry</code></td><td>Standard</td><td>OpenSky Network</td><td><code>EVENT_OPENSKY_ENTRY</code></td><td><em>probably</em>: named where a variable is fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/opensky/const.py#L24">components.opensky.const</a></td></tr><tr data-kind="event" data-certain="false"><td><code>opensky_exit</code></td><td>Standard</td><td>OpenSky Network</td><td><code>EVENT_OPENSKY_EXIT</code></td><td><em>probably</em>: named where a variable is fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/opensky/const.py#L25">components.opensky.const</a></td></tr><tr data-kind="event" data-certain="false"><td><code>overseerr_event</code></td><td>Standard</td><td>Seerr</td><td><code>EVENT_KEY</code></td><td><em>probably</em>: value starts with its domain</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/overseerr/const.py#L21">components.overseerr.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>panels_updated</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_PANELS_UPDATED</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L289">const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>point_webhook_received</code></td><td>Standard</td><td>Minut Point</td><td><code>EVENT_RECEIVED</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/point/const.py#L11">components.point.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>recorder_5min_statistics_generated</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_RECORDER_5MIN_STATISTICS_GENERATED</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L291">const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>recorder_hourly_statistics_generated</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_RECORDER_HOURLY_STATISTICS_GENERATED</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L292">const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>repairs_issue_registry_updated</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_REPAIRS_ISSUE_REGISTRY_UPDATED</code></td><td>fired, typed EventType</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/helpers/issue_registry.py#L27">helpers.issue_registry</a></td></tr><tr data-kind="event" data-certain="true"><td><code>rfxtrx_event</code></td><td>Standard</td><td>RFXCOM RFXtrx</td><td><code>EVENT_RFXTRX_EVENT</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/rfxtrx/const.py#L47">components.rfxtrx.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>roku_command</code></td><td>Standard</td><td>Emulated Roku</td><td><code>EVENT_ROKU_COMMAND</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/emulated_roku/binding.py#L18">components.emulated_roku.binding</a></td></tr><tr data-kind="event" data-certain="true"><td><code>scene_reloaded</code></td><td>Standard</td><td>Home Assistant Core Integration</td><td><code>EVENT_SCENE_RELOADED</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/homeassistant/scene.py#L87">components.homeassistant.scene</a></td></tr><tr data-kind="event" data-certain="true"><td><code>script_started</code></td><td>Standard</td><td>Scripts</td><td><code>EVENT_SCRIPT_STARTED</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/script/const.py#L19">components.script.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>service_registered</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_SERVICE_REGISTERED</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L284">const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>service_removed</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_SERVICE_REMOVED</code></td><td>fired, listened for</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L285">const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>shelly.click</code></td><td>Standard</td><td>Shelly</td><td><code>EVENT_SHELLY_CLICK</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/shelly/const.py#L124">components.shelly.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>shopping_list_updated</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_SHOPPING_LIST_UPDATED</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L295">const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>sighthound.person_detected</code></td><td>Standard</td><td>Sighthound</td><td><code>EVENT_PERSON_DETECTED</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/sighthound/image_processing.py#L32">components.sighthound.image_processing</a></td></tr><tr data-kind="event" data-certain="true"><td><code>SIMPLISAFE_EVENT</code></td><td>Standard</td><td>SimpliSafe</td><td><code>EVENT_SIMPLISAFE_EVENT</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/simplisafe/__init__.py#L75">components.simplisafe</a></td></tr><tr data-kind="event" data-certain="true"><td><code>SIMPLISAFE_NOTIFICATION</code></td><td>Standard</td><td>SimpliSafe</td><td><code>EVENT_SIMPLISAFE_NOTIFICATION</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/simplisafe/__init__.py#L76">components.simplisafe</a></td></tr><tr data-kind="event" data-certain="true"><td><code>smartthings.button</code></td><td>Standard</td><td>SmartThings</td><td><code>EVENT_BUTTON</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/smartthings/const.py#L41">components.smartthings.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>state_changed</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_STATE_CHANGED</code></td><td>fired, listened for, typed EventType</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L286">const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>state_reported</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_STATE_REPORTED</code></td><td>fired, typed EventType</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L287">const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>system_log_event</code></td><td>Standard</td><td>System Log</td><td><code>EVENT_SYSTEM_LOG</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/system_log/const.py#L14">components.system_log.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>tag_scanned</code></td><td>Standard</td><td>Tags</td><td><code>EVENT_TAG_SCANNED</code></td><td>fired, listened for</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/tag/const.py#L8">components.tag.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>telegram_sent</code></td><td>Standard</td><td>Telegram bot</td><td><code>EVENT_TELEGRAM_SENT</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/telegram_bot/const.py#L59">components.telegram_bot.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>themes_updated</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_THEMES_UPDATED</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/const.py#L288">const</a></td></tr><tr data-kind="event" data-certain="false"><td><code>timer.cancelled</code></td><td>Standard</td><td>Timer</td><td><code>EVENT_TIMER_CANCELLED</code></td><td><em>probably</em>: named where a variable is fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/timer/const.py#L30">components.timer.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>timer.changed</code></td><td>Standard</td><td>Timer</td><td><code>EVENT_TIMER_CHANGED</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/timer/const.py#L31">components.timer.const</a></td></tr><tr data-kind="event" data-certain="false"><td><code>timer.finished</code></td><td>Standard</td><td>Timer</td><td><code>EVENT_TIMER_FINISHED</code></td><td><em>probably</em>: named where a variable is fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/timer/const.py#L29">components.timer.const</a></td></tr><tr data-kind="event" data-certain="false"><td><code>timer.paused</code></td><td>Standard</td><td>Timer</td><td><code>EVENT_TIMER_PAUSED</code></td><td><em>probably</em>: named where a variable is fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/timer/const.py#L34">components.timer.const</a></td></tr><tr data-kind="event" data-certain="false"><td><code>timer.restarted</code></td><td>Standard</td><td>Timer</td><td><code>EVENT_TIMER_RESTARTED</code></td><td><em>probably</em>: named where a variable is fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/timer/const.py#L33">components.timer.const</a></td></tr><tr data-kind="event" data-certain="false"><td><code>timer.started</code></td><td>Standard</td><td>Timer</td><td><code>EVENT_TIMER_STARTED</code></td><td><em>probably</em>: named where a variable is fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/timer/const.py#L32">components.timer.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>transmission_downloaded_torrent</code></td><td>Standard</td><td>Transmission</td><td><code>EVENT_DOWNLOADED_TORRENT</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/transmission/const.py#L57">components.transmission.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>transmission_removed_torrent</code></td><td>Standard</td><td>Transmission</td><td><code>EVENT_REMOVED_TORRENT</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/transmission/const.py#L56">components.transmission.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>transmission_started_torrent</code></td><td>Standard</td><td>Transmission</td><td><code>EVENT_STARTED_TORRENT</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/transmission/const.py#L55">components.transmission.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>upb.scene_changed</code></td><td>Standard</td><td>Universal Powerline Bus (UPB)</td><td><code>EVENT_UPB_SCENE_CHANGED</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/upb/const.py#L16">components.upb.const</a></td></tr><tr data-kind="event" data-certain="true"><td><code>user_added</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_USER_ADDED</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/auth/__init__.py#L38">auth</a></td></tr><tr data-kind="event" data-certain="true"><td><code>user_removed</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_USER_REMOVED</code></td><td>fired, listened for</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/auth/__init__.py#L40">auth</a></td></tr><tr data-kind="event" data-certain="true"><td><code>user_updated</code></td><td>Standard</td><td>Home Assistant core</td><td><code>EVENT_USER_UPDATED</code></td><td>fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/auth/__init__.py#L39">auth</a></td></tr><tr data-kind="event" data-certain="true"><td><code>xiaomi_aqara.click</code></td><td>Standard</td><td>Xiaomi Gateway (Aqara)</td><td></td><td>fired as a string, with no constant</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/xiaomi_aqara/binary_sensor.py#L628">components.xiaomi_aqara.binary_sensor</a></td></tr><tr data-kind="event" data-certain="true"><td><code>xiaomi_aqara.cube_action</code></td><td>Standard</td><td>Xiaomi Gateway (Aqara)</td><td></td><td>fired as a string, with no constant</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/xiaomi_aqara/binary_sensor.py#L675">components.xiaomi_aqara.binary_sensor</a></td></tr><tr data-kind="event" data-certain="true"><td><code>xiaomi_aqara.motion</code></td><td>Standard</td><td>Xiaomi Gateway (Aqara)</td><td></td><td>fired as a string, with no constant</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/xiaomi_aqara/binary_sensor.py#L321">components.xiaomi_aqara.binary_sensor</a></td></tr><tr data-kind="event" data-certain="true"><td><code>xiaomi_aqara.movement</code></td><td>Standard</td><td>Xiaomi Gateway (Aqara)</td><td></td><td>fired as a string, with no constant</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/xiaomi_aqara/binary_sensor.py#L556">components.xiaomi_aqara.binary_sensor</a></td></tr><tr data-kind="event" data-certain="false"><td><code>zwave_js_device_added_to_registry</code></td><td>Standard</td><td>Z-Wave</td><td><code>EVENT_DEVICE_ADDED_TO_REGISTRY</code></td><td><em>probably</em>: named where a variable is fired</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/zwave_js/const.py#L41">components.zwave_js.const</a></td></tr><tr data-kind="entity_event_type" data-certain="true"><td><code>barrier_obstructed</code></td><td>Entity event</td><td>Nice G.O.</td><td><code>EVENT_BARRIER_OBSTRUCTED</code></td><td>event entity type</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/nice_go/event.py#L32">components.nice_go.event</a></td></tr><tr data-kind="entity_event_type" data-certain="true"><td><code>camera_motion</code></td><td>Entity event</td><td>Google Nest</td><td><code>EVENT_CAMERA_MOTION</code></td><td>event entity type</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/nest/events.py#L39">components.nest.events</a></td></tr><tr data-kind="entity_event_type" data-certain="true"><td><code>camera_person</code></td><td>Entity event</td><td>Google Nest</td><td><code>EVENT_CAMERA_PERSON</code></td><td>event entity type</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/nest/events.py#L40">components.nest.events</a></td></tr><tr data-kind="entity_event_type" data-certain="true"><td><code>camera_sound</code></td><td>Entity event</td><td>Google Nest</td><td><code>EVENT_CAMERA_SOUND</code></td><td>event entity type</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/nest/events.py#L41">components.nest.events</a></td></tr><tr data-kind="entity_event_type" data-certain="true"><td><code>detected</code></td><td>Entity event</td><td>UniFi Protect</td><td><code>EVENT_TYPE_PACKAGE_DETECTED</code></td><td>event entity type</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/unifiprotect/const.py#L109">components.unifiprotect.const</a></td></tr><tr data-kind="entity_event_type" data-certain="true"><td><code>detected</code></td><td>Entity event</td><td>UniFi Protect</td><td><code>EVENT_TYPE_VEHICLE_DETECTED</code></td><td>event entity type</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/unifiprotect/const.py#L108">components.unifiprotect.const</a></td></tr><tr data-kind="entity_event_type" data-certain="true"><td><code>downloaded</code></td><td>Entity event</td><td>Transmission</td><td><code>EVENT_TYPE_DOWNLOADED</code></td><td>event entity type</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/transmission/const.py#L61">components.transmission.const</a></td></tr><tr data-kind="entity_event_type" data-certain="true"><td><code>event_type</code></td><td>Entity event</td><td>BTHome</td><td><code>EVENT_TYPE</code></td><td>event entity type</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/bthome/const.py#L12">components.bthome.const</a></td></tr><tr data-kind="entity_event_type" data-certain="true"><td><code>event_type</code></td><td>Entity event</td><td>Xiaomi BLE</td><td><code>EVENT_TYPE</code></td><td>event entity type</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/xiaomi_ble/const.py#L15">components.xiaomi_ble.const</a></td></tr><tr data-kind="entity_event_type" data-certain="true"><td><code>feedreader</code></td><td>Entity event</td><td>Feedreader</td><td><code>EVENT_FEEDREADER</code></td><td>event entity type</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/feedreader/const.py#L14">components.feedreader.const</a></td></tr><tr data-kind="entity_event_type" data-certain="true"><td><code>identified</code></td><td>Entity event</td><td>UniFi Protect</td><td><code>EVENT_TYPE_FINGERPRINT_IDENTIFIED</code></td><td>event entity type</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/unifiprotect/const.py#L105">components.unifiprotect.const</a></td></tr><tr data-kind="entity_event_type" data-certain="true"><td><code>long_press</code></td><td>Entity event</td><td>Velbus</td><td><code>EVENT_LONG_PRESS</code></td><td>event entity type</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/velbus/event.py#L18">components.velbus.event</a></td></tr><tr data-kind="entity_event_type" data-certain="true"><td><code>not_identified</code></td><td>Entity event</td><td>UniFi Protect</td><td><code>EVENT_TYPE_FINGERPRINT_NOT_IDENTIFIED</code></td><td>event entity type</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/unifiprotect/const.py#L106">components.unifiprotect.const</a></td></tr><tr data-kind="entity_event_type" data-certain="true"><td><code>Pressed</code></td><td>Entity event</td><td>HomeLink</td><td><code>EVENT_PRESSED</code></td><td>event entity type</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/gentex_homelink/const.py#L4">components.gentex_homelink.const</a></td></tr><tr data-kind="entity_event_type" data-certain="true"><td><code>removed</code></td><td>Entity event</td><td>Transmission</td><td><code>EVENT_TYPE_REMOVED</code></td><td>event entity type</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/transmission/const.py#L60">components.transmission.const</a></td></tr><tr data-kind="entity_event_type" data-certain="true"><td><code>scanned</code></td><td>Entity event</td><td>UniFi Protect</td><td><code>EVENT_TYPE_NFC_SCANNED</code></td><td>event entity type</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/unifiprotect/const.py#L107">components.unifiprotect.const</a></td></tr><tr data-kind="entity_event_type" data-certain="true"><td><code>session_authorized</code></td><td>Entity event</td><td>Peblar</td><td><code>EVENT_SESSION_AUTHORIZED</code></td><td>event entity type</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/peblar/event.py#L19">components.peblar.event</a></td></tr><tr data-kind="entity_event_type" data-certain="true"><td><code>short_press</code></td><td>Entity event</td><td>Velbus</td><td><code>EVENT_SHORT_PRESS</code></td><td>event entity type</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/velbus/event.py#L17">components.velbus.event</a></td></tr><tr data-kind="entity_event_type" data-certain="true"><td><code>started</code></td><td>Entity event</td><td>Transmission</td><td><code>EVENT_TYPE_STARTED</code></td><td>event entity type</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/transmission/const.py#L59">components.transmission.const</a></td></tr><tr data-kind="entity_event_type" data-certain="true"><td><code>telegram_attachment</code></td><td>Entity event</td><td>Telegram bot</td><td><code>EVENT_TELEGRAM_ATTACHMENT</code></td><td>event entity type</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/telegram_bot/const.py#L58">components.telegram_bot.const</a></td></tr><tr data-kind="entity_event_type" data-certain="true"><td><code>telegram_callback</code></td><td>Entity event</td><td>Telegram bot</td><td><code>EVENT_TELEGRAM_CALLBACK</code></td><td>event entity type</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/telegram_bot/const.py#L55">components.telegram_bot.const</a></td></tr><tr data-kind="entity_event_type" data-certain="true"><td><code>telegram_command</code></td><td>Entity event</td><td>Telegram bot</td><td><code>EVENT_TELEGRAM_COMMAND</code></td><td>event entity type</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/telegram_bot/const.py#L56">components.telegram_bot.const</a></td></tr><tr data-kind="entity_event_type" data-certain="true"><td><code>telegram_text</code></td><td>Entity event</td><td>Telegram bot</td><td><code>EVENT_TELEGRAM_TEXT</code></td><td>event entity type</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/telegram_bot/const.py#L57">components.telegram_bot.const</a></td></tr><tr data-kind="entity_event_type" data-certain="true"><td><code>transaction_created</code></td><td>Entity event</td><td>Monzo</td><td><code>EVENT_TRANSACTION_CREATED</code></td><td>event entity type</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/monzo/const.py#L14">components.monzo.const</a></td></tr><tr data-kind="entity_event_type" data-certain="true"><td><code>triggered</code></td><td>Entity event</td><td>Alexa Devices</td><td><code>EVENT_TYPE</code></td><td>event entity type</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/alexa_devices/event.py#L29">components.alexa_devices.event</a></td></tr><tr data-kind="entity_event_type" data-certain="true"><td><code>triggered</code></td><td>Entity event</td><td>Knocki</td><td><code>EVENT_TRIGGERED</code></td><td>event entity type</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/knocki/event.py#L45">components.knocki.event</a></td></tr><tr data-kind="data_key" data-certain="true"><td><code>button_address</code></td><td>Data key</td><td>Flic (legacy)</td><td><code>EVENT_DATA_ADDRESS</code></td><td>data key</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/flic/binary_sensor.py#L42">components.flic.binary_sensor</a></td></tr><tr data-kind="data_key" data-certain="true"><td><code>button_name</code></td><td>Data key</td><td>Flic (legacy)</td><td><code>EVENT_DATA_NAME</code></td><td>data key</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/flic/binary_sensor.py#L41">components.flic.binary_sensor</a></td></tr><tr data-kind="data_key" data-certain="true"><td><code>click_type</code></td><td>Data key</td><td>Flic (legacy)</td><td><code>EVENT_DATA_TYPE</code></td><td>data key</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/flic/binary_sensor.py#L43">components.flic.binary_sensor</a></td></tr><tr data-kind="data_key" data-certain="true"><td><code>queued_time</code></td><td>Data key</td><td>Flic (legacy)</td><td><code>EVENT_DATA_QUEUED_TIME</code></td><td>data key</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/flic/binary_sensor.py#L44">components.flic.binary_sensor</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>APC UPS Daemon</td><td><code>EVENT_SENSORS</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/apcupsd/sensor.py#L53">components.apcupsd.sensor</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Bang &amp; Olufsen</td><td><code>EVENT_TRANSLATION_MAP</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/bang_olufsen/const.py#L257">components.bang_olufsen.const</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>BTHome</td><td><code>EVENT_TYPES_BY_EVENT_CLASS</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/bthome/device_trigger.py#L37">components.bthome.device_trigger</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Calendar</td><td><code>EVENT_LISTENER_DEBOUNCE_COOLDOWN</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L19">components.calendar.const</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Calendar</td><td><code>EVENT_TIME_FIELDS</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L77">components.calendar.const</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>DoorBird</td><td><code>EVENT_DESCRIPTIONS</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/doorbird/event.py#L19">components.doorbird.event</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Event</td><td><code>EVENT_RECEIVED_TRIGGER_SCHEMA</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/event/trigger.py#L23">components.event.trigger</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Flic</td><td><code>EVENT_DESCRIPTION</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/flic_button/event.py#L39">components.flic_button.event</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Google Calendar</td><td><code>EVENT_PAGE_SIZE</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/google/api.py#L31">components.google.api</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Hikvision</td><td><code>EVENT_DESCRIPTIONS</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hikvision/event.py#L33">components.hikvision.event</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Hikvision</td><td><code>EVENT_TYPES</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hikvision/event.py#L27">components.hikvision.event</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>History</td><td><code>EVENT_COALESCE_TIME</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/history/const.py#L5">components.history.const</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Home Connect</td><td><code>EVENT_OPTIONS</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/home_connect/sensor.py#L37">components.home_connect.sensor</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Home Connect</td><td><code>EVENT_SENSORS</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/home_connect/sensor.py#L197">components.home_connect.sensor</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Home Assistant Core Integration</td><td><code>EVENT_TO_NAME</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/homeassistant/logbook.py#L18">components.homeassistant.logbook</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Homee</td><td><code>EVENT_DESCRIPTIONS</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/homee/event.py#L31">components.homee.event</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>HomematicIP Cloud</td><td><code>EVENT_DESCRIPTIONS</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/homematicip_cloud/event.py#L38">components.homematicip_cloud.event</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Philips Hue</td><td><code>EVENT_CONFIG_MAP</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hue/v1/hue_event.py#L108">components.hue.v1.hue_event</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>IMAP</td><td><code>EVENT_MESSAGE_DATA_SELECTOR</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/imap/config_flow.py#L61">components.imap.config_flow</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Activity</td><td><code>EVENT_DATA_POS</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/logbook/models.py#L101">components.logbook.models</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Activity</td><td><code>EVENT_TYPE_POS</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/logbook/models.py#L100">components.logbook.models</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Activity</td><td><code>EVENT_COLUMNS</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/logbook/queries/common.py#L55">components.logbook.queries.common</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Activity</td><td><code>EVENT_COLUMNS_FOR_STATE_SELECT</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/logbook/queries/common.py#L79">components.logbook.queries.common</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Activity</td><td><code>EVENT_ROWS_NO_STATES</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/logbook/queries/common.py#L103">components.logbook.queries.common</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Activity</td><td><code>EVENT_COALESCE_TIME</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/logbook/websocket_api.py#L32">components.logbook.websocket_api</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Matter</td><td><code>EVENT_TYPES_MAP</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/matter/event.py#L26">components.matter.event</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Mobile App</td><td><code>EVENT_TO_DESCRIPTION</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/mobile_app/logbook.py#L24">components.mobile_app.logbook</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>motionEye</td><td><code>EVENT_FILE_STORED_KEYS</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/motioneye/const.py#L67">components.motioneye.const</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>motionEye</td><td><code>EVENT_MOTION_DETECTED_KEYS</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/motioneye/const.py#L48">components.motioneye.const</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Google Nest</td><td><code>EVENT_MEDIA_CACHE_SIZE</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/nest/__init__.py#L116">components.nest</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Google Nest</td><td><code>EVENT_NAME_MAP</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/nest/events.py#L56">components.nest.events</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Netatmo</td><td><code>EVENT_ID_MAP</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L163">components.netatmo.const</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Overkiz</td><td><code>EVENT_HANDLERS</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/overkiz/coordinator.py#L58">components.overkiz.coordinator</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Peblar</td><td><code>EVENT_STREAM_RETRY_MAXIMUM</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/peblar/const.py#L27">components.peblar.const</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Peblar</td><td><code>EVENT_STREAM_RETRY_MINIMUM</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/peblar/const.py#L26">components.peblar.const</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Minut Point</td><td><code>EVENT_MAP</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/point/alarm_control_panel.py#L24">components.point.alarm_control_panel</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Recorder</td><td><code>EVENT_TYPE_IDS_SCHEMA_VERSION</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/recorder/const.py#L54">components.recorder.const</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Recorder</td><td><code>EVENT_DATA_JSON</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/recorder/db_schema.py#L875">components.recorder.db_schema</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Ring</td><td><code>EVENT_DESCRIPTIONS</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/ring/event.py#L32">components.ring.event</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Risco</td><td><code>EVENT_ATTRIBUTES</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/risco/sensor.py#L27">components.risco.sensor</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Sleep as Android</td><td><code>EVENT_DESCRIPTIONS</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/sleep_as_android/event.py#L43">components.sleep_as_android.event</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>SmartThings</td><td><code>EVENT_WAIT_TIME</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/smartthings/diagnostics.py#L15">components.smartthings.diagnostics</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Sofar</td><td><code>EVENT_DESCRIPTIONS</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/sofar/event.py#L41">components.sofar.event</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Sonos</td><td><code>EVENT_CHARGING</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/sonos/speaker.py#L77">components.sonos.speaker</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>SwitchBot Bluetooth</td><td><code>EVENT_DESCRIPTIONS</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/switchbot/event.py#L28">components.switchbot.event</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Template</td><td><code>EVENT_COMMON_SCHEMA</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/template/event.py#L53">components.template.event</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Template</td><td><code>EVENT_CONFIG_ENTRY_SCHEMA</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/template/event.py#L73">components.template.event</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Template</td><td><code>EVENT_YAML_SCHEMA</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/template/event.py#L68">components.template.event</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>UniFi Access</td><td><code>EVENT_DESCRIPTIONS</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/unifi_access/event.py#L45">components.unifi_access.event</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>UniFi Protect</td><td><code>EVENT_SENSORS</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/unifiprotect/binary_sensor.py#L519">components.unifiprotect.binary_sensor</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>UniFi Protect</td><td><code>EVENT_DESCRIPTIONS</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/unifiprotect/event.py#L681">components.unifiprotect.event</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>UniFi Protect</td><td><code>EVENT_MAP</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/unifiprotect/media_source.py#L61">components.unifiprotect.media_source</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>UniFi Protect</td><td><code>EVENT_NAME_MAP</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/unifiprotect/media_source.py#L74">components.unifiprotect.media_source</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Velbus</td><td><code>EVENT_TYPES</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/velbus/event.py#L19">components.velbus.event</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>WeatherFlow</td><td><code>EVENT_DESCRIPTIONS</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/weatherflow/event.py#L32">components.weatherflow.event</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Xiaomi BLE</td><td><code>EVENT_TYPES</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/xiaomi_ble/device_trigger.py#L121">components.xiaomi_ble.device_trigger</a></td></tr><tr data-kind="not_event" data-certain="true"><td></td><td>Not an event</td><td>Home Assistant core</td><td><code>EVENT_SCHEMA</code></td><td>not a string</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/helpers/config_validation.py#L1493">helpers.config_validation</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>/api/nest/event_media/{device_id}/{event_token}</code></td><td>Not an event</td><td>Google Nest</td><td><code>EVENT_MEDIA_API_URL_FORMAT</code></td><td><em>probably</em>: not shaped like an event type</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/nest/media_source.py#L65">components.nest.media_source</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>/api/nest/event_media/{device_id}/{event_token}/thumbnail</code></td><td>Not an event</td><td>Google Nest</td><td><code>EVENT_THUMBNAIL_URL_FORMAT</code></td><td><em>probably</em>: not shaped like an event type</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/nest/media_source.py#L66">components.nest.media_source</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>addon</code></td><td>Not an event</td><td>Home Assistant Supervisor</td><td><code>EVENT_ADDON</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hassio/const.py#L97">components.hassio.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>alarm</code></td><td>Not an event</td><td>Traccar Client</td><td><code>EVENT_ALARM</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L34">components.traccar.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>animal</code></td><td>Not an event</td><td>Netatmo</td><td><code>EVENT_TYPE_ANIMAL</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L112">components.netatmo.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>button</code></td><td>Not an event</td><td>BTHome</td><td><code>EVENT_CLASS_BUTTON</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/bthome/const.py#L18">components.bthome.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>button</code></td><td>Not an event</td><td>Flic</td><td><code>EVENT_CLASS_BUTTON</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/flic_button/const.py#L22">components.flic_button.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>button</code></td><td>Not an event</td><td>Insteon</td><td><code>EVENT_CONF_BUTTON</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/insteon/const.py#L135">components.insteon.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>button</code></td><td>Not an event</td><td>Xiaomi BLE</td><td><code>EVENT_CLASS_BUTTON</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/xiaomi_ble/const.py#L20">components.xiaomi_ble.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>command</code></td><td>Not an event</td><td>BTHome</td><td><code>EVENT_CLASS_COMMAND</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/bthome/const.py#L20">components.bthome.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>command</code></td><td>Not an event</td><td>RFLink</td><td><code>EVENT_KEY_COMMAND</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/rflink/const.py#L23">components.rflink.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>connection</code></td><td>Not an event</td><td>Netatmo</td><td><code>EVENT_TYPE_CONNECTION</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L126">components.netatmo.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>cube</code></td><td>Not an event</td><td>Xiaomi BLE</td><td><code>EVENT_CLASS_CUBE</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/xiaomi_ble/const.py#L21">components.xiaomi_ble.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>days</code></td><td>Not an event</td><td>Calendar</td><td><code>EVENT_IN_DAYS</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L75">components.calendar.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>days</code></td><td>Not an event</td><td>Google Calendar</td><td><code>EVENT_IN_DAYS</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/google/const.py#L43">components.google.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>description</code></td><td>Not an event</td><td>Calendar</td><td><code>EVENT_DESCRIPTION</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L62">components.calendar.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>description</code></td><td>Not an event</td><td>Google Calendar</td><td><code>EVENT_DESCRIPTION</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/google/const.py#L39">components.google.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>dimmer</code></td><td>Not an event</td><td>BTHome</td><td><code>EVENT_CLASS_DIMMER</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/bthome/const.py#L19">components.bthome.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>dimmer</code></td><td>Not an event</td><td>Xiaomi BLE</td><td><code>EVENT_CLASS_DIMMER</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/xiaomi_ble/const.py#L22">components.xiaomi_ble.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>disconnection</code></td><td>Not an event</td><td>Netatmo</td><td><code>EVENT_TYPE_DISCONNECTION</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L127">components.netatmo.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>dtend</code></td><td>Not an event</td><td>Calendar</td><td><code>EVENT_END</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L60">components.calendar.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>dtstart</code></td><td>Not an event</td><td>Calendar</td><td><code>EVENT_START</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L59">components.calendar.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>duration</code></td><td>Not an event</td><td>Calendar</td><td><code>EVENT_DURATION</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L85">components.calendar.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>end</code></td><td>Not an event</td><td>Calendar</td><td><code>EVENT_END</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/trigger.py#L45">components.calendar.trigger</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>enter</code></td><td>Not an event</td><td>Geolocation</td><td><code>EVENT_ENTER</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/geo_location/trigger.py#L29">components.geo_location.trigger</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>enter</code></td><td>Not an event</td><td>Zone</td><td><code>EVENT_ENTER</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/zone/trigger.py#L50">components.zone.trigger</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>error</code></td><td>Not an event</td><td>Xiaomi BLE</td><td><code>EVENT_CLASS_ERROR</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/xiaomi_ble/const.py#L23">components.xiaomi_ble.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>fingerprint</code></td><td>Not an event</td><td>Xiaomi BLE</td><td><code>EVENT_CLASS_FINGERPRINT</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/xiaomi_ble/const.py#L24">components.xiaomi_ble.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>human</code></td><td>Not an event</td><td>Netatmo</td><td><code>EVENT_TYPE_HUMAN</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L113">components.netatmo.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>id</code></td><td>Not an event</td><td>RFLink</td><td><code>EVENT_KEY_ID</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/rflink/const.py#L24">components.rflink.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>in</code></td><td>Not an event</td><td>Calendar</td><td><code>EVENT_IN</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L74">components.calendar.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>in</code></td><td>Not an event</td><td>Google Calendar</td><td><code>EVENT_IN</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/google/const.py#L42">components.google.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>job</code></td><td>Not an event</td><td>Home Assistant Supervisor</td><td><code>EVENT_JOB</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hassio/const.py#L95">components.hassio.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>leave</code></td><td>Not an event</td><td>Geolocation</td><td><code>EVENT_LEAVE</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/geo_location/trigger.py#L30">components.geo_location.trigger</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>leave</code></td><td>Not an event</td><td>Zone</td><td><code>EVENT_LEAVE</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/zone/trigger.py#L51">components.zone.trigger</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>location</code></td><td>Not an event</td><td>Calendar</td><td><code>EVENT_LOCATION</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L63">components.calendar.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>location</code></td><td>Not an event</td><td>Google Calendar</td><td><code>EVENT_LOCATION</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/google/const.py#L45">components.google.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>lock</code></td><td>Not an event</td><td>Xiaomi BLE</td><td><code>EVENT_CLASS_LOCK</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/xiaomi_ble/const.py#L25">components.xiaomi_ble.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>maintenance</code></td><td>Not an event</td><td>Traccar Client</td><td><code>EVENT_MAINTENANCE</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L33">components.traccar.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>metadata updated</code></td><td>Not an event</td><td>Z-Wave</td><td><code>EVENT_METADATA_UPDATED</code></td><td><em>probably</em>: not shaped like an event type</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/zwave_js/const.py#L45">components.zwave_js.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>motion</code></td><td>Not an event</td><td>Xiaomi BLE</td><td><code>EVENT_CLASS_MOTION</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/xiaomi_ble/const.py#L26">components.xiaomi_ble.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>movement</code></td><td>Not an event</td><td>Netatmo</td><td><code>EVENT_TYPE_MOVEMENT</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L114">components.netatmo.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>off</code></td><td>Not an event</td><td>Netatmo</td><td><code>EVENT_TYPE_OFF</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L130">components.netatmo.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>on</code></td><td>Not an event</td><td>Netatmo</td><td><code>EVENT_TYPE_ON</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L131">components.netatmo.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>outdoor</code></td><td>Not an event</td><td>Netatmo</td><td><code>EVENT_TYPE_OUTDOOR</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L115">components.netatmo.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>person</code></td><td>Not an event</td><td>Netatmo</td><td><code>EVENT_TYPE_PERSON</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L116">components.netatmo.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>rrule</code></td><td>Not an event</td><td>Calendar</td><td><code>EVENT_RRULE</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L66">components.calendar.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>schedule</code></td><td>Not an event</td><td>Netatmo</td><td><code>EVENT_TYPE_SCHEDULE</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L108">components.netatmo.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>sensor</code></td><td>Not an event</td><td>RFLink</td><td><code>EVENT_KEY_SENSOR</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/rflink/const.py#L25">components.rflink.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>shutdown</code></td><td>Not an event</td><td>Home Assistant Core Integration</td><td><code>EVENT_SHUTDOWN</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/homeassistant/triggers/homeassistant.py#L14">components.homeassistant.triggers.homeassistant</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>smarttub</code></td><td>Not an event</td><td>SmartTub</td><td><code>EVENT_SMARTTUB</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/smarttub/const.py#L5">components.smarttub.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>start</code></td><td>Not an event</td><td>Calendar</td><td><code>EVENT_START</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/trigger.py#L44">components.calendar.trigger</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>start</code></td><td>Not an event</td><td>Home Assistant Core Integration</td><td><code>EVENT_START</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/homeassistant/triggers/homeassistant.py#L13">components.homeassistant.triggers.homeassistant</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>status</code></td><td>Not an event</td><td>Calendar</td><td><code>EVENT_STATUS</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L67">components.calendar.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>summary</code></td><td>Not an event</td><td>Calendar</td><td><code>EVENT_SUMMARY</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L61">components.calendar.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>summary</code></td><td>Not an event</td><td>Google Calendar</td><td><code>EVENT_SUMMARY</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/google/const.py#L48">components.google.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>triggered</code></td><td>Not an event</td><td>Hikvision</td><td><code>EVENT_TYPE_TRIGGERED</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hikvision/event.py#L26">components.hikvision.event</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>uid</code></td><td>Not an event</td><td>Calendar</td><td><code>EVENT_UID</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L58">components.calendar.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>unit</code></td><td>Not an event</td><td>RFLink</td><td><code>EVENT_KEY_UNIT</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/rflink/const.py#L26">components.rflink.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>value added</code></td><td>Not an event</td><td>Z-Wave</td><td><code>EVENT_VALUE_ADDED</code></td><td><em>probably</em>: not shaped like an event type</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/zwave_js/const.py#L42">components.zwave_js.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>value removed</code></td><td>Not an event</td><td>Z-Wave</td><td><code>EVENT_VALUE_REMOVED</code></td><td><em>probably</em>: not shaped like an event type</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/zwave_js/const.py#L43">components.zwave_js.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>value updated</code></td><td>Not an event</td><td>Z-Wave</td><td><code>EVENT_VALUE_UPDATED</code></td><td><em>probably</em>: not shaped like an event type</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/zwave_js/const.py#L44">components.zwave_js.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>vehicle</code></td><td>Not an event</td><td>Netatmo</td><td><code>EVENT_TYPE_VEHICLE</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L118">components.netatmo.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>weeks</code></td><td>Not an event</td><td>Calendar</td><td><code>EVENT_IN_WEEKS</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L76">components.calendar.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>weeks</code></td><td>Not an event</td><td>Google Calendar</td><td><code>EVENT_IN_WEEKS</code></td><td><em>probably</em>: a single word</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/google/const.py#L44">components.google.const</a></td></tr><tr data-kind="not_event" data-certain="false"><td><code>{}</code></td><td>Not an event</td><td>Philips Hue</td><td><code>EVENT_NAME_FORMAT</code></td><td><em>probably</em>: not shaped like an event type</td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hue/v1/hue_event.py#L24">components.hue.v1.hue_event</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>_button</code></td><td>Not yet decided</td><td>Universal Devices ISY/IoX</td><td><code>EVENT_BUTTON_UNIQUE_ID_SUFFIX</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/isy994/event.py#L43">components.isy994.event</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>alarm_started</code></td><td>Not yet decided</td><td>Netatmo</td><td><code>EVENT_TYPE_ALARM_STARTED</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L121">components.netatmo.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>all_events</code></td><td>Not yet decided</td><td>Traccar Client</td><td><code>EVENT_ALL_EVENTS</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L39">components.traccar.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>cancel_set_point</code></td><td>Not yet decided</td><td>Netatmo</td><td><code>EVENT_TYPE_CANCEL_SET_POINT</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L107">components.netatmo.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>cec_command_received</code></td><td>Not yet decided</td><td>HDMI-CEC</td><td><code>EVENT_CEC_COMMAND_RECEIVED</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hdmi_cec/__init__.py#L52">components.hdmi_cec</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>cec_keypress_received</code></td><td>Not yet decided</td><td>HDMI-CEC</td><td><code>EVENT_CEC_KEYPRESS_RECEIVED</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hdmi_cec/__init__.py#L53">components.hdmi_cec</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>command_result</code></td><td>Not yet decided</td><td>Traccar Client</td><td><code>EVENT_COMMAND_RESULT</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L24">components.traccar.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>device_fuel_drop</code></td><td>Not yet decided</td><td>Traccar Client</td><td><code>EVENT_DEVICE_FUEL_DROP</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L25">components.traccar.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>device_moving</code></td><td>Not yet decided</td><td>Traccar Client</td><td><code>EVENT_DEVICE_MOVING</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L23">components.traccar.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>device_offline</code></td><td>Not yet decided</td><td>Traccar Client</td><td><code>EVENT_DEVICE_OFFLINE</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L27">components.traccar.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>device_online</code></td><td>Not yet decided</td><td>Traccar Client</td><td><code>EVENT_DEVICE_ONLINE</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L31">components.traccar.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>device_overspeed</code></td><td>Not yet decided</td><td>Traccar Client</td><td><code>EVENT_DEVICE_OVERSPEED</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L30">components.traccar.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>device_stopped</code></td><td>Not yet decided</td><td>Traccar Client</td><td><code>EVENT_DEVICE_STOPPED</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L32">components.traccar.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>device_unknown</code></td><td>Not yet decided</td><td>Traccar Client</td><td><code>EVENT_DEVICE_UNKNOWN</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L36">components.traccar.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>doorbell_chime</code></td><td>Not yet decided</td><td>Google Nest</td><td><code>EVENT_DOORBELL_CHIME</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/nest/events.py#L38">components.nest.events</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>driver_changed</code></td><td>Not yet decided</td><td>Traccar Client</td><td><code>EVENT_DRIVER_CHANGED</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L28">components.traccar.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>end_date</code></td><td>Not yet decided</td><td>Calendar</td><td><code>EVENT_END_DATE</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L71">components.calendar.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>end_date</code></td><td>Not yet decided</td><td>Google Calendar</td><td><code>EVENT_END_DATE</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/google/const.py#L40">components.google.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>end_date_time</code></td><td>Not yet decided</td><td>Calendar</td><td><code>EVENT_END_DATETIME</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L73">components.calendar.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>end_date_time</code></td><td>Not yet decided</td><td>Google Calendar</td><td><code>EVENT_END_DATETIME</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/google/const.py#L41">components.google.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>event_class</code></td><td>Not yet decided</td><td>BTHome</td><td><code>EVENT_CLASS</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/bthome/const.py#L13">components.bthome.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>event_class</code></td><td>Not yet decided</td><td>Xiaomi BLE</td><td><code>EVENT_CLASS</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/xiaomi_ble/const.py#L14">components.xiaomi_ble.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>event_properties</code></td><td>Not yet decided</td><td>BTHome</td><td><code>EVENT_PROPERTIES</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/bthome/const.py#L14">components.bthome.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>event_properties</code></td><td>Not yet decided</td><td>Xiaomi BLE</td><td><code>EVENT_PROPERTIES</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/xiaomi_ble/const.py#L17">components.xiaomi_ble.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>event_subtype</code></td><td>Not yet decided</td><td>Xiaomi BLE</td><td><code>EVENT_SUBTYPE</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/xiaomi_ble/const.py#L16">components.xiaomi_ble.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>event_types</code></td><td>Not yet decided</td><td>Calendar</td><td><code>EVENT_TYPES</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L84">components.calendar.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>event_types</code></td><td>Not yet decided</td><td>Google Calendar</td><td><code>EVENT_TYPES_CONF</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/google/const.py#L49">components.google.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>file_stored</code></td><td>Not yet decided</td><td>motionEye</td><td><code>EVENT_FILE_STORED</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/motioneye/const.py#L46">components.motioneye.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>file_url</code></td><td>Not yet decided</td><td>motionEye</td><td><code>EVENT_FILE_URL</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/motioneye/const.py#L82">components.motioneye.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>geofence_enter</code></td><td>Not yet decided</td><td>Traccar Client</td><td><code>EVENT_GEOFENCE_ENTER</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L26">components.traccar.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>geofence_exit</code></td><td>Not yet decided</td><td>Traccar Client</td><td><code>EVENT_GEOFENCE_EXIT</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L29">components.traccar.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>health_changed</code></td><td>Not yet decided</td><td>Home Assistant Supervisor</td><td><code>EVENT_HEALTH_CHANGED</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hassio/const.py#L91">components.hassio.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>ignition_off</code></td><td>Not yet decided</td><td>Traccar Client</td><td><code>EVENT_IGNITION_OFF</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L37">components.traccar.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>ignition_on</code></td><td>Not yet decided</td><td>Traccar Client</td><td><code>EVENT_IGNITION_ON</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L38">components.traccar.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>issue_changed</code></td><td>Not yet decided</td><td>Home Assistant Supervisor</td><td><code>EVENT_ISSUE_CHANGED</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hassio/const.py#L93">components.hassio.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>issue_removed</code></td><td>Not yet decided</td><td>Home Assistant Supervisor</td><td><code>EVENT_ISSUE_REMOVED</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hassio/const.py#L94">components.hassio.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>light_mode</code></td><td>Not yet decided</td><td>Netatmo</td><td><code>EVENT_TYPE_LIGHT_MODE</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L119">components.netatmo.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>load_platform.{}</code></td><td>Not yet decided</td><td>Home Assistant core</td><td><code>EVENT_LOAD_PLATFORM</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/helpers/discovery.py#L22">helpers.discovery</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>media_content_id</code></td><td>Not yet decided</td><td>motionEye</td><td><code>EVENT_MEDIA_CONTENT_ID</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/motioneye/const.py#L83">components.motioneye.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>module_connect</code></td><td>Not yet decided</td><td>Netatmo</td><td><code>EVENT_TYPE_MODULE_CONNECT</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L128">components.netatmo.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>module_disconnect</code></td><td>Not yet decided</td><td>Netatmo</td><td><code>EVENT_TYPE_MODULE_DISCONNECT</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L129">components.netatmo.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>motion_detected</code></td><td>Not yet decided</td><td>motionEye</td><td><code>EVENT_MOTION_DETECTED</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/motioneye/const.py#L45">components.motioneye.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>new_state</code></td><td>Not yet decided</td><td>InfluxDB</td><td><code>EVENT_NEW_STATE</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/influxdb/const.py#L74">components.influxdb.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>person_away</code></td><td>Not yet decided</td><td>Netatmo</td><td><code>EVENT_TYPE_PERSON_AWAY</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L117">components.netatmo.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>recurrence_id</code></td><td>Not yet decided</td><td>Calendar</td><td><code>EVENT_RECURRENCE_ID</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L64">components.calendar.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>recurrence_range</code></td><td>Not yet decided</td><td>Calendar</td><td><code>EVENT_RECURRENCE_RANGE</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L65">components.calendar.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>set_point</code></td><td>Not yet decided</td><td>Netatmo</td><td><code>EVENT_TYPE_SET_POINT</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L109">components.netatmo.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>start_date</code></td><td>Not yet decided</td><td>Calendar</td><td><code>EVENT_START_DATE</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L70">components.calendar.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>start_date</code></td><td>Not yet decided</td><td>Google Calendar</td><td><code>EVENT_START_DATE</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/google/const.py#L46">components.google.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>start_date_time</code></td><td>Not yet decided</td><td>Calendar</td><td><code>EVENT_START_DATETIME</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/calendar/const.py#L72">components.calendar.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>start_date_time</code></td><td>Not yet decided</td><td>Google Calendar</td><td><code>EVENT_START_DATETIME</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/google/const.py#L47">components.google.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>store_reloaded</code></td><td>Not yet decided</td><td>Home Assistant Supervisor</td><td><code>EVENT_STORE_RELOADED</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hassio/const.py#L96">components.hassio.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>supervisor_event</code></td><td>Not yet decided</td><td>Home Assistant Supervisor</td><td><code>EVENT_SUPERVISOR_EVENT</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hassio/const.py#L89">components.hassio.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>supervisor_update</code></td><td>Not yet decided</td><td>Home Assistant Supervisor</td><td><code>EVENT_SUPERVISOR_UPDATE</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hassio/const.py#L90">components.hassio.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>supported_changed</code></td><td>Not yet decided</td><td>Home Assistant Supervisor</td><td><code>EVENT_SUPPORTED_CHANGED</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/hassio/const.py#L92">components.hassio.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>tag_big_move</code></td><td>Not yet decided</td><td>Netatmo</td><td><code>EVENT_TYPE_TAG_BIG_MOVE</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L122">components.netatmo.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>tag_open</code></td><td>Not yet decided</td><td>Netatmo</td><td><code>EVENT_TYPE_TAG_OPEN</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L123">components.netatmo.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>tag_small_move</code></td><td>Not yet decided</td><td>Netatmo</td><td><code>EVENT_TYPE_TAG_SMALL_MOVE</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L124">components.netatmo.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>text_message</code></td><td>Not yet decided</td><td>Traccar Client</td><td><code>EVENT_TEXT_MESSAGE</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/traccar/const.py#L35">components.traccar.const</a></td></tr><tr data-kind="unknown" data-certain="false"><td><code>therm_mode</code></td><td>Not yet decided</td><td>Netatmo</td><td><code>EVENT_TYPE_THERM_MODE</code></td><td></td><td><a href="https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/netatmo/const.py#L110">components.netatmo.const</a></td></tr></tbody></table></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+          <div class="md-top" data-md-component="top" hidden>
+  <div class="md-top__center">
+    <button type="button" class="md-top__button md-top__button--main" data-md-action="top">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+      <span>Back to top</span>
+    </button>
+    
+      
+      
+      <label class="md-top__button md-top__side md-top__side--nav" for="__drawer" >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-panel-left" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg>
+      </label>
+    
+    
+  </div>
+</div>
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://jaywhj.github.io/mkdocs-materialx/" target="_blank" rel="noopener">
+      MaterialX
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      
+      
+        
+        
+          
+          
+        
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "code": null, "features": ["content.action.edit", "content.action.view", "content.code.copy", "content.code.select", "content.code.annotate", "navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.path", "navigation.indexes", "navigation.top", "search.suggest", "search", "search.share", "toc.follow", "toc.integrate"], "search": {"options": {"baseUrl": "..", "bundleUrl": "../search/", "highlight": false, "searchOptions": {}}, "provider": "pagefind"}, "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "code.collapse": "Collapse", "code.download": "Download", "code.expand": "Expand remaining # lines", "code.select": "Toggle line selection", "search.offline": "Switch to Lunr for offline search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.19ace10b.min.js"></script>
+      
+        <script src="../assets/mkdocs_pagetree_plugin.js"></script>
+      
+        <script src="../assets/javascripts/event_catalogue.js"></script>
+      
+    
+  </body>
+</html>

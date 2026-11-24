@@ -5,3 +5,53 @@
     display: block;
   }
 }
+
+/* The event catalogue's filter and sortable headings - docs/assets/javascripts/event_catalogue.js */
+.event-catalogue .ec-controls:not([hidden]) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.2rem;
+  align-items: center;
+  margin-bottom: 0.8rem;
+}
+.event-catalogue input[type="search"] {
+  flex: 1 1 18rem;
+  padding: 0.4rem 0.6rem;
+  font: inherit;
+  color: var(--md-typeset-color);
+  background: var(--md-default-bg-color);
+  border: 1px solid var(--md-default-fg-color--lighter);
+  border-radius: 0.2rem;
+}
+.event-catalogue fieldset {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.9rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.event-catalogue legend {
+  float: left;
+  margin-right: 0.6rem;
+  font-weight: 700;
+}
+.event-catalogue .ec-count {
+  color: var(--md-default-fg-color--light);
+}
+.event-catalogue th button {
+  padding: 0;
+  font: inherit;
+  font-weight: 700;
+  color: inherit;
+  text-align: left;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.event-catalogue th[aria-sort="ascending"] button::after {
+  content: " ▲";
+}
+.event-catalogue th[aria-sort="descending"] button::after {
+  content: " ▼";
+}
