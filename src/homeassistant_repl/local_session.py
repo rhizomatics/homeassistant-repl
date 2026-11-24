@@ -29,6 +29,7 @@ from rich.console import Console
 from rich.pretty import Pretty
 from rich.traceback import Traceback
 
+from .client import HaReplError
 from .local_help import make_help, show
 
 _cell_counter = itertools.count(1)
@@ -238,6 +239,11 @@ def format_error(err: BaseException) -> dict[str, str]:
 
 def _print_error(err: BaseException) -> None:
     tb = _user_traceback(err)
+    if type(err) is HaReplError:
+        # Home Assistant unreachable, or a command it refused: nothing in
+        # the user's code to point at, and the chained cause is noise.
+        print(f"ha-repl: {err}", file=sys.stderr)
+        return
     if isinstance(err, SyntaxError):
         # No frames worth showing for this one - plain is fine.
         print(

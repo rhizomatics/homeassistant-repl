@@ -3,7 +3,10 @@ without Home Assistant."""
 
 from __future__ import annotations
 
+import json
+import time
 from pathlib import Path
+from typing import Any
 
 import niquests
 import pytest
@@ -115,11 +118,120 @@ class _Session:
         pass
 
 
-async def test_a_lost_connection_is_a_ha_repl_error_and_still_closes():
+async def test_a_lost_connection_is_a_ha_repl_error_and_still_closes(monkeypatch):
     client = Client("ws://example/api/websocket", "token")
     client._ws, client._session = _ClosedSocket(), _Session()
-    with pytest.raises(HaReplError, match="Connection closed"):
+
+    async def unreachable() -> Client:
+        raise HaReplError("Cannot connect to ws://example/api/websocket")
+
+    monkeypatch.setattr(client, "open", unreachable)
+    with pytest.raises(HaReplError, match="Cannot connect"):
         await client.call("ha_repl_server/info")
     with pytest.raises(HaReplError, match="Connection closed"):
         await client.send("ha_repl_server/cancel")
     await client.close()
+
+
+class _Socket:
+    """A websocket extension that answers each command with `answer`, or,
+    once `dead`, fails as one Home Assistant has stopped answering on."""
+
+    def __init__(self, answer: Any = "ok", *, dead: bool = False) -> None:
+        self.answer = answer
+        self.dead = dead
+        self.sent: list[dict[str, Any]] = []
+        self._replies: list[dict[str, Any]] = []
+
+    async def send_payload(self, payload: str) -> None:
+        msg = json.loads(payload)
+        self.sent.append(msg)
+        if msg["type"] == "ping":
+            self._replies.append({"id": msg["id"], "type": "pong"})
+        else:
+            reply = {"id": msg["id"], "type": "result", "success": True}
+            self._replies.append({**reply, "result": self.answer})
+
+    async def next_payload(self) -> str:
+        if self.dead:
+            raise niquests.exceptions.ConnectionError(
+                ConnectionResetError("Connection lost")
+            )
+        return json.dumps(self._replies.pop(0))
+
+    async def close(self) -> None:
+        pass
+
+
+def _reconnecting_client(monkeypatch, *sockets: _Socket) -> Client:
+    """A Client on the first of `sockets`, each reconnect() moving to the next."""
+    client = Client("ws://example/api/websocket", "token")
+    client._ws, client._session = sockets[0], _Session()
+    later = iter(sockets[1:])
+
+    async def open_() -> Client:
+        client._ws, client._session = next(later), _Session()
+        return client
+
+    monkeypatch.setattr(client, "open", open_)
+    return client
+
+
+async def test_a_lost_connection_is_made_again_and_a_read_asked_again(monkeypatch):
+    fresh = _Socket("tables")
+    client = _reconnecting_client(monkeypatch, _Socket(dead=True), fresh)
+
+    assert await client.call("ha_repl_server/sql_tables") == "tables"
+    assert client.reconnects == 1
+    assert [m["type"] for m in fresh.sent] == ["ha_repl_server/sql_tables"]
+
+
+async def test_exec_is_not_sent_twice_when_it_may_have_run(monkeypatch):
+    fresh = _Socket()
+    client = _reconnecting_client(monkeypatch, _Socket(dead=True), fresh)
+    client._heard = time.monotonic()  # just heard from: no ping first
+
+    with pytest.raises(HaReplError, match="may or may not have finished"):
+        await client.call("ha_repl_server/exec", code="x = 1")
+    assert client.reconnects == 1
+    assert fresh.sent == []
+
+
+async def test_exec_after_a_quiet_spell_finds_the_lost_connection_first(monkeypatch):
+    stale, fresh = _Socket(dead=True), _Socket("ran")
+    client = _reconnecting_client(monkeypatch, stale, fresh)
+
+    assert await client.call("ha_repl_server/exec", code="x = 1") == "ran"
+    assert [m["type"] for m in stale.sent] == ["ping"]
+    assert [m["type"] for m in fresh.sent] == ["ping", "ha_repl_server/exec"]
+
+
+async def test_exec_soon_after_another_needs_no_ping(monkeypatch):
+    socket = _Socket()
+    client = _reconnecting_client(monkeypatch, socket)
+
+    await client.call("ha_repl_server/exec", code="x = 1")
+    await client.call("ha_repl_server/exec", code="x = 2")
+
+    assert [m["type"] for m in socket.sent] == ["ping", *["ha_repl_server/exec"] * 2]
+
+
+async def test_a_command_that_failed_is_not_asked_again(monkeypatch):
+    class Refusing(_Socket):
+        async def send_payload(self, payload: str) -> None:
+            msg = json.loads(payload)
+            self.sent.append(msg)
+            self._replies.append({
+                "id": msg["id"],
+                "type": "result",
+                "success": False,
+                "error": {},
+            })
+
+    socket = Refusing()
+    client = _reconnecting_client(monkeypatch, socket)
+
+    with pytest.raises(HaReplError, match="sql failed"):
+        await client.call("ha_repl_server/sql", query="x")
+    assert client.reconnects == 0
+    assert len(socket.sent) == 1

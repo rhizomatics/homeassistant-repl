@@ -7,6 +7,7 @@ from __future__ import annotations
 import asyncio
 from typing import Any
 
+from homeassistant_repl.client import HaReplError
 from homeassistant_repl.local_session import LocalSession
 from homeassistant_repl.repl import Captured, LiveSession, is_quit_call
 
@@ -554,3 +555,41 @@ async def test_whether_a_value_can_be_copied_is_kept_until_the_next_run(monkeypa
     await live.run("1")
     live.plan("hass.states.get(df)")
     assert shipped == ["df", "df"]
+
+
+async def test_a_lost_connection_is_a_line_and_the_shell_carries_on(capsys):
+    class Lost(FakeClient):
+        async def call(self, type_: str, **payload: Any) -> Any:
+            if type_ == "ha_repl_server/exec":
+                raise HaReplError("The connection to Home Assistant was lost")
+            return await super().call(type_, **payload)
+
+    live = _live(Lost())
+
+    assert not await live.run("hass.config")
+    err = capsys.readouterr().err
+    assert "ha-repl: The connection to Home Assistant was lost" in err
+    assert "Traceback" not in err
+    assert await live.run("x = 1")
+
+
+async def test_after_reconnect_says_what_a_restart_lost(capsys):
+    client = FakeClient(variables=["hass", "obj", "kept"])
+    live = _live(client)
+    await live.refresh_remote_names()
+    live.remote_names.add("lost")
+
+    await live.after_reconnect()
+
+    err = capsys.readouterr().err
+    assert "made again" in err
+    assert "no longer has lost" in err
+
+
+async def test_a_local_ha_repl_error_is_a_line_not_a_traceback(capsys):
+    def sql(query: str) -> None:
+        raise HaReplError("Cannot connect to ws://example")
+
+    assert not await LocalSession({"sql": sql}).run("sql('select 1')")
+    err = capsys.readouterr().err
+    assert err == "ha-repl: Cannot connect to ws://example\n"

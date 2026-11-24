@@ -79,6 +79,12 @@ async def test_help_with_no_arguments_does_not_start_pydocs_prompt(capsys):
     assert "help>" not in out
 
 
+async def test_help_itself_says_how_to_use_it(capsys):
+    assert "help(thing)" in await _help(capsys, "help")
+    assert "help(thing)" in await _help(capsys, "help(help)")
+    assert "make_help" not in await _help(capsys, "help")
+
+
 async def test_help_on_obj_says_how_to_use_it(capsys):
     obj = ApiObjTree.__new__(ApiObjTree)  # help() only looks at the class
 
