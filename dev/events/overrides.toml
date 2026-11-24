@@ -1,0 +1,39 @@
+# Corrections to the event catalogue, applied by dev/events/scan.py after its scan.
+#
+# The scan decides what each EVENT_* constant is from how Home Assistant's code uses it.
+# Where it can't tell, or gets it wrong, say so here. An entry that no longer matches
+# anything is reported when the scan runs, so a stale one is noticed.
+#
+# kind is one of: event, entity_event_type, data_key, not_event, unknown
+#
+# Correct an entry, found by its module and constant (or, for one fired as a
+# string, its event_type):
+#
+#   [[fix]]
+#   module = "homeassistant.components.traccar.const"
+#   constant = "EVENT_DEVICE_MOVING"
+#   kind = "data_key"
+#   note = "A Traccar event type, carried in the data of traccar_* events"
+#
+# Add an event the scan can't find, such as one whose type is built at runtime:
+#
+#   [[add]]
+#   event_type = "example_event"
+#   domain = "example"
+#   integration = "Example"
+#   note = "Fired by ..."
+
+# Named by the Companion apps, not by Home Assistant: they fire whatever event type they
+# like through mobile_app's `fire_event` webhook, so no scan of core can find these.
+
+[[add]]
+event_type = "mobile_app_notification_action"
+domain = "mobile_app"
+integration = "Mobile App"
+note = "Fired by the Companion apps, through mobile_app's fire_event webhook, when a notification's action is chosen"
+
+[[add]]
+event_type = "ios.action_fired"
+domain = "mobile_app"
+integration = "Mobile App"
+note = "Fired by the iOS Companion app, through mobile_app's fire_event webhook, when one of its actions is run"
