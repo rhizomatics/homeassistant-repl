@@ -43,6 +43,10 @@ theme:
 extra_css:
   - assets/stylesheets/extra.css
 
+# Does nothing on a page without the event catalogue's table
+extra_javascript:
+  - assets/javascripts/event_catalogue.js
+
 hooks:
   # heading anchors match GitHub (incl. non-ASCII), so translated README links work
   - docs_hooks/slugs.py
@@ -77,6 +81,9 @@ plugins:
       # several hundred links into Home Assistant's source, one per catalogue entry
       ignore_pages:
         - events/index.md
+      # linked from the changelog before the page is first deployed
+      ignore_urls:
+        - https://homeassistant-repl.rhizomatics.org.uk/events/*
   - llmstxt:
       full_output: llms-full.txt
       preprocess: docs_hooks/llmstxt_preprocess.py

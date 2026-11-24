@@ -17,6 +17,11 @@
 - `help` without calling it, and `help?`, say how to use help, rather than showing a function's address or a bare signature ([#44](https://github.com/rhizomatics/homeassistant-repl/issues/44))
 - `thing?` for a name the shell doesn't have says so in a line, rather than with a `NameError` traceback - `sql?` in API mode says `sql` is only in live mode ([#44](https://github.com/rhizomatics/homeassistant-repl/issues/44))
 
+## 🧪 Experimental
+- An [Event Catalogue](https://homeassistant-repl.rhizomatics.org.uk/events/): the event types Home Assistant core declares and fires, which Home Assistant itself keeps no list of. Found each week by scanning core's source, with what each one is and how that was decided, in one table with a filter and sortable columns, and a CSV download for a spreadsheet
+    - A first draft, to see whether it's worth building on: some verdicts are heuristics, marked *probably*, and Marketplace integrations aren't covered
+    - Feedback welcome in [Ideas](https://github.com/rhizomatics/homeassistant-repl/discussions/categories/ideas): missing or wrong events, and what you'd use it for. [RFC 0003](https://homeassistant-repl.rhizomatics.org.uk/developer/design/rfcs/0003-event-assistance/) has where it might go next
+
 # 0.15.0
 
 ## ✨ Enhancements

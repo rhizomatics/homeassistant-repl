@@ -13,6 +13,7 @@ from __future__ import annotations
 import csv
 import io
 import json
+from html import escape
 from pathlib import Path
 from typing import Any
 
@@ -34,23 +35,44 @@ COLUMNS = [
     "note",
     "url",
 ]
-SECTIONS = [
-    ("event", "Events", True),
-    ("entity_event_type", "Event Entity Types", True),
-    ("unknown", "Not Yet Decided", False),
-    ("data_key", "Event Data Keys", False),
-    ("not_event", "Not Events", False),
-]
-ABOUT = {
-    "event": "Event types fired on Home Assistant's event bus.",
-    "entity_event_type": (
-        "The `event_type` of an event entity's state, not an event on the bus of its own: "
-        "an event entity fires `state_changed` on itself, with this as its `event_type` attribute."
+# Each kind, as the page names it, whether it's shown before any filter is
+# changed, and what it means.
+KINDS = [
+    ("event", "Standard", True, "An event type fired on Home Assistant's event bus."),
+    (
+        "entity_event_type",
+        "Entity event",
+        True,
+        (
+            "The `event_type` of an event entity's state, not an event on the bus of its own: "
+            "an event entity fires `state_changed` on itself, with this as its `event_type` attribute."
+        ),
     ),
-    "unknown": "Constants named `EVENT_*` whose use the scan couldn't decide. Each wants a look at the code, and an entry in `overrides.toml`.",
-    "data_key": "Keys in the data of an event, named `EVENT_*`.",
-    "not_event": "Constants named `EVENT_*` that aren't event types: timeouts, schemas, field names and the like.",
-}
+    (
+        "unknown",
+        "Not yet decided",
+        False,
+        (
+            "A constant named `EVENT_*` whose use the scan couldn't decide. Each wants a look at "
+            "the code, and an entry in `overrides.toml`."
+        ),
+    ),
+    ("data_key", "Data key", False, "A key in the data of an event, named `EVENT_*`."),
+    (
+        "not_event",
+        "Not an event",
+        False,
+        "A constant named `EVENT_*` that isn't an event type: a timeout, schema or field name.",
+    ),
+]
+HEADINGS = [
+    "Event type",
+    "Kind",
+    "Integration",
+    "Constant",
+    "How it was found",
+    "Source",
+]
 
 
 def _load() -> dict[str, Any]:
@@ -66,62 +88,83 @@ def _csv(catalogue: dict[str, Any]) -> str:
     return out.getvalue()
 
 
-def _cell(text: Any) -> str:
-    return str(text).replace("|", "\\|").replace("\n", " ") if text else ""
-
-
 def _code(text: Any) -> str:
-    return f"`{text}`" if text else ""
+    return f"<code>{escape(str(text))}</code>" if text else ""
 
 
-def _table(entries: list[dict[str, Any]]) -> str:
-    rows = [
-        "| Event type | Integration | Constant | How it was found | Source |",
-        "| --- | --- | --- | --- | --- |",
+def _row(entry: dict[str, Any], names: dict[str, str]) -> str:
+    found = escape(", ".join(entry.get("evidence", [])))
+    if not entry["certain"]:
+        found = f"<em>probably</em>: {found}" if found else ""
+    if entry.get("note"):
+        note = escape(entry["note"])
+        found = f"{found}. {note}" if found else note
+    source = (
+        f'<a href="{escape(entry["url"])}">{escape(entry["module"].removeprefix("homeassistant."))}</a>'
+        if entry.get("url")
+        else ""
+    )
+    cells = [
+        _code(entry.get("event_type")),
+        names[entry["kind"]],
+        escape(entry.get("integration") or ""),
+        _code(entry.get("constant")),
+        found,
+        source,
     ]
-    for entry in entries:
-        found = ", ".join(entry.get("evidence", []))
-        if not entry["certain"]:
-            found = f"*probably*: {found}" if found else ""
-        if entry.get("note"):
-            found = f"{found}. {entry['note']}" if found else entry["note"]
-        source = (
-            f"[{entry['module'].removeprefix('homeassistant.')}]({entry['url']})"
-            if entry.get("url")
-            else ""
-        )
-        rows.append(
-            f"| {_code(_cell(entry.get('event_type')))} | {_cell(entry.get('integration'))} "
-            f"| {_code(entry.get('constant'))} | {_cell(found)} | {source} |"
-        )
-    return "\n".join(rows)
+    return (
+        f'<tr data-kind="{entry["kind"]}" data-certain="{str(entry["certain"]).lower()}">'
+        + "".join(f"<td>{cell}</td>" for cell in cells)
+        + "</tr>"
+    )
+
+
+def _controls(counts: dict[str, int]) -> str:
+    """Hidden until the page's script shows them, so a reader without
+    JavaScript sees the whole table and no controls that do nothing."""
+    boxes = "".join(
+        f'<label><input type="checkbox" data-kind="{kind}"{" checked" if shown else ""}> '
+        f"{name} ({counts.get(kind, 0)})</label>"
+        for kind, name, shown, _ in KINDS
+    )
+    return (
+        '<div class="ec-controls" hidden>'
+        '<input type="search" placeholder="Filter by event type, integration, constant…" '
+        'aria-label="Filter the catalogue">'
+        f"<fieldset><legend>Show</legend>{boxes}"
+        '<label><input type="checkbox" data-certain> Certain only</label></fieldset>'
+        '<span class="ec-count" aria-live="polite"></span>'
+        "</div>"
+    )
 
 
 def render(catalogue: dict[str, Any]) -> str:
     counts = catalogue["counts"]
-    parts = [
+    names = {kind: name for kind, name, _, _ in KINDS}
+    heads = "".join(f'<th><button type="button">{h}</button></th>' for h in HEADINGS)
+    rows = "".join(_row(entry, names) for entry in catalogue["events"])
+    kinds = "\n".join(f"- **{name}**: {about}" for _, name, _, about in KINDS)
+    return "\n\n".join([
         (
             f"Scanned from Home Assistant **{catalogue['home_assistant']}**: "
             f"{counts['event']} events, {counts['entity_event_type']} event entity types, "
             f"and {counts['unknown']} constants not yet decided."
         ),
         f"Download: [CSV, for a spreadsheet]({DOWNLOADS}.csv) · [JSON]({DOWNLOADS}.json)",
-    ]
-    for kind, title, open_ in SECTIONS:
-        entries = [e for e in catalogue["events"] if e["kind"] == kind]
-        if not entries:
-            continue
-        heading = f"{title} ({len(entries)})"
-        body = f"{ABOUT[kind]}\n\n{_table(entries)}"
-        if open_:
-            parts.append(f"## {heading}\n\n{body}")
-        else:
-            # Collapsed: there for review, not for reading through.
-            indented = "\n".join(
-                f"    {line}" if line else "" for line in body.splitlines()
-            )
-            parts.append(f'??? note "{heading}"\n\n{indented}')
-    return "\n\n".join(parts)
+        "## Kinds",
+        kinds,
+        "## Catalogue",
+        (
+            "Click a column's heading to sort by it. Constants that aren't events are hidden "
+            "to begin with: tick them under *Show* to review them."
+        ),
+        # One block of HTML, which the page's script sorts and filters -
+        # docs/assets/javascripts/event_catalogue.js
+        (
+            f'<div class="event-catalogue">{_controls(counts)}'
+            f"<table><thead><tr>{heads}</tr></thead><tbody>{rows}</tbody></table></div>"
+        ),
+    ])
 
 
 def on_files(files, config):
