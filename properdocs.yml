@@ -6,6 +6,9 @@ repo_name: rhizomatics/homeassistant-repl
 repo_url: https://github.com/rhizomatics/homeassistant-repl
 edit_uri: edit/main/docs/
 docs_dir: docs
+# Pages reached only by their URL, while under review - see docs_hooks/event_catalogue.py
+not_in_nav: |
+  /events/
 #watch:
 #  - README.md
 #  - CHANGELOG.md
@@ -40,6 +43,10 @@ theme:
 extra_css:
   - assets/stylesheets/extra.css
 
+# Does nothing on a page without the event catalogue's table
+extra_javascript:
+  - assets/javascripts/event_catalogue.js
+
 hooks:
   # heading anchors match GitHub (incl. non-ASCII), so translated README links work
   - docs_hooks/slugs.py
@@ -48,6 +55,8 @@ hooks:
   - docs_hooks/pagetree_sections.py
   # the live mode page's examples, from the file the tests run them from
   - docs_hooks/blended_examples.py
+  # the event catalogue page and its downloads, from dev/events/events.json
+  - docs_hooks/event_catalogue.py
 
 plugins:
   - search
@@ -69,6 +78,12 @@ plugins:
   - htmlproofer:
       skip_downloads: True
       validate_external_urls: !ENV [HTMLPROOFER_EXT_URLS, False]
+      # several hundred links into Home Assistant's source, one per catalogue entry
+      ignore_pages:
+        - events/index.md
+      # linked from the changelog before the page is first deployed
+      ignore_urls:
+        - https://homeassistant-repl.rhizomatics.org.uk/events/*
   - llmstxt:
       full_output: llms-full.txt
       preprocess: docs_hooks/llmstxt_preprocess.py

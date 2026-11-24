@@ -1,0 +1,101 @@
+# Rebuilds the event catalogue (dev/events/events.json) from the latest Home Assistant release's source,
+# and proposes the change as a pull request, for review before the docs site publishes it on merge. Nothing is
+# installed or run from Home Assistant: dev/events/scan.py only parses its source.
+#
+# A pull request opened with this workflow's token doesn't trigger the CI workflows on itself, and the repo
+# setting "Allow GitHub Actions to create and approve pull requests" has to be on for it to be opened at all.
+
+name: Event catalogue
+
+on:
+  schedule:
+    # Mondays, early, after the weekend's releases
+    - cron: '17 5 * * 1'
+  workflow_dispatch:
+
+# Nothing by default; the job grants only what it needs (OpenSSF Scorecard Token-Permissions).
+permissions: {}
+
+jobs:
+  scan:
+    name: Scan Home Assistant
+    runs-on: ubuntu-latest
+    concurrency:
+      group: event-catalogue
+      cancel-in-progress: false
+    permissions:
+      # to push the update branch, and open its pull request
+      contents: write
+      pull-requests: write
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+    # 3.14, as Home Assistant's own source is: an older parser can't read some of its files
+    - name: Install uv
+      uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+      with:
+        python-version: 3.14
+
+    - name: Find the latest release
+      id: release
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        tag=$(gh api repos/home-assistant/core/releases/latest --jq .tag_name)
+        # Used in a URL, a path and a commit message below, so only ever a version number
+        if ! [[ "$tag" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "Unexpected release tag: $tag" >&2
+          exit 1
+        fi
+        echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+    - name: Download its source
+      env:
+        TAG: ${{ steps.release.outputs.tag }}
+      run: |
+        mkdir -p "$RUNNER_TEMP/core"
+        curl -fsSL "https://github.com/home-assistant/core/archive/refs/tags/$TAG.tar.gz" \
+          | tar -xz -C "$RUNNER_TEMP/core" --strip-components=1 --wildcards '*/homeassistant/*'
+
+    - name: Scan
+      id: scan
+      env:
+        TAG: ${{ steps.release.outputs.tag }}
+      run: |
+        summary=$(uv run --no-project python -I dev/events/scan.py "$RUNNER_TEMP/core/homeassistant" --version "$TAG")
+        echo "$summary"
+        echo "summary=${summary#*: }" >> "$GITHUB_OUTPUT"
+
+    - name: Propose the update
+      env:
+        GH_TOKEN: ${{ github.token }}
+        TAG: ${{ steps.release.outputs.tag }}
+        SUMMARY: ${{ steps.scan.outputs.summary }}
+      run: |
+        if git diff --quiet -- dev/events/events.json; then
+          echo "No change to the catalogue"
+          exit 0
+        fi
+        branch=event-catalogue/update
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git switch -c "$branch"
+        git add dev/events/events.json
+        git commit -m "Event catalogue: Home Assistant $TAG"
+        # The token as actions/checkout would give it, but in this step's environment only, not .git/config
+        export GIT_CONFIG_COUNT=1
+        export GIT_CONFIG_KEY_0="http.https://github.com/.extraheader"
+        GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+        export GIT_CONFIG_VALUE_0
+        # One branch, replaced each week, so there's never more than one of these to review
+        git push --force origin "$branch"
+        if [ -z "$(gh pr list --head "$branch" --state open --json number --jq '.[].number')" ]; then
+          gh pr create --head "$branch" --base main \
+            --title "Event catalogue: Home Assistant $TAG" \
+            --body "The weekly scan of Home Assistant $TAG's source: $SUMMARY.
+
+        Corrections go in \`dev/events/overrides.toml\`. Merging publishes the catalogue page with the docs."
+        else
+          gh pr edit "$branch" --title "Event catalogue: Home Assistant $TAG"
+        fi
