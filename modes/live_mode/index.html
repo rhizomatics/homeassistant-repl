@@ -1727,6 +1727,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#lost-connections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lost Connections
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#one-shot-snippets-and-agents" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2091,6 +2102,14 @@
 <li>Code inside Home Assistant blocking its event loop can't be stopped by anything, Ctrl-C included - <code>await</code> asynchronous calls, and run blocking ones with <code>await hass.async_add_executor_job(...)</code></li>
 </ul>
 <p>Home Assistant itself has a <a href="../../configuration/server_install/#stopping-code-and-the-log">Stop button</a> too, for when the shell that started something has gone.</p>
+<h2 id="lost-connections">Lost Connections<a class="headerlink" href="#lost-connections" title="Permanent link">&para;</a></h2>
+<p>When the connection to Home Assistant goes - left idle behind a proxy, or Home Assistant restarted - the shell makes it again on the next command, and says so.</p>
+<ul>
+<li>Anything that only reads, such as <code>sql(...)</code> or completion, is simply asked again</li>
+<li>Code for inside Home Assistant is never sent twice. After a quiet spell the connection is checked before the code goes, so a stale one is found and made again first. If it's lost while the code is running, the shell says it may or may not have finished</li>
+<li>The session inside Home Assistant outlives the connection, so its variables are still there - unless Home Assistant restarted, in which case the shell says which have gone</li>
+<li>If Home Assistant can't be reached yet, that's one line, and the shell stays up to try again</li>
+</ul>
 <h2 id="one-shot-snippets-and-agents">One-Shot Snippets and Agents<a class="headerlink" href="#one-shot-snippets-and-agents" title="Permanent link">&para;</a></h2>
 <p><code>ha-repl exec</code> runs a snippet exactly as the live shell would, then exits - see <a href="../exec_mode/">Exec Mode</a>, which covers its JSON output and use by coding agents.</p>
 <h2 id="running-from-a-clonefork-of-this-repo">Running from a clone/fork of this repo<a class="headerlink" href="#running-from-a-clonefork-of-this-repo" title="Permanent link">&para;</a></h2>
