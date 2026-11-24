@@ -2,9 +2,9 @@
 
 | | |
 | --- | --- |
-| Status | Complete, except step 7 |
-| Date | 2026-10-28, updated 2026-11-21 |
-| Progress | Steps 0 to 3 and 6 done in 0.14.0, and most of 5; steps 4 and 5 finished after 0.14.1; step 7 deferred - see [Step 0 Findings](#step-0-findings), [As Built](#as-built) and [What's Left](#whats-left) |
+| Status | Closed: implemented in 0.14.0 to 0.15.0, step 7 dropped |
+| Date | 2026-10-28, updated 2026-11-21, closed 2026-11-24 |
+| Progress | Steps 0 to 3 and 6 done in 0.14.0, and most of 5; steps 4 and 5 finished in 0.15.0; step 7 dropped - see [Step 0 Findings](#step-0-findings), [As Built](#as-built) and [What's Left](#whats-left) |
 | Affects | Live and API modes, `homeassistant_repl.connect()`, a new server command for live mode |
 
 ## Summary
@@ -245,7 +245,7 @@ Each step is releasable on its own.
 | 4 | Home Assistant aware providers on the server (entity ids, actions, `obj` paths, `hass.data`, config entries); `sql` table and column completion on the client | Yes |
 | 5 | `signature` kind, and the bottom toolbar for signatures and for where a statement runs, with the routing and syntax warnings | Yes |
 | 6 | `doc` and `source` kinds; `?` and `??` in both shells; `ha-repl inspect` | Yes |
-| 7 | `evaluate = "properties"` | Yes |
+| 7 | `evaluate = "properties"` - dropped, see [What's Left](#whats-left) | Yes |
 
 The VSCode work follows separately: first the terminal link provider and source command, which need only the `source` kind; then `ha-repl serve --stdio` and the REPL editor.
 
@@ -295,7 +295,7 @@ Step 4, after 0.14.1:
 - **`complete.py` asks, but knows nothing of Home Assistant.** It takes a `strings(name, given)` callback, which keeps the two copies identical and free of Home Assistant imports. On the server, `providers.py` answers from the state machine, the action registry and the config entries, on the event loop with the rest of `ha_repl_server/complete`. In API mode, `Cache.strings` answers entity ids, domains and actions from what `obj` already holds - and since `homeassistant_api`'s client names its parameters the same way, `hass_api` calls complete too
 - **Names, not methods**: `entity_id`, `entity_ids`, `domain`, `service`, `action`, `entry_id` and `config_entry_id`. Nothing is matched by the callable's qualified name - none was needed
 - **`sql` is completed on the client**, from `sql.tables`, before anything else is tried: tables after `from` and `join`, a table's columns after its name or alias and a `.`, and elsewhere the columns of the tables the query names so far (of every real table, if none yet). Going by the query's words, not a parse. `string_at`, in `complete.py`, finds a string open over several lines and in triple quotes, which a query often is and the rest of completion doesn't look inside. `sql.table("` completes table names
-- Still not completed: a string given to a name in a local statement in live mode (`hass_api` there, say), since the local side has no copy of the states
+- Still not completed: a string given to a name in a local statement in live mode (`hass_api` there, say), since the local side has no copy of the states - now [issue #50](https://github.com/rhizomatics/homeassistant-repl/issues/50)
 
 Step 5's marker and warnings, after 0.14.1:
 
@@ -307,11 +307,13 @@ Step 5's marker and warnings, after 0.14.1:
 
 ### What's Left
 
-**Step 7**, `evaluate = "properties"`, is deferred, and may be dropped:
+Closed on 2026-11-24. What remained has moved to [issue #50](https://github.com/rhizomatics/homeassistant-repl/issues/50).
+
+**Step 7**, `evaluate = "properties"`, is dropped:
 
 - Step 0 and the steps since show annotations cover Home Assistant core well, and the object trees cover the dynamic cases
 - `ha_repl_server/complete` now runs on the event loop, not in a thread as first planned. A property that does I/O would block Home Assistant, and the time budget, checked between items, can't stop it. Running properties would mean moving that branch back to an executor thread, and revising [Security](#security)
-- A cheaper step comes first: values already computed can be read without running anything. A `functools.cached_property` already computed is in the instance's `__dict__`, which `getattr_static` finds already; one made with propcache's `under_cached_property`, which Home Assistant uses widely, is in the instance's `_cache` dict, which can be read the same way. Only if that leaves real gaps is running properties worth its risk
+- A cheaper step comes first, now [issue #50](https://github.com/rhizomatics/homeassistant-repl/issues/50): values already computed can be read without running anything. A `functools.cached_property` already computed is in the instance's `__dict__`, which `getattr_static` finds already; one made with propcache's `under_cached_property`, which Home Assistant uses widely, is in the instance's `_cache` dict, which can be read the same way. Only if that leaves real gaps is running properties worth its risk
 
 ## Gaps with Home Assistant's Debug Console
 
