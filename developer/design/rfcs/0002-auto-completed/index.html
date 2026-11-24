@@ -1880,15 +1880,15 @@
 <tbody>
 <tr>
 <td>Status</td>
-<td>Complete, except step 7</td>
+<td>Closed: implemented in 0.14.0 to 0.15.0, step 7 dropped</td>
 </tr>
 <tr>
 <td>Date</td>
-<td>2026-10-28, updated 2026-11-21</td>
+<td>2026-10-28, updated 2026-11-21, closed 2026-11-24</td>
 </tr>
 <tr>
 <td>Progress</td>
-<td>Steps 0 to 3 and 6 done in 0.14.0, and most of 5; steps 4 and 5 finished after 0.14.1; step 7 deferred - see <a href="#step-0-findings">Step 0 Findings</a>, <a href="#as-built">As Built</a> and <a href="#whats-left">What's Left</a></td>
+<td>Steps 0 to 3 and 6 done in 0.14.0, and most of 5; steps 4 and 5 finished in 0.15.0; step 7 dropped - see <a href="#step-0-findings">Step 0 Findings</a>, <a href="#as-built">As Built</a> and <a href="#whats-left">What's Left</a></td>
 </tr>
 <tr>
 <td>Affects</td>
@@ -2232,7 +2232,7 @@
 </tr>
 <tr>
 <td>7</td>
-<td><code>evaluate = "properties"</code></td>
+<td><code>evaluate = "properties"</code> - dropped, see <a href="#whats-left">What's Left</a></td>
 <td>Yes</td>
 </tr>
 </tbody>
@@ -2316,7 +2316,7 @@
 <li><strong><code>complete.py</code> asks, but knows nothing of Home Assistant.</strong> It takes a <code>strings(name, given)</code> callback, which keeps the two copies identical and free of Home Assistant imports. On the server, <code>providers.py</code> answers from the state machine, the action registry and the config entries, on the event loop with the rest of <code>ha_repl_server/complete</code>. In API mode, <code>Cache.strings</code> answers entity ids, domains and actions from what <code>obj</code> already holds - and since <code>homeassistant_api</code>'s client names its parameters the same way, <code>hass_api</code> calls complete too</li>
 <li><strong>Names, not methods</strong>: <code>entity_id</code>, <code>entity_ids</code>, <code>domain</code>, <code>service</code>, <code>action</code>, <code>entry_id</code> and <code>config_entry_id</code>. Nothing is matched by the callable's qualified name - none was needed</li>
 <li><strong><code>sql</code> is completed on the client</strong>, from <code>sql.tables</code>, before anything else is tried: tables after <code>from</code> and <code>join</code>, a table's columns after its name or alias and a <code>.</code>, and elsewhere the columns of the tables the query names so far (of every real table, if none yet). Going by the query's words, not a parse. <code>string_at</code>, in <code>complete.py</code>, finds a string open over several lines and in triple quotes, which a query often is and the rest of completion doesn't look inside. <code>sql.table("</code> completes table names</li>
-<li>Still not completed: a string given to a name in a local statement in live mode (<code>hass_api</code> there, say), since the local side has no copy of the states</li>
+<li>Still not completed: a string given to a name in a local statement in live mode (<code>hass_api</code> there, say), since the local side has no copy of the states - now <a href="https://github.com/rhizomatics/homeassistant-repl/issues/50">issue #50</a></li>
 </ul>
 <p>Step 5's marker and warnings, after 0.14.1:</p>
 <ul>
@@ -2327,11 +2327,12 @@
 <li>The <code>HA</code> mark before a signature is left out in live mode, where the marker says it already</li>
 </ul>
 <h3 id="whats-left">What's Left<a class="headerlink" href="#whats-left" title="Permanent link">&para;</a></h3>
-<p><strong>Step 7</strong>, <code>evaluate = "properties"</code>, is deferred, and may be dropped:</p>
+<p>Closed on 2026-11-24. What remained has moved to <a href="https://github.com/rhizomatics/homeassistant-repl/issues/50">issue #50</a>.</p>
+<p><strong>Step 7</strong>, <code>evaluate = "properties"</code>, is dropped:</p>
 <ul>
 <li>Step 0 and the steps since show annotations cover Home Assistant core well, and the object trees cover the dynamic cases</li>
 <li><code>ha_repl_server/complete</code> now runs on the event loop, not in a thread as first planned. A property that does I/O would block Home Assistant, and the time budget, checked between items, can't stop it. Running properties would mean moving that branch back to an executor thread, and revising <a href="#security">Security</a></li>
-<li>A cheaper step comes first: values already computed can be read without running anything. A <code>functools.cached_property</code> already computed is in the instance's <code>__dict__</code>, which <code>getattr_static</code> finds already; one made with propcache's <code>under_cached_property</code>, which Home Assistant uses widely, is in the instance's <code>_cache</code> dict, which can be read the same way. Only if that leaves real gaps is running properties worth its risk</li>
+<li>A cheaper step comes first, now <a href="https://github.com/rhizomatics/homeassistant-repl/issues/50">issue #50</a>: values already computed can be read without running anything. A <code>functools.cached_property</code> already computed is in the instance's <code>__dict__</code>, which <code>getattr_static</code> finds already; one made with propcache's <code>under_cached_property</code>, which Home Assistant uses widely, is in the instance's <code>_cache</code> dict, which can be read the same way. Only if that leaves real gaps is running properties worth its risk</li>
 </ul>
 <h2 id="gaps-with-home-assistants-debug-console">Gaps with Home Assistant's Debug Console<a class="headerlink" href="#gaps-with-home-assistants-debug-console" title="Permanent link">&para;</a></h2>
 <p>Even with everything in this RFC, the <a href="../../debug_console/">Debug console</a> in Home Assistant 2026.11 does some things <code>ha-repl</code> won't:</p>
