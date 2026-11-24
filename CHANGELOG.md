@@ -19,7 +19,7 @@
 
 ## 🧪 Experimental
 - An [Event Catalogue](https://homeassistant-repl.rhizomatics.org.uk/events/): the event types Home Assistant core declares and fires, which Home Assistant itself keeps no list of. Found each week by scanning core's source, with what each one is and how that was decided, in one table with a filter and sortable columns, and a CSV download for a spreadsheet
-    - A first draft, to see whether it's worth building on: some verdicts are heuristics, marked *probably*, and Marketplace integrations aren't covered
+    - A first draft, to see whether it's worth building on: some verdicts are heuristics, marked *probably*, and only Home Assistant core is covered, not Marketplace integrations or other custom components
     - Feedback welcome in [Ideas](https://github.com/rhizomatics/homeassistant-repl/discussions/categories/ideas): missing or wrong events, and what you'd use it for. [RFC 0003](https://homeassistant-repl.rhizomatics.org.uk/developer/design/rfcs/0003-event-assistance/) has where it might go next
 
 # 0.15.0
