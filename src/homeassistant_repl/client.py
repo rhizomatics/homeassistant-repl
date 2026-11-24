@@ -12,11 +12,26 @@ import importlib.metadata
 import itertools
 import json
 import os
+import time
+from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import Any, Self
 from urllib.parse import urlsplit, urlunsplit
 
 import niquests
+
+# HaReplError.code for a websocket that has gone - Home Assistant
+# restarted, a proxy or the network dropped it - as against a command
+# that failed. call() makes the connection again on one of these.
+CONNECTION_LOST = "connection_lost"
+
+# Commands that do something when they run, so may not be sent twice: one
+# that was in flight when the connection went may or may not have run.
+# Everything else only reads, and is simply asked again.
+_NOT_REPEATED = frozenset({"ha_repl_server/exec", "ha_repl_server/reset"})
+# Seconds without hearing from Home Assistant after which one of those
+# checks the connection with a ping first.
+_CHECK_AFTER = 10.0
 
 
 class HaReplError(Exception):
@@ -139,6 +154,11 @@ class Client:
         # drops anything else, so two overlapping calls (e.g. a gather() of
         # two sql() queries) would each discard the other's reply.
         self._call_lock = asyncio.Lock()
+        # How many times call() has made the connection again - for a shell
+        # to notice, and say so between statements rather than mid-prompt.
+        self.reconnects = 0
+        # When Home Assistant was last heard from (time.monotonic()).
+        self._heard = 0.0
 
     @property
     def token(self) -> str:
@@ -176,23 +196,33 @@ class Client:
 
     async def close(self) -> None:
         # Already gone - Home Assistant restarted, say - is closed enough.
-        with contextlib.suppress(niquests.exceptions.RequestException):
+        with contextlib.suppress(niquests.exceptions.RequestException, OSError):
             await self._ws.close()
-        await self._session.close()
+        with contextlib.suppress(niquests.exceptions.RequestException, OSError):
+            await self._session.close()
+
+    async def reconnect(self) -> None:
+        """Connect and authenticate again, in place, so everything holding
+        this Client carries on with it. Raises HaReplError if Home Assistant
+        can't be reached - the next call() tries again."""
+        await self.close()
+        await self.open()
+        self.reconnects += 1
 
     async def _send(self, msg: dict[str, Any]) -> None:
         try:
             await self._ws.send_payload(json.dumps(msg))
-        except niquests.exceptions.RequestException as err:
-            raise HaReplError(f"Connection closed: {err}") from err
+        except (niquests.exceptions.RequestException, OSError) as err:
+            raise _lost(err) from err
 
     async def _recv(self) -> dict[str, Any]:
         try:
             payload = await self._ws.next_payload()
-        except niquests.exceptions.RequestException as err:
-            raise HaReplError(f"Connection closed: {err}") from err
+        except (niquests.exceptions.RequestException, OSError) as err:
+            raise _lost(err) from err
         if payload is None:
-            raise HaReplError("Connection closed")
+            raise _lost(None)
+        self._heard = time.monotonic()
         return json.loads(payload)
 
     async def send(self, type_: str, **payload: Any) -> None:
@@ -202,24 +232,68 @@ class Client:
         await self._send({"id": next(self._ids), "type": type_, **payload})
 
     async def call(self, type_: str, **payload: Any) -> Any:
+        """Send a command and wait for its reply. If the connection has
+        gone, it's made again and the command sent once more - unless it's
+        one that may already have run, which is reported instead."""
         async with self._call_lock:
-            msg_id = next(self._ids)
-            await self._send({"id": msg_id, "type": type_, **payload})
-            while True:
-                msg = await self._recv()
-                if msg.get("id") != msg_id or msg.get("type") != "result":
-                    continue
-                if not msg["success"]:
-                    error = msg.get("error", {})
-                    code = error.get("code")
-                    if code == "unknown_command":
-                        raise HaReplError(
-                            f"{type_} not available: is the ha_repl_server integration "
-                            "installed and `ha_repl_server:` in configuration.yaml?",
-                            code=code,
-                        )
-                    detail = error.get("message")
+            if type_ not in _NOT_REPEATED:
+                return await self._reconnecting(lambda: self._call(type_, payload))
+            if time.monotonic() - self._heard > _CHECK_AFTER:
+                # Quiet long enough for something in between to have dropped
+                # the connection: find out now, while making it again costs
+                # nothing, rather than once this is on its way.
+                await self._reconnecting(self._ping)
+            try:
+                return await self._call(type_, payload)
+            except HaReplError as err:
+                if err.code != CONNECTION_LOST:
+                    raise
+                await self.reconnect()
+                raise HaReplError(
+                    "The connection to Home Assistant was lost, and made again - "
+                    f"what was running may or may not have finished ({err})"
+                ) from err
+
+    async def _reconnecting(self, step: Callable[[], Awaitable[Any]]) -> Any:
+        try:
+            return await step()
+        except HaReplError as err:
+            if err.code != CONNECTION_LOST:
+                raise
+        await self.reconnect()
+        return await step()
+
+    async def _ping(self) -> None:
+        msg_id = next(self._ids)
+        await self._send({"id": msg_id, "type": "ping"})
+        while (await self._recv()).get("id") != msg_id:
+            pass
+
+    async def _call(self, type_: str, payload: dict[str, Any]) -> Any:
+        msg_id = next(self._ids)
+        await self._send({"id": msg_id, "type": type_, **payload})
+        while True:
+            msg = await self._recv()
+            if msg.get("id") != msg_id or msg.get("type") != "result":
+                continue
+            if not msg["success"]:
+                error = msg.get("error", {})
+                code = error.get("code")
+                if code == "unknown_command":
                     raise HaReplError(
-                        f"{type_} failed: {detail or error}", code=code, detail=detail
+                        f"{type_} not available: is the ha_repl_server integration "
+                        "installed and `ha_repl_server:` in configuration.yaml?",
+                        code=code,
                     )
-                return msg["result"]
+                detail = error.get("message")
+                raise HaReplError(
+                    f"{type_} failed: {detail or error}", code=code, detail=detail
+                )
+            return msg["result"]
+
+
+def _lost(err: BaseException | None) -> HaReplError:
+    return HaReplError(
+        f"Connection closed: {err}" if err else "Connection closed",
+        code=CONNECTION_LOST,
+    )

@@ -62,6 +62,7 @@ async def run_api_repl(
         "`obj` (entities and actions) and `hass_api` (REST client) - no `hass`. Ctrl-D to exit."
         f"{banner_plugins(loaded)}"
     )
+    reconnects = client.reconnects
     while True:
         try:
             source = await prompt.prompt_async(">>> ")
@@ -84,5 +85,15 @@ async def run_api_repl(
         if is_quit_call(source):
             return 0
         if cache.is_stale():
-            await cache.refresh()
+            try:
+                await cache.refresh()
+            except HaReplError as err:
+                # Still unreachable: what's cached does until it's back.
+                print(f"ha-repl: {err}", file=sys.stderr)
         await run_interruptibly(session.run(source))
+        if client.reconnects != reconnects:
+            reconnects = client.reconnects
+            print(
+                "ha-repl: the connection to Home Assistant was made again",
+                file=sys.stderr,
+            )
