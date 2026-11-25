@@ -88,6 +88,15 @@ Home Assistant 2026.11 added its own browser-based Python console, the [Debug co
 
 For coding agents, there is [Exec Mode](./modes/exec_mode.md) and a [marketplace skill](./modes/exec_mode.md#agent-skill).
 
+To install the skill in Claude Code (2.1.275 or later) as a plugin:
+
+```bash
+/plugin install homeassistant-repl --marketplace rhizomatics/agent-plugins
+```
+
+For other agents, `npx skills add rhizomatics/homeassistant-repl`; older Claude Code versions and the details are in
+[Agent Skill](./modes/exec_mode.md#agent-skill).
+
 ## Other Python REPLs
 
 These are all current with Python v3, there are others like dreampie that didn't make it past Python 2.
