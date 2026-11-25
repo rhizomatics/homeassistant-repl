@@ -3,8 +3,11 @@ shell and the server, so tested once, here, without Home Assistant."""
 
 from __future__ import annotations
 
+import collections
+import functools
+import json
 from pathlib import Path
-from typing import Self
+from typing import Any, Self
 
 import pytest
 
@@ -486,3 +489,274 @@ def test_string_at_finds_any_open_string():
     assert string_at('sql("""select\nfrom st') == 7
     assert string_at("f('''a''') ") is None
     assert string_at('x = "a" + ') is None
+
+
+# The paths the tests above don't take - each checked for what it gives,
+# against both copies of complete.py (see test_complete_server.py).
+
+
+def _done(text: str, namespace: dict, **kwargs) -> complete_module.Completions | None:
+    return complete_module.complete(text, len(text), namespace, **kwargs)
+
+
+def _labels(found: complete_module.Completions | None) -> set[str]:
+    assert found is not None
+    return {item.label for item in found.items}
+
+
+class Settings:
+    """Settings for something.
+
+    `.retries` is how many times to try again."""
+
+    retries: int = 3
+
+
+class Node:
+    """A node in a tree.
+
+    `.me` is the node itself, for chaining."""
+
+    __slots__ = ("empty", "value")
+    parent: Node | None
+
+    def __init__(self) -> None:
+        self.value = 3
+
+    @classmethod
+    def make(cls) -> Self:
+        return cls()
+
+    @staticmethod
+    def helper() -> int:
+        return 1
+
+    @property
+    def me(self) -> Self:
+        return self
+
+
+class Inspectable:
+    """One of the project's own kind, whose attributes only look things up."""
+
+    _ha_repl_inspectable = True
+
+    @property
+    def boom(self) -> int:
+        raise RuntimeError("not there")
+
+    @property
+    def fine(self) -> int:
+        return 1
+
+
+def settings() -> Settings:
+    return Settings()
+
+
+def maybe_settings() -> Settings | None:  # as `Optional[...]`, below
+    return None
+
+
+def quoted() -> Settings:  # as a string inside the string annotation, below
+    return Settings()
+
+
+def ordered() -> collections.OrderedDict:
+    return collections.OrderedDict()
+
+
+def listed() -> list[Settings]:
+    return []
+
+
+# Set here, where no tool rewrites them, rather than written in the signatures
+maybe_settings.__annotations__["return"] = "Optional[Settings]"
+quoted.__annotations__["return"] = "'Settings'"
+
+
+def test_a_signature_round_trips_and_places_keyword_arguments():
+    def f(a, /, b, *args, c=1, **kw):
+        pass
+
+    found = complete_module.signature("f(", 2, {"f": f})
+    assert found is not None
+    assert complete_module.Signature.from_dict(found.as_dict()) == found
+    assert [p.text for p in found.params] == ["a", "b", "*args", "c = 1", "**kw"]
+    assert found.active(0, "c") == 3
+    # A positional-only name given as a keyword goes to **kw
+    assert found.active(0, "a") == 4
+    assert found.active(5, None) == 2
+
+    def g(x):
+        pass
+
+    plain = complete_module.signature("g(", 2, {"g": g})
+    assert plain is not None
+    assert plain.active(0, "nope") is None
+    assert plain.active(3, None) is None
+
+
+def test_no_signature_where_there_is_none_to_read():
+    class Plain:
+        pass
+
+    assert complete_module.signature("Plain(", 6, {"Plain": Plain}) is None
+    assert complete_module.signature("five(", 5, {"five": 5}) is None
+
+
+def test_a_callable_instance_has_its_class_signature_and_docstring():
+    class Greeter:
+        """Says hello.
+
+        To anyone."""
+
+        def __call__(self, name: str) -> str:
+            return name
+
+    found = complete_module.signature("g(", 2, {"g": Greeter()})
+    assert found is not None
+    assert [p.name for p in found.params] == ["name"]
+    assert found.doc == "Says hello."
+
+
+def test_kind_at_ignores_escapes_triple_quotes_and_comments():
+    kind_at = complete_module.kind_at
+    assert kind_at('x = "a\\"b') == "string"
+    assert kind_at('x = """doc') == "name"
+    assert kind_at("x  # it's") == "name"
+    assert kind_at("hass.st") == "attribute"
+
+
+def test_call_at_skips_escaped_quotes_and_comments():
+    text = 'f(a, "x\\"(y", # (not a bracket\n    b'
+    assert complete_module.call_at(text) == (1, 2, None)
+
+
+def test_nothing_to_follow_is_none():
+    assert _done("+ .", {}) is None
+    assert _done("missing().", {}) is None
+    assert _done("d[k].", {"d": {}}) is None  # not a literal key
+    assert _done("s[0].", {"s": "abc"}) is None  # a str isn't only looked up
+    assert _done("five().", {"five": 5}) is None  # nothing says what it gives
+    assert complete_module.describe("a..b", {}) is None
+    assert complete_module.expression_at("+ (") == ""
+
+
+def test_keys_only_where_they_can_be_looked_up():
+    class Finder:
+        def find(self, path: str) -> None:
+            pass
+
+        def other(self, path: str) -> None:
+            pass
+
+    assert _labels(_done('missing["', {})) == set()
+    assert _labels(_done('t.find("', {"t": Finder()})) == set()  # not inspectable
+    assert _labels(_done('t.other("', {"t": Finder()})) == set()
+    assert _labels(_done('i["', {"i": Inspectable()})) == set()  # no keys to offer
+
+
+def test_what_a_string_is_given_to():
+    asked: list[tuple[str, dict[str, str]]] = []
+
+    def strings(name: str, given: dict[str, str]) -> list[complete_module.Item]:
+        asked.append((name, dict(given)))
+        return [complete_module.Item("thing", "entity")]
+
+    def f(x, b):
+        pass
+
+    ns = {"f": f, "d": {}}
+    assert _labels(_done('[entity_id="', ns, strings=strings)) == {"thing"}
+    _done('d[1, "', ns, strings=strings)  # a subscript's key: given to nothing
+    _done('{1, "', ns, strings=strings)  # a set: given to nothing
+    _done('f(a b, "', ns, strings=strings)  # can't read what's given before it
+    _done('f(1, 2, 3, "', ns, strings=strings)  # more than f takes
+    _done('f(x="a", **more, b="', ns, strings=strings)
+    assert asked == [("entity_id", {}), ("b", {}), ("b", {"x": "a"})]
+
+
+def test_attributes_followed_through_slots_annotations_and_methods():
+    node = Node()
+    ns = {"n": node, "Node": Node, "settings": settings}
+    assert "bit_length" in _labels(_done("n.value.", ns))  # a __slots__ value
+    assert _done("n.empty.", ns) is None  # a __slots__ value never set
+    assert "make" in _labels(_done("n.parent.", ns))  # by its annotation
+    assert "helper" in _labels(_done("n.make().", ns))  # Self, from a classmethod
+    assert "bit_length" in _labels(_done("Node.helper().", ns))  # a staticmethod
+    # A class default, but the annotation says what it is on an instance
+    assert "bit_length" in _labels(_done("settings().retries.", ns))
+
+
+def test_return_annotations_followed_by_name_never_evaluated():
+    ns = {
+        "maybe": maybe_settings,
+        "quoted": quoted,
+        "ordered": ordered,
+        "listed": listed,
+    }
+    assert "retries" in _labels(_done("maybe().", ns))
+    assert "retries" in _labels(_done("quoted().", ns))
+    assert "move_to_end" in _labels(_done("ordered().", ns))
+    assert "append" in _labels(_done("listed().", ns))
+
+
+def test_members_of_inspectable_and_odd_objects():
+    assert {"boom", "fine"} <= _labels(_done("i.", {"i": Inspectable()}))
+    assert _labels(_done("i.boom.", {"i": Inspectable()})) == set()  # it raised
+
+    class Loose:
+        pass
+
+    loose = Loose()
+    own: dict[Any, Any] = vars(loose)
+    own[1] = "a key no name can reach"
+    vars(loose)["named"] = 2
+    assert "named" in _labels(_done("o.", {"o": loose}))
+    found = _done('"abc".upp', {})
+    assert found is not None
+    upper = next(i for i in found.items if i.label == "upper")
+    assert upper.kind == "function"
+
+
+def test_source_of_modules_methods_properties_and_wrapped_functions():
+    module = source("json", {"json": json}, {})
+    assert module is not None
+    assert (module.name, module.line) == ("json", 1)
+    assert module.file.endswith("json/__init__.py")
+
+    method = source("m", {"m": Node().make}, {})
+    assert method is not None and method.name.endswith("Node.make")
+    prop = source("p", {"p": vars(Node)["me"]}, {})
+    assert prop is not None and prop.name.endswith("Node.me")
+
+    @functools.wraps(settings)
+    def wrapper() -> Settings:
+        return settings()
+
+    wrapped = source("w", {"w": wrapper}, {})
+    assert wrapped is not None and wrapped.name.endswith(".settings")
+    assert source("missing", {}, {}) is None
+    # This project's own code, with no version given or installed to link to
+    ours = source("complete", {"complete": complete_module.complete}, {})
+    assert ours is not None and ours.url == ""
+
+
+def test_describe_properties_instances_and_staticmethods():
+    me = complete_module.describe("n.me", {"n": Node()})
+    assert me is not None
+    assert me.kind == "property"
+    assert "for chaining" in me.doc  # from the class's docstring
+    assert me.owner.endswith("Node")
+    made = complete_module.describe("settings()", {"settings": settings})
+    assert made is not None and (made.kind, made.type.rsplit(".", 1)[-1]) == (
+        "instance",
+        "Settings",
+    )
+    helper = complete_module.describe("h", {"h": vars(Node)["helper"]})
+    assert helper is not None and helper.kind == "function"
+    assert complete_module.describe("missing.x", {}) is None
+    retries = complete_module.describe("s.retries", {"s": Settings()})
+    assert retries is not None
+    assert "how many times" in retries.doc
