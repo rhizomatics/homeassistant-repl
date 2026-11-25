@@ -32,7 +32,9 @@ from pathlib import Path
 from typing import Any
 
 HERE = Path(__file__).parent
-GITHUB = "https://github.com/home-assistant/core/blob/{version}/{path}#L{line}"
+# Where an entry's source is, at the release scanned: one template for the
+# whole catalogue, so a new release doesn't rewrite every entry's link.
+SOURCE_URL = "https://github.com/home-assistant/core/blob/{version}/{{path}}#L{{line}}"
 
 FIRE = frozenset({"async_fire", "fire", "async_fire_internal"})
 LISTEN = frozenset({"async_listen", "async_listen_once", "listen", "listen_once"})
@@ -59,7 +61,8 @@ class Entry:
     line: int
     constant: str | None = None
     note: str | None = None
-    url: str | None = None
+    # Its file in Home Assistant's repository, for the catalogue's source_url
+    path: str | None = None
 
 
 @dataclass
@@ -229,7 +232,7 @@ class Scan:
 
     # -- the catalogue ----------------------------------------------------
 
-    def entries(self, version: str) -> list[Entry]:
+    def entries(self) -> list[Entry]:
         found: list[Entry] = []
         declared: set[str] = set()
         for module in self.modules.values():
@@ -246,9 +249,7 @@ class Scan:
                     value, roles, self.names[module.name][0]
                 )
                 found.append(
-                    self._entry(
-                        module, value, kind, certain, evidence, line, version, constant
-                    )
+                    self._entry(module, value, kind, certain, evidence, line, constant)
                 )
                 if kind == EVENT and value is not None:
                     declared.add(value)
@@ -262,7 +263,6 @@ class Scan:
                         True,
                         ["fired as a string, with no constant"],
                         line,
-                        version,
                         None,
                     )
                 )
@@ -276,7 +276,6 @@ class Scan:
         certain: bool,
         evidence: list[str],
         line: int,
-        version: str,
         constant: str | None,
     ) -> Entry:
         domain, integration = self.names[module.name]
@@ -291,7 +290,7 @@ class Scan:
             module=module.name,
             line=line,
             constant=constant,
-            url=GITHUB.format(version=version, path=path, line=line),
+            path=path,
         )
 
 
@@ -365,7 +364,7 @@ def apply_overrides(entries: list[Entry], overrides: dict[str, Any]) -> list[str
 
 
 def catalogue(source: Path, version: str, overrides: dict[str, Any]) -> dict[str, Any]:
-    entries = Scan(source).entries(version)
+    entries = Scan(source).entries()
     unused = apply_overrides(entries, overrides)
     for stale in unused:
         print(f"overrides.toml: nothing matches {stale}", file=sys.stderr)
@@ -379,11 +378,25 @@ def catalogue(source: Path, version: str, overrides: dict[str, Any]) -> dict[str
     )
     return {
         "home_assistant": version,
+        "source_url": SOURCE_URL.format(version=version),
         "counts": {kind: sum(e.kind == kind for e in entries) for kind in KINDS},
         "events": [
             {k: v for k, v in asdict(e).items() if v is not None} for e in entries
         ],
     }
+
+
+def same(old: dict[str, Any], new: dict[str, Any]) -> bool:
+    """Whether two catalogues differ only in what any release changes: the
+    release itself, and line numbers moved by edits above a constant."""
+
+    def kept(catalogue: dict[str, Any]) -> Any:
+        return [
+            {k: v for k, v in entry.items() if k != "line"}
+            for entry in catalogue.get("events", [])
+        ], catalogue.get("counts")
+
+    return kept(old) == kept(new)
 
 
 def _integration_names(module: _Module) -> tuple[str | None, str | None]:
@@ -450,6 +463,11 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--overrides", type=Path, default=HERE / "overrides.toml")
     parser.add_argument("--out", type=Path, default=HERE / "events.json")
+    parser.add_argument(
+        "--keep-if-same",
+        action="store_true",
+        help="leave --out as it is if only the release and line numbers changed",
+    )
     args = parser.parse_args(argv)
     overrides = (
         tomllib.loads(args.overrides.read_text(encoding="utf-8"))
@@ -457,6 +475,14 @@ def main(argv: list[str] | None = None) -> int:
         else {}
     )
     result = catalogue(args.source, args.version, overrides)
+    if args.keep_if_same and args.out.exists():
+        before = json.loads(args.out.read_text(encoding="utf-8"))
+        if same(before, result):
+            print(
+                f"{args.out}: unchanged since Home Assistant {before['home_assistant']}"
+                f" - only the release and line numbers differ in {args.version}"
+            )
+            return 0
     args.out.write_text(
         json.dumps(result, indent=1, ensure_ascii=False) + "\n", encoding="utf-8"
     )
