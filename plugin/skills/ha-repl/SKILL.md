@@ -275,6 +275,21 @@ Assistant do, in a named session, until it is reset or Home Assistant restarts.
   for `obj`, `sql` and its results as well as `hass` objects. `help(thing, full=True)` is Python's
   own full help page.
 
+## Personal data and credentials
+
+Home Assistant holds people's names, email addresses, phone numbers, locations and presence history, and
+integrations' credentials. Everything a snippet returns comes into your context, and so goes to your model
+provider. Treat it accordingly:
+
+- Fetch only what the task needs: named entities and columns, not every state or a whole table.
+- Ask the user before reading `person` entities, device trackers, location or presence history, or config
+  entries' data.
+- Summarise rather than copy out personal data, in your answers and in files you write.
+- Never show, log or write down a token, password or API key, even one you come across by accident.
+- If the user offers a test instance, use it rather than their home's.
+
+See the [privacy page](https://homeassistant-repl.rhizomatics.org.uk/privacy/) for what the user can do.
+
 ## Looking inside an object
 
 A state, entity, config entry or registry comes back as its `repr()`, which is often only a class
