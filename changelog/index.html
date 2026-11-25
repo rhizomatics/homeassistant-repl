@@ -1674,6 +1674,10 @@ with each other for point releases</p>
 </ul>
 </li>
 </ul>
+<h2 id="-bug-fixes">🐛 Bug Fixes<a class="headerlink" href="#-bug-fixes" title="Permanent link">&para;</a></h2>
+<ul>
+<li>In live mode, <code>obj.values()</code> and <code>obj.items()</code> at the root of the tree work, and <code>"mqtt" in obj</code> is true for an integration <code>obj.keys()</code> lists. Each of the integrations' bare names was taken for an entity id, so looking one up failed</li>
+</ul>
 <h1 id="0160">0.16.0<a class="headerlink" href="#0160" title="Permanent link">&para;</a></h1>
 <h2 id="-enhancements">✨ Enhancements<a class="headerlink" href="#-enhancements" title="Permanent link">&para;</a></h2>
 <ul>
@@ -1685,7 +1689,7 @@ with each other for point releases</p>
 </ul>
 </li>
 </ul>
-<h2 id="-bug-fixes">🐛 Bug Fixes<a class="headerlink" href="#-bug-fixes" title="Permanent link">&para;</a></h2>
+<h2 id="-bug-fixes_1">🐛 Bug Fixes<a class="headerlink" href="#-bug-fixes_1" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>help</code> without calling it, and <code>help?</code>, say how to use help, rather than showing a function's address or a bare signature (<a href="https://github.com/rhizomatics/homeassistant-repl/issues/44">#44</a>)</li>
 <li><code>thing?</code> for a name the shell doesn't have says so in a line, rather than with a <code>NameError</code> traceback - <code>sql?</code> in API mode says <code>sql</code> is only in live mode (<a href="https://github.com/rhizomatics/homeassistant-repl/issues/44">#44</a>)</li>
@@ -1717,7 +1721,7 @@ with each other for point releases</p>
 <li><code>sql("</code> completes table names after <code>from</code> and <code>join</code>, a table's columns after its name or alias and a <code>.</code>, and elsewhere the columns of the tables named so far - in single or triple quotes, over several lines. <code>sql.table("</code> completes table names</li>
 </ul>
 <h1 id="0141">0.14.1<a class="headerlink" href="#0141" title="Permanent link">&para;</a></h1>
-<h2 id="-bug-fixes_1">🐛 Bug Fixes<a class="headerlink" href="#-bug-fixes_1" title="Permanent link">&para;</a></h2>
+<h2 id="-bug-fixes_2">🐛 Bug Fixes<a class="headerlink" href="#-bug-fixes_2" title="Permanent link">&para;</a></h2>
 <ul>
 <li>The live server loads again on Home Assistant 2026.8.x. 0.14.0 imported <code>probatio</code>, which Home Assistant only ships from 2026.9</li>
 </ul>
