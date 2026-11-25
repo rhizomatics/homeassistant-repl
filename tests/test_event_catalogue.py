@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import shutil
 import sys
 import textwrap
 from pathlib import Path
@@ -232,3 +233,80 @@ def test_a_new_release_alone_leaves_the_catalogue_as_it_was(
     rewritten = json.loads(out.read_text(encoding="utf-8"))
     assert rewritten["home_assistant"] == "2026.12.0"
     assert "widget_new" in {e.get("event_type") for e in rewritten["events"]}
+
+
+@pytest.fixture
+def dev(source: Path, tmp_path: Path) -> Path:
+    """The dev branch: one event more, one gone, and a constant renamed for
+    the same event type - which is neither."""
+    root = tmp_path / "dev" / "homeassistant"
+    shutil.copytree(source, root)
+    hub = root / "components" / "widget" / "hub.py"
+    text = hub.read_text(encoding="utf-8").replace(
+        '    hass.bus.async_fire("widget_literal", {})\n', ""
+    )
+    hub.write_text(
+        text + "\n\ndef more(hass):\n    hass.bus.async_fire('widget_new', {})\n"
+    )
+    const = root / "const.py"
+    const.write_text(
+        const.read_text(encoding="utf-8").replace(
+            "EVENT_CALL_SERVICE", "EVENT_SERVICE_CALLED"
+        )
+    )
+    core = root / "core.py"
+    core.write_text(
+        core.read_text(encoding="utf-8").replace(
+            "EVENT_CALL_SERVICE", "EVENT_SERVICE_CALLED"
+        )
+    )
+    return root
+
+
+def test_the_dev_branch_gives_upcoming_and_going_events(source: Path, dev: Path):
+    found = scan.catalogue(source, "2026.11.0", {}, dev, "a" * 40)
+    by_type = {e.get("event_type"): e for e in found["events"]}
+
+    new = by_type["widget_new"]
+    assert new["upcoming"] is True
+    assert new["path"] == "homeassistant/components/widget/hub.py"
+    assert found["dev_source_url"] == (
+        f"https://github.com/home-assistant/core/blob/{'a' * 40}/{{path}}#L{{line}}"
+    )
+    assert by_type["widget_literal"]["going"] is True
+    # renamed, but the same event type: neither
+    assert "going" not in by_type["call_service"]
+    assert not any(
+        e.get("upcoming")
+        for e in found["events"]
+        if e.get("constant") == "EVENT_SERVICE_CALLED"
+    )
+    assert found["dev_counts"] == {"upcoming": 1, "going": 1}
+    # an upcoming event isn't counted among the release's
+    assert (
+        found["counts"]["event"]
+        == scan.catalogue(source, "2026.11.0", {})["counts"]["event"]
+    )
+
+
+def test_a_new_dev_commit_alone_leaves_the_catalogue_as_it_was(
+    source: Path, dev: Path, tmp_path: Path
+):
+    out = tmp_path / "events.json"
+    none = tmp_path / "none.toml"
+    common = [
+        "--version",
+        "2026.11.0",
+        "--dev",
+        str(dev),
+        "--out",
+        str(out),
+        "--overrides",
+        str(none),
+    ]
+    assert scan.main([str(source), *common, "--dev-ref", "a" * 40]) == 0
+    written = out.read_text(encoding="utf-8")
+    assert (
+        scan.main([str(source), *common, "--dev-ref", "b" * 40, "--keep-if-same"]) == 0
+    )
+    assert out.read_text(encoding="utf-8") == written

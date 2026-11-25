@@ -49,23 +49,36 @@ jobs:
           exit 1
         fi
         echo "tag=$tag" >> "$GITHUB_OUTPUT"
+        # And the dev branch, for what's coming in the next release
+        sha=$(gh api repos/home-assistant/core/commits/dev --jq .sha)
+        if ! [[ "$sha" =~ ^[0-9a-f]{40}$ ]]; then
+          echo "Unexpected dev commit: $sha" >&2
+          exit 1
+        fi
+        echo "dev=$sha" >> "$GITHUB_OUTPUT"
 
-    - name: Download its source
+    - name: Download its source, and the dev branch's
       env:
         TAG: ${{ steps.release.outputs.tag }}
+        DEV: ${{ steps.release.outputs.dev }}
       run: |
-        mkdir -p "$RUNNER_TEMP/core"
+        mkdir -p "$RUNNER_TEMP/core" "$RUNNER_TEMP/core-dev"
         curl -fsSL "https://github.com/home-assistant/core/archive/refs/tags/$TAG.tar.gz" \
           | tar -xz -C "$RUNNER_TEMP/core" --strip-components=1 --wildcards '*/homeassistant/*'
+        # By commit, not branch name, so it's the same source the links will point at
+        curl -fsSL "https://github.com/home-assistant/core/archive/$DEV.tar.gz" \
+          | tar -xz -C "$RUNNER_TEMP/core-dev" --strip-components=1 --wildcards '*/homeassistant/*'
 
     - name: Scan
       id: scan
       env:
         TAG: ${{ steps.release.outputs.tag }}
+        DEV: ${{ steps.release.outputs.dev }}
       run: |
-        # --keep-if-same: a new release that only moves line numbers leaves
-        # events.json as it is, so there's no pull request to review for it
-        summary=$(uv run --no-project python -I dev/events/scan.py "$RUNNER_TEMP/core/homeassistant" --version "$TAG" --keep-if-same)
+        # --keep-if-same: a new release or dev commit that only moves line
+        # numbers leaves events.json as it is, so there's no pull request for it
+        summary=$(uv run --no-project python -I dev/events/scan.py "$RUNNER_TEMP/core/homeassistant" \
+          --version "$TAG" --dev "$RUNNER_TEMP/core-dev/homeassistant" --dev-ref "$DEV" --keep-if-same)
         echo "$summary"
         echo "summary=${summary#*: }" >> "$GITHUB_OUTPUT"
 
