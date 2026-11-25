@@ -1296,6 +1296,10 @@ To have `uv` there each time the add-on starts, put the install command in the a
 
 An inventory of known Home Assistant [Events](https://www.home-assistant.io/docs/configuration/events/), fired on its internal [Event Bus](https://contributors.home-assistant.io/core/internals/events/).
 
+Work in progress
+
+Built up as it goes: some verdicts are heuristics, marked *probably*, and corrections are added as they're found. Missing or wrong events are welcome in [Ideas](https://github.com/rhizomatics/homeassistant-repl/discussions/categories/ideas).
+
 ## How and Why
 
 Home Assistant has *no registry of the events it fires*: an event type is any string given to `hass.bus.async_fire`.

@@ -1696,6 +1696,10 @@
 
 <h1 id="event-catalogue">Event Catalogue<a class="headerlink" href="#event-catalogue" title="Permanent link">&para;</a></h1>
 <p>An inventory of known Home Assistant <a href="https://www.home-assistant.io/docs/configuration/events/">Events</a>, fired on its internal <a href="https://contributors.home-assistant.io/core/internals/events/">Event Bus</a>.</p>
+<div class="admonition info">
+<p class="admonition-title">Work in progress</p>
+<p>Built up as it goes: some verdicts are heuristics, marked <em>probably</em>, and corrections are added as they're found. Missing or wrong events are welcome in <a href="https://github.com/rhizomatics/homeassistant-repl/discussions/categories/ideas">Ideas</a>.</p>
+</div>
 <h2 id="how-and-why">How and Why<a class="headerlink" href="#how-and-why" title="Permanent link">&para;</a></h2>
 <p>Home Assistant has <em>no registry of the events it fires</em>: an event type is any string given to <code>hass.bus.async_fire</code>. </p>
 <p>This catalogue is built by regularly scanning Home Assistant core's source, without running any of it to capture live behaviour. It starts from the <code>EVENT_*</code> constants that most integrations declare, then adds the event types fired as plain strings. Each of these constants is described based on how the code uses it, not on its name, since the <code>EVENT_</code> prefix is also used for event data keys, event entity types and settings. </p>

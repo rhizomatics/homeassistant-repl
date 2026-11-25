@@ -1663,20 +1663,24 @@
 <p>For live mode, generally the client and server component have to be on the same version. Different versions <em>might</em> work
 with each other for point releases</p>
 </div>
-<h1 id="0161">0.16.1<a class="headerlink" href="#0161" title="Permanent link">&para;</a></h1>
-<h2 id="-quality">🏅 Quality<a class="headerlink" href="#-quality" title="Permanent link">&para;</a></h2>
+<h1 id="100">1.0.0<a class="headerlink" href="#100" title="Permanent link">&para;</a></h1>
+<h2 id="-platinum">🏆 Platinum<a class="headerlink" href="#-platinum" title="Permanent link">&para;</a></h2>
+<p>The Live Server now reaches <strong>Platinum</strong>, the top level of Home Assistant's <a href="https://contributors.home-assistant.io/core/quality-scale/">Integration Quality Scale</a>. Each of its 54 rules is done, or doesn't apply to an integration like this one, as <code>quality_scale.yaml</code> records rule by rule. Self-assessed: it's a custom integration, so not reviewed by Home Assistant.</p>
 <ul>
-<li>The Live Server declares the Bronze level of Home Assistant's <a href="https://contributors.home-assistant.io/core/quality-scale/">Integration Quality Scale</a>. Every rule up to Platinum is now done or exempt except test coverage - see <code>quality_scale.yaml</code><ul>
 <li><strong>Diagnostics</strong>: <em>Download diagnostics</em> on the integration's page gives its version, options, whether <code>sql</code> loaded and why not, and its sessions by name and variable name, never a variable's value</li>
 <li><strong>Repairs</strong>: a repair issue says when <code>sql</code> couldn't be loaded, and why, until it loads or is switched off</li>
 <li><strong>Docs</strong>: <a href="https://homeassistant-repl.rhizomatics.org.uk/configuration/server_install/#known-limitations">Known Limitations</a> and <a href="https://homeassistant-repl.rhizomatics.org.uk/configuration/server_install/#troubleshooting">Troubleshooting</a> for the Live Server</li>
-<li>Strictly typed, and its sessions kept in the config entry's runtime data</li>
+<li><strong>Tests</strong>: every module of the Live Server over 95% covered, from 84% overall. The tests that took it there found the two bugs below</li>
+<li><strong>Typing</strong>: strictly typed, and its sessions kept in the config entry's runtime data</li>
 </ul>
-</li>
+<h2 id="-work-in-progress">🚧 Work in Progress<a class="headerlink" href="#-work-in-progress" title="Permanent link">&para;</a></h2>
+<ul>
+<li>The <a href="https://homeassistant-repl.rhizomatics.org.uk/events/">Event Catalogue</a> is a work in progress now, no longer experimental: it's in the top menu, listed for search engines and in <code>llms.txt</code> for agents, and carries on being built up</li>
 </ul>
 <h2 id="-bug-fixes">🐛 Bug Fixes<a class="headerlink" href="#-bug-fixes" title="Permanent link">&para;</a></h2>
 <ul>
 <li>In live mode, <code>obj.values()</code> and <code>obj.items()</code> at the root of the tree work, and <code>"mqtt" in obj</code> is true for an integration <code>obj.keys()</code> lists. Each of the integrations' bare names was taken for an entity id, so looking one up failed</li>
+<li>In live mode, raising an exception whose own message can't be made - its <code>__str__</code> raises - is reported as an error, with <code>&lt;exception str() failed&gt;</code> for its message. Before, the command failed instead of answering</li>
 </ul>
 <h1 id="0160">0.16.0<a class="headerlink" href="#0160" title="Permanent link">&para;</a></h1>
 <h2 id="-enhancements">✨ Enhancements<a class="headerlink" href="#-enhancements" title="Permanent link">&para;</a></h2>
