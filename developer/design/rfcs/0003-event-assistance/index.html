@@ -1981,7 +1981,7 @@
 </li>
 <li>Event types fired as string literals, with no constant, are added as certain events</li>
 <li><code>dev/events/overrides.toml</code> corrects entries by module and constant, and adds events no scan of core can find. An override that matches nothing is reported, so a stale one is noticed</li>
-<li>A weekly GitHub Action scans the latest release and opens a pull request when the catalogue changes. Merging it publishes the page with the docs</li>
+<li>A weekly GitHub Action scans the latest release and opens a pull request when the catalogue changes - its entries, not just the release or line numbers, which any release moves. Each entry stores its file and line, and one <code>source_url</code> template makes the links, so the catalogue isn't rewritten for each release. Merging it publishes the page with the docs</li>
 <li>The page, <code>/events/</code>, has CSV and JSON downloads. It was unlisted while under review, and is now in the top menu, the sitemap, site search and <code>llms.txt</code>, with <code>llms-full.txt</code> given its standard and entity events only</li>
 </ul>
 <p>On Home Assistant 2026.11.0: 128 events, 26 event entity types, 4 data keys, 123 not events, and 60 undecided, about half of them Traccar and Netatmo event types carried in another event's data.</p>
