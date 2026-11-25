@@ -25,7 +25,7 @@ import time
 import types
 from collections.abc import Callable, Iterable, Iterator, Mapping
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, cast
 
 # At most this many items in one answer, and this many seconds spent
 # finding them; more of either makes it `incomplete`.
@@ -637,7 +637,7 @@ def _keys(obj: Any) -> Iterable[str]:
     if _inspectable(obj):
         method = inspect.getattr_static(type(obj), "_ipython_key_completions_", None)
         if method is not None:
-            return method(obj)
+            return cast(Iterable[str], method(obj))
     if isinstance(obj, dict) and _subscriptable(obj):
         return (k for k in dict.keys(obj) if isinstance(k, str))
     return ()

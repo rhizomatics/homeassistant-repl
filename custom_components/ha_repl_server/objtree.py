@@ -73,7 +73,7 @@ from collections.abc import (
 )
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, NamedTuple, Self
+from typing import Any, NamedTuple, Self, cast
 
 from homeassistant.core import HomeAssistant, SupportsResponse
 from homeassistant.helpers import area_registry as ar
@@ -368,17 +368,17 @@ class Action:
 
     @property
     def name(self) -> str | None:
-        return self._described["name"]
+        return cast(str | None, self._described["name"])
 
     @property
     def description(self) -> str | None:
-        return self._described["description"]
+        return cast(str | None, self._described["description"])
 
     @property
     def fields(self) -> dict[str, Any]:
         """Each field the action takes: its name and description, whether
         it is required, an example, and the selector the frontend uses."""
-        return self._described["fields"]
+        return cast(dict[str, Any], self._described["fields"])
 
     async def describe(self) -> dict[str, Any]:
         """Home Assistant's description of the action - its `name`,
@@ -547,18 +547,18 @@ class _OrderedView(Iterable[Any]):
         return tuple(self)[index]
 
     def __reversed__(self) -> Iterator[Any]:
-        return reversed(tuple(self))
+        return iter(tuple(self)[::-1])
 
 
-class OrderedKeysView(_OrderedView, KeysView, Sequence):
+class OrderedKeysView(_OrderedView, KeysView[Any], Sequence[Any]):
     pass
 
 
-class OrderedValuesView(_OrderedView, ValuesView, Sequence):
+class OrderedValuesView(_OrderedView, ValuesView[Any], Sequence[Any]):
     pass
 
 
-class OrderedItemsView(_OrderedView, ItemsView, Sequence):  # type: ignore[misc]  # ty: ignore[incompatible-method-override]
+class OrderedItemsView(_OrderedView, ItemsView[Any, Any], Sequence[Any]):  # type: ignore[misc]  # ty: ignore[incompatible-method-override]
     # Sequence.__contains__(value) vs ItemsView.__contains__(item: tuple) is a
     # real static Liskov mismatch, but fine at runtime - both just delegate to
     # tuple(self).__contains__ via _OrderedView/Iterable, deliberately getting

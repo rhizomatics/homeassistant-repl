@@ -53,5 +53,11 @@
         "name": "Stop running code"
       }
     }
+  },
+  "issues": {
+    "sql_unavailable": {
+      "title": "Home Assistant REPL: sql couldn't be loaded",
+      "description": "The packages `sql` needs couldn't be installed or imported, so `sql` is switched off. `hass`, `obj` and everything else in live sessions still work.\n\nWhy: {reason}\n\nIf the cause has gone, such as no network while Home Assistant was starting, reload the integration. If `sql` can't run on this platform, switch it off under **Configure** to stop seeing this."
+    }
   }
 }

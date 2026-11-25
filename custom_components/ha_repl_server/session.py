@@ -25,12 +25,13 @@ import textwrap
 import time
 import traceback
 import typing
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import yaml
+from homeassistant.config_entries import ConfigEntry
 from pygments import format as format_tokens
 from pygments import lex
 from pygments.formatters.terminal import TerminalFormatter
@@ -381,7 +382,9 @@ def _parts(value: Any, kind: type) -> tuple[str, str, Any] | None:
         # What it has left to give, read from a copy so it isn't used up.
         return "iter", "", list(copy.copy(value))
     if isinstance(value, dict):
-        return ("dict", "", value.items()) if kind.__repr__ is dict.__repr__ else None
+        # mypy can't tell a class's __repr__ from an instance's bound one
+        own_repr = cast(Any, kind).__repr__
+        return ("dict", "", value.items()) if own_repr is dict.__repr__ else None
     for tag, base in _BUILTIN_CONTAINERS:
         if isinstance(value, base):
             return (tag, "", value) if kind.__repr__ is base.__repr__ else None
@@ -610,7 +613,7 @@ def _tree_text(tree: Any, indent: str) -> str:
     elif not isinstance(tree, dict):
         return repr(tree)
     elif tree["t"] == "repr":
-        return tree["r"]
+        return str(tree["r"])
     elif tree["t"] == "obj":
         opening, closing = f"{tree['n']}(", ")"
         lines = [f"{k}={_tree_text(v, inner)}" for k, v in tree["f"]]
@@ -728,7 +731,7 @@ async def _run_code(code: Any, globals_: dict[str, Any]) -> Any:
     return result
 
 
-def _capturing_print(out: io.StringIO):
+def _capturing_print(out: io.StringIO) -> Callable[..., None]:
     def shell_print(*args: Any, file: Any = None, **kwargs: Any) -> None:
         # stdout and stderr both come back to the client; other files are honoured.
         if file is None or file is sys.stdout or file is sys.stderr:
@@ -738,7 +741,9 @@ def _capturing_print(out: io.StringIO):
     return shell_print
 
 
-def _capturing_help(out: io.StringIO, *, color: bool, width: int):
+def _capturing_help(
+    out: io.StringIO, *, color: bool, width: int
+) -> Callable[..., None]:
     # A fresh Helper per call, output redirected into the same buffer as print().
     helper = pydoc.Helper(input=io.StringIO(), output=out)
 
@@ -904,7 +909,7 @@ _FORWARDREF_FORMAT = getattr(getattr(inspect, "Format", None), "FORWARDREF", Non
 
 
 def _format_signature(
-    target: Any, *, drop_self: bool = False, drop_return: tuple = ()
+    target: Any, *, drop_self: bool = False, drop_return: tuple[Any, ...] = ()
 ) -> str:
     """Render target's signature, trimmed down for a quick overview:
     self dropped (when `drop_self`), a void or otherwise uninformative return
@@ -1104,3 +1109,7 @@ class SessionManager:
             }
             for s in self._sessions.values()
         ]
+
+
+# The config entry, with its SessionManager as runtime_data while it's loaded.
+type HaReplConfigEntry = ConfigEntry[SessionManager]
