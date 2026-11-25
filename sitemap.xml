@@ -21,6 +21,11 @@
         <changefreq>daily</changefreq>
     </url>
     <url>
+        <loc>https://homeassistant-repl.rhizomatics.org.uk/privacy/</loc>
+        <lastmod>2026-11-25</lastmod>
+        <changefreq>daily</changefreq>
+    </url>
+    <url>
         <loc>https://homeassistant-repl.rhizomatics.org.uk/quick_start/</loc>
         <lastmod>2026-11-25</lastmod>
         <changefreq>daily</changefreq>

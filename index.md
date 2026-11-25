@@ -77,6 +77,8 @@ To install the skill in Claude Code (2.1.275 or later) as a plugin:
 
 For other agents, `npx skills add https://github.com/rhizomatics/homeassistant-repl/tree/main/plugin/skills/ha-repl`; older Claude Code versions and the details are in [Agent Skill](https://homeassistant-repl.rhizomatics.org.uk/modes/exec_mode/#agent-skill).
 
+**Privacy:** an agent using `ha-repl` can read anything in Home Assistant, including people's names, emails and locations, and sends what it reads to its model provider. See [Privacy](https://homeassistant-repl.rhizomatics.org.uk/privacy/index.md) before using it on the Home Assistant that runs your home.
+
 ## Other Python REPLs
 
 These are all current with Python v3, there are others like dreampie that didn't make it past Python 2.
