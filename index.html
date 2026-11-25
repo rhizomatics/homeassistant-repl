@@ -1704,6 +1704,11 @@
 <p>Home Assistant 2026.11 added its own browser-based Python console, the <a href="https://www.home-assistant.io/integrations/debug_console/">Debug console</a>. See <a href="developer/design/debug_console/">Debug Console</a> for how it compares, and which suits what.</p>
 <h2 id="agent-support">Agent Support<a class="headerlink" href="#agent-support" title="Permanent link">&para;</a></h2>
 <p>For coding agents, there is <a href="modes/exec_mode/">Exec Mode</a> and a <a href="modes/exec_mode/#agent-skill">marketplace skill</a>.</p>
+<p>To install the skill in Claude Code (2.1.275 or later) as a plugin:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>/plugin<span class="w"> </span>install<span class="w"> </span>homeassistant-repl<span class="w"> </span>--marketplace<span class="w"> </span>rhizomatics/agent-plugins
+</span></code></pre></div>
+<p>For other agents, <code>npx skills add rhizomatics/homeassistant-repl</code>; older Claude Code versions and the details are in
+<a href="modes/exec_mode/#agent-skill">Agent Skill</a>.</p>
 <h2 id="other-python-repls">Other Python REPLs<a class="headerlink" href="#other-python-repls" title="Permanent link">&para;</a></h2>
 <p>These are all current with Python v3, there are others like dreampie that didn't make it past Python 2.</p>
 <h3 id="out-of-the-box">Out of the Box<a class="headerlink" href="#out-of-the-box" title="Permanent link">&para;</a></h3>
