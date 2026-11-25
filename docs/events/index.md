@@ -1,9 +1,6 @@
 ---
 title: Event Catalogue
 description: The event types Home Assistant core declares and fires, found by scanning its source.
-unlisted: true
-search:
-  exclude: true
 ---
 # Event Catalogue
 

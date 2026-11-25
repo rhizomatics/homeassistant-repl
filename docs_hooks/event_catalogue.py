@@ -1,11 +1,8 @@
 """The event catalogue page, its tables and its CSV and JSON downloads, all
 from dev/events/events.json, which dev/events/scan.py writes.
 
-A page with `unlisted: true` in its front matter is kept out of the
-sitemap (overrides/sitemap.xml) and away from search engines
-(overrides/main.html), and with the theme's own `search: exclude: true` out
-of the site's search, so it can be reviewed at its URL before anything
-points people to it. `not_in_nav` in properdocs.yml keeps it out of the nav.
+llms-full.txt gets a shorter form of the table - see
+docs_hooks/llmstxt_preprocess.py.
 """
 
 from __future__ import annotations
