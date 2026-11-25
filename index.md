@@ -75,7 +75,7 @@ To install the skill in Claude Code (2.1.275 or later) as a plugin:
 /plugin install homeassistant-repl --marketplace rhizomatics/agent-plugins
 ```
 
-For other agents, `npx skills add rhizomatics/homeassistant-repl`; older Claude Code versions and the details are in [Agent Skill](https://homeassistant-repl.rhizomatics.org.uk/modes/exec_mode/#agent-skill).
+For other agents, `npx skills add https://github.com/rhizomatics/homeassistant-repl/tree/main/plugin/skills/ha-repl`; older Claude Code versions and the details are in [Agent Skill](https://homeassistant-repl.rhizomatics.org.uk/modes/exec_mode/#agent-skill).
 
 ## Other Python REPLs
 

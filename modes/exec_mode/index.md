@@ -23,7 +23,7 @@ Home Assistant. `hass` is the live HomeAssistant object, `obj` the object tree,
 
 ### Agent Skill
 
-The repo also ships an [Agent Skill](https://agentskills.io), [`skills/ha-repl`](https://github.com/rhizomatics/homeassistant-repl/tree/main/skills/ha-repl), which teaches an agent the command, its JSON output and the rules on this page, so you don't have to write the instructions yourself. Install it in the project where you develop your component.
+The repo also ships an [Agent Skill](https://agentskills.io), [`plugin/skills/ha-repl`](https://github.com/rhizomatics/homeassistant-repl/tree/main/plugin/skills/ha-repl), which teaches an agent the command, its JSON output and the rules on this page, so you don't have to write the instructions yourself. Install it in the project where you develop your component.
 
 For Claude Code, as a plugin:
 
@@ -32,10 +32,10 @@ claude plugin marketplace add rhizomatics/agent-plugins
 claude plugin install homeassistant-repl@rhizomatics
 ```
 
-For other agents that support skills, copy the `skills/ha-repl` directory into the agent's skills directory (for example `.claude/skills/` or `.agents/skills/`), or use the [skills](https://github.com/vercel-labs/skills) installer:
+For other agents that support skills, copy the `plugin/skills/ha-repl` directory into the agent's skills directory (for example `.claude/skills/` or `.agents/skills/`), or use the [skills](https://github.com/vercel-labs/skills) installer:
 
 ```bash
-npx skills add rhizomatics/homeassistant-repl
+npx skills add https://github.com/rhizomatics/homeassistant-repl/tree/main/plugin/skills/ha-repl
 ```
 
 ### Documentation for Agents
