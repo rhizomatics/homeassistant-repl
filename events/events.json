@@ -1,12 +1,18 @@
 {
  "home_assistant": "2026.11.3",
  "source_url": "https://github.com/home-assistant/core/blob/2026.11.3/{path}#L{line}",
+ "dev": "a09ff83aeda945d06a22386ca15a784087f20073",
+ "dev_source_url": "https://github.com/home-assistant/core/blob/a09ff83aeda945d06a22386ca15a784087f20073/{path}#L{line}",
  "counts": {
   "event": 128,
   "entity_event_type": 26,
   "data_key": 4,
   "not_event": 123,
   "unknown": 60
+ },
+ "dev_counts": {
+  "upcoming": 4,
+  "going": 5
  },
  "events": [
   {
@@ -325,6 +331,21 @@
    "line": 69,
    "constant": "EVENT_FIRST_TELEGRAM",
    "path": "homeassistant/components/dsmr/sensor.py"
+  },
+  {
+   "event_type": "dsmr_telegram_{}",
+   "kind": "event",
+   "certain": false,
+   "evidence": [
+    "value starts with its domain"
+   ],
+   "domain": "dsmr",
+   "integration": "DSMR Smart Meter",
+   "module": "homeassistant.components.dsmr.sensor",
+   "line": 70,
+   "constant": "EVENT_TELEGRAM",
+   "path": "homeassistant/components/dsmr/sensor.py",
+   "upcoming": true
   },
   {
    "event_type": "dynalite_packet",
@@ -1517,7 +1538,8 @@
    "module": "homeassistant.components.telegram_bot.const",
    "line": 59,
    "constant": "EVENT_TELEGRAM_SENT",
-   "path": "homeassistant/components/telegram_bot/const.py"
+   "path": "homeassistant/components/telegram_bot/const.py",
+   "going": true
   },
   {
    "event_type": "themes_updated",
@@ -1835,6 +1857,36 @@
    "path": "homeassistant/components/nest/events.py"
   },
   {
+   "event_type": "clicked",
+   "kind": "entity_event_type",
+   "certain": true,
+   "evidence": [
+    "event entity type"
+   ],
+   "domain": "system_bridge",
+   "integration": "System Bridge",
+   "module": "homeassistant.components.system_bridge.event",
+   "line": 20,
+   "constant": "EVENT_CLICKED",
+   "path": "homeassistant/components/system_bridge/event.py",
+   "upcoming": true
+  },
+  {
+   "event_type": "closed",
+   "kind": "entity_event_type",
+   "certain": true,
+   "evidence": [
+    "event entity type"
+   ],
+   "domain": "system_bridge",
+   "integration": "System Bridge",
+   "module": "homeassistant.components.system_bridge.event",
+   "line": 21,
+   "constant": "EVENT_CLOSED",
+   "path": "homeassistant/components/system_bridge/event.py",
+   "upcoming": true
+  },
+  {
    "event_type": "detected",
    "kind": "entity_event_type",
    "certain": true,
@@ -2003,6 +2055,21 @@
    "path": "homeassistant/components/unifiprotect/const.py"
   },
   {
+   "event_type": "sent",
+   "kind": "entity_event_type",
+   "certain": true,
+   "evidence": [
+    "event entity type"
+   ],
+   "domain": "system_bridge",
+   "integration": "System Bridge",
+   "module": "homeassistant.components.system_bridge.event",
+   "line": 22,
+   "constant": "EVENT_SENT",
+   "path": "homeassistant/components/system_bridge/event.py",
+   "upcoming": true
+  },
+  {
    "event_type": "session_authorized",
    "kind": "entity_event_type",
    "certain": true,
@@ -2056,7 +2123,8 @@
    "module": "homeassistant.components.telegram_bot.const",
    "line": 58,
    "constant": "EVENT_TELEGRAM_ATTACHMENT",
-   "path": "homeassistant/components/telegram_bot/const.py"
+   "path": "homeassistant/components/telegram_bot/const.py",
+   "going": true
   },
   {
    "event_type": "telegram_callback",
@@ -2070,7 +2138,8 @@
    "module": "homeassistant.components.telegram_bot.const",
    "line": 55,
    "constant": "EVENT_TELEGRAM_CALLBACK",
-   "path": "homeassistant/components/telegram_bot/const.py"
+   "path": "homeassistant/components/telegram_bot/const.py",
+   "going": true
   },
   {
    "event_type": "telegram_command",
@@ -2084,7 +2153,8 @@
    "module": "homeassistant.components.telegram_bot.const",
    "line": 56,
    "constant": "EVENT_TELEGRAM_COMMAND",
-   "path": "homeassistant/components/telegram_bot/const.py"
+   "path": "homeassistant/components/telegram_bot/const.py",
+   "going": true
   },
   {
    "event_type": "telegram_text",
@@ -2098,7 +2168,8 @@
    "module": "homeassistant.components.telegram_bot.const",
    "line": 57,
    "constant": "EVENT_TELEGRAM_TEXT",
-   "path": "homeassistant/components/telegram_bot/const.py"
+   "path": "homeassistant/components/telegram_bot/const.py",
+   "going": true
   },
   {
    "event_type": "transaction_created",
