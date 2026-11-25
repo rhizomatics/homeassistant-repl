@@ -1001,6 +1001,111 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#known-limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Known Limitations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#-not-available-is-the-ha_repl_server-integration-installed-" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ... not available: is the ha_repl_server integration installed ...
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-failed-home-assistant-repl-integration-is-not-loaded" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ... failed: Home Assistant REPL integration is not loaded
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-failed-unauthorized" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ... failed: Unauthorized
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sql-is-missing-and-a-repair-issue-says-it-couldnt-be-loaded" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sql is missing, and a repair issue says it couldn't be loaded
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-shell-says-completion-inside-home-assistant-needs-a-newer-live-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The shell says completion inside Home Assistant needs a newer Live Server
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#home-assistant-stops-responding-while-code-runs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Home Assistant stops responding while code runs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#variables-have-gone-from-a-session" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Variables have gone from a session
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1822,6 +1927,53 @@
 <li>In Marketplace, open <em>Home Assistant REPL</em> and choose <strong>Remove</strong>, then restart Home Assistant</li>
 </ol>
 <p><code>nanoarrow</code> and <code>sqlparse</code>, installed for <code>sql</code>, stay in Home Assistant's Python environment until it is next rebuilt (as on an upgrade). Nothing uses them.</p>
+<h2 id="known-limitations">Known Limitations<a class="headerlink" href="#known-limitations" title="Permanent link">&para;</a></h2>
+<p>What the Live Server doesn't do, by design:</p>
+<ul>
+<li><strong>Code inside Home Assistant runs on its event loop.</strong> Code that blocks it - <code>time.sleep()</code>, a blocking HTTP call - holds up all of Home Assistant while it runs, and can't be stopped by Ctrl-C or the Stop button. <code>await</code> asynchronous calls, and run blocking ones with <code>await hass.async_add_executor_job(...)</code></li>
+<li><strong>A session's variables inside Home Assistant last until the integration reloads or Home Assistant restarts.</strong> Saving <strong>Configure</strong>, or a time limit running out, reloads it. Nothing is written to disk</li>
+<li><strong>One statement at a time per session.</strong> A second command waits for the first to finish; completion still answers meanwhile</li>
+<li><strong>Only plain data crosses between the shell and Home Assistant</strong> - strings, numbers, and lists and dicts of them. See <a href="../../modes/live_mode/#what-runs-where">What Runs Where</a></li>
+<li><strong>The shell and the Live Server are released together.</strong> Different versions may work with each other for point releases, but aren't tested that way</li>
+<li><strong><code>sql</code> needs a build of <code>nanoarrow</code> for the platform Home Assistant runs on.</strong> Where there isn't one, <code>sql</code> is switched off and everything else works</li>
+<li><strong>It isn't a debugger.</strong> There are no breakpoints or stepping through code</li>
+</ul>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="-not-available-is-the-ha_repl_server-integration-installed-"><code>... not available: is the ha_repl_server integration installed ...</code><a class="headerlink" href="#-not-available-is-the-ha_repl_server-integration-installed-" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Cause</strong>: the Live Server isn't installed, or Home Assistant hasn't been restarted since it was downloaded, so its commands don't exist</li>
+<li><strong>Resolution</strong>: install it as described <a href="#marketplace-component">above</a>, restart Home Assistant, and add the integration. <code>api</code> mode works without it</li>
+</ul>
+<h3 id="-failed-home-assistant-repl-integration-is-not-loaded"><code>... failed: Home Assistant REPL integration is not loaded</code><a class="headerlink" href="#-failed-home-assistant-repl-integration-is-not-loaded" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Cause</strong>: the integration is installed, but its entry isn't loaded - disabled, failed to start, or reloading</li>
+<li><strong>Resolution</strong>: open <strong>Settings → Devices &amp; services → Home Assistant REPL</strong>. Enable or reload the entry, and check the log for why it didn't start</li>
+</ul>
+<h3 id="-failed-unauthorized"><code>... failed: Unauthorized</code><a class="headerlink" href="#-failed-unauthorized" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Cause</strong>: every command needs an administrator, and the token belongs to a user who isn't one</li>
+<li><strong>Resolution</strong>: use a long-lived access token created by an administrator</li>
+</ul>
+<h3 id="sql-is-missing-and-a-repair-issue-says-it-couldnt-be-loaded"><code>sql</code> is missing, and a repair issue says it couldn't be loaded<a class="headerlink" href="#sql-is-missing-and-a-repair-issue-says-it-couldnt-be-loaded" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Cause</strong>: the packages <code>sql</code> needs couldn't be installed or imported - see <a href="#if-sql-cant-be-loaded">If <code>sql</code> Can't Be Loaded</a></li>
+<li><strong>Resolution</strong>: if the cause has gone, such as no network while Home Assistant was starting, reload the integration. If <code>sql</code> can't run on this platform, switch it off under <strong>Configure</strong>, which also clears the repair issue</li>
+</ul>
+<h3 id="the-shell-says-completion-inside-home-assistant-needs-a-newer-live-server">The shell says completion inside Home Assistant needs a newer Live Server<a class="headerlink" href="#the-shell-says-completion-inside-home-assistant-needs-a-newer-live-server" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Cause</strong>: the shell is newer than the Live Server</li>
+<li><strong>Resolution</strong>: update the Live Server in Marketplace and restart Home Assistant, so the two are on the same version</li>
+</ul>
+<h3 id="home-assistant-stops-responding-while-code-runs">Home Assistant stops responding while code runs<a class="headerlink" href="#home-assistant-stops-responding-while-code-runs" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Cause</strong>: the code is blocking Home Assistant's event loop - see <a href="#known-limitations">Known Limitations</a></li>
+<li><strong>Resolution</strong>: if it doesn't finish, restart Home Assistant. Run blocking calls with <code>await hass.async_add_executor_job(...)</code> next time</li>
+</ul>
+<h3 id="variables-have-gone-from-a-session">Variables have gone from a session<a class="headerlink" href="#variables-have-gone-from-a-session" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Cause</strong>: the integration was reloaded - <strong>Configure</strong> was saved, or a time limit ran out - or Home Assistant restarted. The shell says which have gone when it reconnects after a restart</li>
+<li><strong>Resolution</strong>: run the statements that made them again, or put the ones you always want in a <a href="../plugins/">plugin</a></li>
+</ul>
 
 
 

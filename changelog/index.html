@@ -1635,6 +1635,17 @@
 <p>For live mode, generally the client and server component have to be on the same version. Different versions <em>might</em> work
 with each other for point releases</p>
 </div>
+<h1 id="0161">0.16.1<a class="headerlink" href="#0161" title="Permanent link">&para;</a></h1>
+<h2 id="-quality">🏅 Quality<a class="headerlink" href="#-quality" title="Permanent link">&para;</a></h2>
+<ul>
+<li>The Live Server declares the Bronze level of Home Assistant's <a href="https://contributors.home-assistant.io/core/quality-scale/">Integration Quality Scale</a>. Every rule up to Platinum is now done or exempt except test coverage - see <code>quality_scale.yaml</code><ul>
+<li><strong>Diagnostics</strong>: <em>Download diagnostics</em> on the integration's page gives its version, options, whether <code>sql</code> loaded and why not, and its sessions by name and variable name, never a variable's value</li>
+<li><strong>Repairs</strong>: a repair issue says when <code>sql</code> couldn't be loaded, and why, until it loads or is switched off</li>
+<li><strong>Docs</strong>: <a href="https://homeassistant-repl.rhizomatics.org.uk/configuration/server_install/#known-limitations">Known Limitations</a> and <a href="https://homeassistant-repl.rhizomatics.org.uk/configuration/server_install/#troubleshooting">Troubleshooting</a> for the Live Server</li>
+<li>Strictly typed, and its sessions kept in the config entry's runtime data</li>
+</ul>
+</li>
+</ul>
 <h1 id="0160">0.16.0<a class="headerlink" href="#0160" title="Permanent link">&para;</a></h1>
 <h2 id="-enhancements">✨ Enhancements<a class="headerlink" href="#-enhancements" title="Permanent link">&para;</a></h2>
 <ul>
