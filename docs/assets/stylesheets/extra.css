@@ -60,3 +60,18 @@
   word-break: normal;
   overflow-wrap: normal;
 }
+.event-catalogue .ec-tag {
+  margin-left: 0.3em;
+  padding: 0 0.4em;
+  font-size: 0.75em;
+  border-radius: 0.2em;
+  white-space: nowrap;
+}
+.event-catalogue .ec-upcoming {
+  color: var(--md-default-bg-color);
+  background: var(--md-accent-fg-color);
+}
+.event-catalogue .ec-going {
+  color: var(--md-default-fg-color);
+  background: var(--md-default-fg-color--lighter);
+}

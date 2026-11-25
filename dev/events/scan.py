@@ -36,6 +36,7 @@ HERE = Path(__file__).parent
 # whole catalogue, so a new release doesn't rewrite every entry's link.
 SOURCE_URL = "https://github.com/home-assistant/core/blob/{version}/{{path}}#L{{line}}"
 
+
 FIRE = frozenset({"async_fire", "fire", "async_fire_internal"})
 LISTEN = frozenset({"async_listen", "async_listen_once", "listen", "listen_once"})
 
@@ -47,6 +48,8 @@ DATA_KEY = "data_key"
 NOT_EVENT = "not_event"
 UNKNOWN = "unknown"
 KINDS = (EVENT, ENTITY_EVENT_TYPE, DATA_KEY, NOT_EVENT, UNKNOWN)
+# The kinds someone would watch for, coming or going on the dev branch
+WATCHED = (EVENT, ENTITY_EVENT_TYPE)
 
 
 @dataclass
@@ -63,6 +66,10 @@ class Entry:
     note: str | None = None
     # Its file in Home Assistant's repository, for the catalogue's source_url
     path: str | None = None
+    # On the dev branch, not yet in a release - its path is dev's (dev_source_url)
+    upcoming: bool | None = None
+    # In the release, but gone from the dev branch
+    going: bool | None = None
 
 
 @dataclass
@@ -363,8 +370,50 @@ def apply_overrides(entries: list[Entry], overrides: dict[str, Any]) -> list[str
     return unused
 
 
-def catalogue(source: Path, version: str, overrides: dict[str, Any]) -> dict[str, Any]:
+def compare_dev(release: list[Entry], dev: list[Entry]) -> list[Entry]:
+    """Mark the release's events that the dev branch no longer has as going,
+    and give back dev's events the release hasn't got, marked upcoming.
+
+    Matched by event type, which is what a listener sees: a constant renamed
+    or moved, for the same event type, is neither. An event type counts as
+    new or gone only if the other side has no trace of it at all, so a
+    verdict that changed between the two isn't taken for one."""
+
+    def event_types(entries: list[Entry]) -> set[str]:
+        return {e.event_type for e in entries if e.event_type}
+
+    released, on_dev = event_types(release), event_types(dev)
+    for entry in release:
+        if (
+            entry.kind in WATCHED
+            and entry.event_type
+            and entry.event_type not in on_dev
+        ):
+            entry.going = True
+    upcoming = [
+        entry
+        for entry in dev
+        if entry.kind in WATCHED
+        and entry.event_type
+        and entry.event_type not in released
+    ]
+    for entry in upcoming:
+        entry.upcoming = True
+    return upcoming
+
+
+def catalogue(
+    source: Path,
+    version: str,
+    overrides: dict[str, Any],
+    dev: Path | None = None,
+    dev_ref: str | None = None,
+) -> dict[str, Any]:
+    """The catalogue of `source`, a release. With `dev`, the dev branch's
+    source at commit `dev_ref`, its upcoming and going events too."""
     entries = Scan(source).entries()
+    if dev is not None:
+        entries += compare_dev(entries, Scan(dev).entries())
     unused = apply_overrides(entries, overrides)
     for stale in unused:
         print(f"overrides.toml: nothing matches {stale}", file=sys.stderr)
@@ -376,14 +425,24 @@ def catalogue(source: Path, version: str, overrides: dict[str, Any]) -> dict[str
             e.constant or "",
         )
     )
-    return {
+    released = [e for e in entries if not e.upcoming]
+    result: dict[str, Any] = {
         "home_assistant": version,
         "source_url": SOURCE_URL.format(version=version),
-        "counts": {kind: sum(e.kind == kind for e in entries) for kind in KINDS},
-        "events": [
-            {k: v for k, v in asdict(e).items() if v is not None} for e in entries
-        ],
     }
+    if dev is not None and dev_ref:
+        result["dev"] = dev_ref
+        result["dev_source_url"] = SOURCE_URL.format(version=dev_ref)
+    result["counts"] = {kind: sum(e.kind == kind for e in released) for kind in KINDS}
+    if dev is not None:
+        result["dev_counts"] = {
+            "upcoming": sum(bool(e.upcoming) for e in entries),
+            "going": sum(bool(e.going) for e in entries),
+        }
+    result["events"] = [
+        {k: v for k, v in asdict(e).items() if v is not None} for e in entries
+    ]
+    return result
 
 
 def same(old: dict[str, Any], new: dict[str, Any]) -> bool:
@@ -391,10 +450,15 @@ def same(old: dict[str, Any], new: dict[str, Any]) -> bool:
     release itself, and line numbers moved by edits above a constant."""
 
     def kept(catalogue: dict[str, Any]) -> Any:
-        return [
-            {k: v for k, v in entry.items() if k != "line"}
-            for entry in catalogue.get("events", [])
-        ], catalogue.get("counts")
+        # Not the dev commit either: the dev branch moves every day
+        return (
+            [
+                {k: v for k, v in entry.items() if k != "line"}
+                for entry in catalogue.get("events", [])
+            ],
+            catalogue.get("counts"),
+            catalogue.get("dev_counts"),
+        )
 
     return kept(old) == kept(new)
 
@@ -461,6 +525,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--version", required=True, help="the Home Assistant release, e.g. 2026.11.0"
     )
+    parser.add_argument(
+        "--dev",
+        type=Path,
+        help="the homeassistant package directory at the dev branch, for upcoming events",
+    )
+    parser.add_argument("--dev-ref", help="the dev branch's commit, for its links")
     parser.add_argument("--overrides", type=Path, default=HERE / "overrides.toml")
     parser.add_argument("--out", type=Path, default=HERE / "events.json")
     parser.add_argument(
@@ -474,7 +544,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.overrides.exists()
         else {}
     )
-    result = catalogue(args.source, args.version, overrides)
+    result = catalogue(args.source, args.version, overrides, args.dev, args.dev_ref)
     if args.keep_if_same and args.out.exists():
         before = json.loads(args.out.read_text(encoding="utf-8"))
         if same(before, result):
@@ -486,7 +556,8 @@ def main(argv: list[str] | None = None) -> int:
     args.out.write_text(
         json.dumps(result, indent=1, ensure_ascii=False) + "\n", encoding="utf-8"
     )
-    print(f"{args.out}: " + ", ".join(f"{n} {k}" for k, n in result["counts"].items()))
+    counts = {**result["counts"], **result.get("dev_counts", {})}
+    print(f"{args.out}: " + ", ".join(f"{n} {k}" for k, n in counts.items()))
     return 0
 
 

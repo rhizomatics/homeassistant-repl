@@ -30,6 +30,8 @@ COLUMNS = [
     "line",
     "evidence",
     "note",
+    "upcoming",
+    "going",
     "url",
 ]
 # Each kind, as the page names it, whether it's shown before any filter is
@@ -81,7 +83,9 @@ def _url(catalogue: dict[str, Any], entry: dict[str, Any]) -> str:
     "" for an entry from overrides.toml, which has none."""
     if not entry.get("path"):
         return ""
-    return str(catalogue["source_url"]).format(path=entry["path"], line=entry["line"])
+    # An upcoming one is only on the dev branch, at the commit scanned
+    template = catalogue["dev_source_url" if entry.get("upcoming") else "source_url"]
+    return str(template).format(path=entry["path"], line=entry["line"])
 
 
 def _csv(catalogue: dict[str, Any]) -> str:
@@ -95,6 +99,17 @@ def _csv(catalogue: dict[str, Any]) -> str:
             "url": _url(catalogue, entry),
         })
     return out.getvalue()
+
+
+def _dev_summary(catalogue: dict[str, Any]) -> str:
+    """What the dev branch has that the release hasn't, and the other way."""
+    changes = catalogue.get("dev_counts")
+    if not changes:
+        return ""
+    return (
+        f" On the dev branch, for an upcoming release: {changes['upcoming']} upcoming, "
+        f"and {changes['going']} going - type either in the filter to see them."
+    )
 
 
 def _code(text: Any) -> str:
@@ -118,8 +133,14 @@ def _row(entry: dict[str, Any], names: dict[str, str], url: str) -> str:
         if url
         else ""
     )
+    # Words, not just a colour, so the filter box finds them too
+    tags = "".join(
+        f' <span class="ec-tag ec-{tag}">{tag}</span>'
+        for tag in ("upcoming", "going")
+        if entry.get(tag)
+    )
     cells = [
-        _code(entry.get("event_type")),
+        _code(entry.get("event_type")) + tags,
         names[entry["kind"]],
         escape(entry.get("integration") or ""),
         _code(entry.get("constant")),
@@ -168,6 +189,7 @@ def render(catalogue: dict[str, Any]) -> str:
             "that changed it: "
             f"{counts['event']} events, {counts['entity_event_type']} event entity types, "
             f"and {counts['unknown']} constants not yet decided."
+            + _dev_summary(catalogue)
         ),
         f"Download: [CSV, for a spreadsheet]({DOWNLOADS}.csv) · [JSON]({DOWNLOADS}.json)",
         "## Kinds",
