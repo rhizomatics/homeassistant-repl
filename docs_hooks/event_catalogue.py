@@ -76,12 +76,24 @@ def _load() -> dict[str, Any]:
     return json.loads(CATALOGUE.read_text(encoding="utf-8"))
 
 
+def _url(catalogue: dict[str, Any], entry: dict[str, Any]) -> str:
+    """Where an entry's source is, from the catalogue's one link template -
+    "" for an entry from overrides.toml, which has none."""
+    if not entry.get("path"):
+        return ""
+    return str(catalogue["source_url"]).format(path=entry["path"], line=entry["line"])
+
+
 def _csv(catalogue: dict[str, Any]) -> str:
     out = io.StringIO()
     writer = csv.DictWriter(out, COLUMNS, extrasaction="ignore", lineterminator="\n")
     writer.writeheader()
     for entry in catalogue["events"]:
-        writer.writerow({**entry, "evidence": "; ".join(entry.get("evidence", []))})
+        writer.writerow({
+            **entry,
+            "evidence": "; ".join(entry.get("evidence", [])),
+            "url": _url(catalogue, entry),
+        })
     return out.getvalue()
 
 
@@ -94,7 +106,7 @@ def _code(text: Any) -> str:
     return f"<code>{breakable}</code>"
 
 
-def _row(entry: dict[str, Any], names: dict[str, str]) -> str:
+def _row(entry: dict[str, Any], names: dict[str, str], url: str) -> str:
     found = escape(", ".join(entry.get("evidence", [])))
     if not entry["certain"]:
         found = f"<em>probably</em>: {found}" if found else ""
@@ -102,8 +114,8 @@ def _row(entry: dict[str, Any], names: dict[str, str]) -> str:
         note = escape(entry["note"])
         found = f"{found}. {note}" if found else note
     source = (
-        f'<a href="{escape(entry["url"])}">{escape(entry["module"].removeprefix("homeassistant."))}</a>'
-        if entry.get("url")
+        f'<a href="{escape(url)}">{escape(entry["module"].removeprefix("homeassistant."))}</a>'
+        if url
         else ""
     )
     cells = [
@@ -144,11 +156,16 @@ def render(catalogue: dict[str, Any]) -> str:
     counts = catalogue["counts"]
     names = {kind: name for kind, name, _, _ in KINDS}
     heads = "".join(f'<th><button type="button">{h}</button></th>' for h in HEADINGS)
-    rows = "".join(_row(entry, names) for entry in catalogue["events"])
+    rows = "".join(
+        _row(entry, names, _url(catalogue, entry)) for entry in catalogue["events"]
+    )
     kinds = "\n".join(f"- **{name}**: {about}" for _, name, _, about in KINDS)
     return "\n\n".join([
         (
-            f"Scanned from Home Assistant **{catalogue['home_assistant']}**: "
+            # The catalogue is only rewritten when its entries change, not
+            # for each release (dev/events/scan.py --keep-if-same)
+            f"As of Home Assistant **{catalogue['home_assistant']}**, the latest release "
+            "that changed it: "
             f"{counts['event']} events, {counts['entity_event_type']} event entity types, "
             f"and {counts['unknown']} constants not yet decided."
         ),

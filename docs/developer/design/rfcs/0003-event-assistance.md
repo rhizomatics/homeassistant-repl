@@ -76,7 +76,7 @@ So:
     - **Probable**, from heuristics, and only for a value shaped like an event type (no spaces or `/`, with a `_` or `.`): named in a function that fires a variable, as timer's events are, or starting with its integration's domain. A single word, or a value with spaces or a `/`, is probably not an event
 - Event types fired as string literals, with no constant, are added as certain events
 - `dev/events/overrides.toml` corrects entries by module and constant, and adds events no scan of core can find. An override that matches nothing is reported, so a stale one is noticed
-- A weekly GitHub Action scans the latest release and opens a pull request when the catalogue changes. Merging it publishes the page with the docs
+- A weekly GitHub Action scans the latest release and opens a pull request when the catalogue changes - its entries, not just the release or line numbers, which any release moves. Each entry stores its file and line, and one `source_url` template makes the links, so the catalogue isn't rewritten for each release. Merging it publishes the page with the docs
 - The page, `/events/`, has CSV and JSON downloads. It was unlisted while under review, and is now in the top menu, the sitemap, site search and `llms.txt`, with `llms-full.txt` given its standard and entity events only
 
 On Home Assistant 2026.11.0: 128 events, 26 event entity types, 4 data keys, 123 not events, and 60 undecided, about half of them Traccar and Netatmo event types carried in another event's data.

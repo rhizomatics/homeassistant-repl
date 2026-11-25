@@ -95,9 +95,7 @@ def test_constants_are_judged_by_how_they_are_used(source: Path):
         True,
     )
     assert (turned["domain"], turned["integration"]) == ("widget", "Widget")
-    assert turned["url"].startswith(
-        "https://github.com/home-assistant/core/blob/2026.11.0/homeassistant/components/widget/const.py#L"
-    )
+    assert turned["path"] == "homeassistant/components/widget/const.py"
     assert found["EVENT_DATA_ANGLE"]["kind"] == "data_key"
     assert found["EVENT_CLICK"]["kind"] == "entity_event_type"
     assert found["EVENT_WAIT"]["kind"] == "not_event"
@@ -186,3 +184,51 @@ def test_main_writes_the_catalogue(source: Path, tmp_path: Path):
     )
     kinds = [e["kind"] for e in written["events"]]
     assert kinds == sorted(kinds, key=scan.KINDS.index)
+
+
+def test_links_are_one_template_for_the_whole_catalogue(source: Path):
+    found = scan.catalogue(source, "2026.11.0", {})
+    assert found["source_url"] == (
+        "https://github.com/home-assistant/core/blob/2026.11.0/{path}#L{line}"
+    )
+    assert all("url" not in entry for entry in found["events"])
+
+
+def test_a_new_release_alone_leaves_the_catalogue_as_it_was(
+    source: Path, tmp_path: Path
+):
+    out = tmp_path / "events.json"
+    none = tmp_path / "none.toml"
+    assert (
+        scan.main([
+            str(source),
+            "--version",
+            "2026.11.0",
+            "--out",
+            str(out),
+            "--overrides",
+            str(none),
+        ])
+        == 0
+    )
+    written = out.read_text(encoding="utf-8")
+
+    # Only the release, and a line moved by an edit above it
+    const = source / "components" / "widget" / "const.py"
+    const.write_text(
+        "# a comment that moves every line\n" + const.read_text(encoding="utf-8")
+    )
+    args = ["--out", str(out), "--overrides", str(none), "--keep-if-same"]
+    assert scan.main([str(source), "--version", "2026.11.3", *args]) == 0
+    assert out.read_text(encoding="utf-8") == written
+
+    # A new event is a change, written with its release
+    hub = source / "components" / "widget" / "hub.py"
+    hub.write_text(
+        hub.read_text(encoding="utf-8")
+        + "\n\ndef more(hass):\n    hass.bus.async_fire('widget_new', {})\n"
+    )
+    assert scan.main([str(source), "--version", "2026.12.0", *args]) == 0
+    rewritten = json.loads(out.read_text(encoding="utf-8"))
+    assert rewritten["home_assistant"] == "2026.12.0"
+    assert "widget_new" in {e.get("event_type") for e in rewritten["events"]}
