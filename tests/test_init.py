@@ -154,3 +154,27 @@ async def test_diagnostics_say_how_it_is_set_up_and_never_a_value(
     assert "token" in session["variables"]
     assert "a value never to be shown" not in repr(found)
     assert found["version"]
+
+
+async def test_yaml_imports_an_entry(
+    recorder_mock, hass: HomeAssistant, enable_custom_integrations: None
+) -> None:
+    from homeassistant.setup import async_setup_component
+
+    assert await async_setup_component(hass, DOMAIN, {DOMAIN: {}})
+    await hass.async_block_till_done()
+    (entry,) = hass.config_entries.async_entries(DOMAIN)
+    assert entry.source == "import"
+
+
+async def test_unload_stops_nothing_if_its_platforms_wont_unload(
+    recorder_mock, hass: HomeAssistant, enable_custom_integrations: None
+) -> None:
+    entry = MockConfigEntry(domain=DOMAIN, data={})
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    with patch.object(
+        hass.config_entries, "async_unload_platforms", return_value=False
+    ):
+        assert not await hass.config_entries.async_unload(entry.entry_id)

@@ -789,3 +789,129 @@ async def test_summary_says_how_a_run_went(manager):
     assert printed.endswith("s, 3 chars of output")
     long = (await run(manager, "'x' * 1000")).summary()
     assert len(long) < 300 and "\n" not in long
+
+
+# The paths the tests above don't take: values and errors that resist being
+# read, and the less usual ways of writing code.
+
+
+async def test_value_tree_falls_back_to_repr_where_fields_cant_be_read(manager):
+    code = (
+        "import dataclasses\n"
+        "@dataclasses.dataclass\n"
+        "class D:\n"
+        "    x: int\n"
+        "d = D(1)\n"
+        "del d.x\n"
+        "[d]"
+    )
+    result = await run(manager, code)
+    assert result.error is None
+    (tree,) = result.value_tree
+    assert tree["t"] == "repr" and tree["r"].startswith("<repr-error")
+
+
+async def test_value_tree_of_an_attrs_class_is_its_fields(manager):
+    code = "import attr\n@attr.s\nclass A:\n    x = attr.ib(default=1)\nA()"
+    assert (await run(manager, code)).value_tree == {
+        "t": "obj",
+        "n": "A",
+        "f": [["x", 1]],
+    }
+
+
+async def test_a_value_too_big_for_its_tree_is_sent_as_text(manager):
+    code = (
+        "class Long:\n"
+        "    def __repr__(self):\n"
+        "        return 'x' * 600_000\n"
+        "[Long(), Long()]"
+    )
+    result = await run(manager, code)
+    assert result.value_tree is None
+    assert result.truncated
+
+
+async def test_show_copes_with_what_resists_being_read(manager):
+    code = (
+        "import dataclasses\n"
+        "@dataclasses.dataclass\n"
+        "class D:\n"
+        "    x: int\n"
+        "broken = D(1)\n"
+        "del broken.x\n"
+        "class NoRepr:\n"
+        "    def __repr__(self):\n"
+        "        raise RuntimeError('no')\n"
+        "def unreadable():\n"
+        "    pass\n"
+        "unreadable.__signature__ = 'not a signature'\n"
+        "class Thing:\n"
+        "    def __init__(self):\n"
+        "        self.inner = broken\n"
+        "        self.odd = NoRepr()\n"
+        "        self.kind = NoRepr\n"
+        "        self.call = unreadable\n"
+        "class NoDir:\n"
+        "    def __dir__(self):\n"
+        "        raise RuntimeError('no')\n"
+    )
+    await run(manager, code)
+    result = await run(manager, "show(Thing(), methods=True)")
+    assert result.error is None
+    fields = _fields(result.value_tree)
+    # below the top: a dataclass whose field has gone, and a broken repr
+    assert fields["inner"]["r"].startswith("<repr-error")
+    assert fields["odd"]["r"].startswith("<repr-error")
+    assert fields["kind"]["r"] == "class NoRepr"
+    assert fields["call"]["r"] == "def call(...)"
+    nothing = await run(manager, "show(NoDir())")
+    assert nothing.error is None
+    assert nothing.value_tree == {"t": "obj", "n": "NoDir", "f": []}
+
+
+async def test_less_usual_code_runs(manager):
+    # a lambda, awaiting what isn't a call, print to a file of its own
+    assert (await run(manager, "f = lambda: 2\nf() * 3")).value == "6"
+    code = "import asyncio\nfut = unawait(asyncio.sleep(0, result=7))\nawait fut"
+    assert (await run(manager, code)).value == "7"
+    code = "import io\nb = io.StringIO()\nprint('x', file=b)\nb.getvalue()"
+    result = await run(manager, code)
+    assert (result.value, result.stdout) == ("'x\\n'", "")
+    # unawait() itself, when auto-await isn't rewriting it away
+    assert (await run(manager, "unawait(5)", auto_await=False)).value == "5"
+
+
+async def test_help_with_two_things_is_pythons_own_type_error(manager):
+    result = await run(manager, "help(1, 2)")
+    assert result.error["type"] == "TypeError"
+
+
+async def test_help_on_a_method_with_no_readable_signature(manager):
+    code = (
+        "class NoSignature:\n"
+        "    def __call__(self):\n"
+        "        pass\n"
+        "    @property\n"
+        "    def __signature__(self):\n"
+        "        raise ValueError('none')\n"
+        "class Holder:\n"
+        "    method = NoSignature()\n"
+        "help(Holder())"
+    )
+    result = await run(manager, code)
+    assert result.error is None
+
+
+async def test_errors_that_hide_their_cause_or_their_message(manager):
+    code = "try:\n    1 / 0\nexcept ZeroDivisionError:\n    raise ValueError('v') from None"
+    (only,) = (await run(manager, code)).error["stacks"]
+    assert only["type"] == "ValueError"
+    code = (
+        "class Quiet(Exception):\n"
+        "    def __str__(self):\n"
+        "        raise RuntimeError('no')\n"
+        "raise Quiet()"
+    )
+    (stack,) = (await run(manager, code)).error["stacks"]
+    assert stack["message"] == "<exception str() failed>"

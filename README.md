@@ -1,6 +1,6 @@
 # Home Assistant REPL
 
-[![Rhizomatics Open Source](https://img.shields.io/badge/rhizomatics%20open%20source-lightseagreen)](https://github.com/rhizomatics) [![managed by hq](https://raw.githubusercontent.com/rhizomatics/hq/main/assets/badge-managed-by-hq.svg)](https://hq.rhizomatics.org.uk/) [![Quality scale: Bronze (self-assessed)](https://img.shields.io/badge/quality%20scale-bronze%20(self--assessed)-cd7f32)](https://github.com/rhizomatics/homeassistant-repl/blob/main/custom_components/ha_repl_server/quality_scale.yaml)
+[![Rhizomatics Open Source](https://img.shields.io/badge/rhizomatics%20open%20source-lightseagreen)](https://github.com/rhizomatics) [![managed by hq](https://raw.githubusercontent.com/rhizomatics/hq/main/assets/badge-managed-by-hq.svg)](https://hq.rhizomatics.org.uk/) [![Quality scale: Platinum (self-assessed)](https://img.shields.io/badge/quality%20scale-platinum%20(self--assessed)-e5e4e2)](https://github.com/rhizomatics/homeassistant-repl/blob/main/custom_components/ha_repl_server/quality_scale.yaml)
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/rhizomatics/homeassistant-repl/python-package.yml)
 [![PyPI](https://img.shields.io/pypi/v/homeassistant-repl)](https://pypi.org/project/homeassistant-repl/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/homeassistant-repl)](https://www.python.org/downloads/)
