@@ -6,9 +6,6 @@ repo_name: rhizomatics/homeassistant-repl
 repo_url: https://github.com/rhizomatics/homeassistant-repl
 edit_uri: edit/main/docs/
 docs_dir: docs
-# Pages reached only by their URL, while under review - see docs_hooks/event_catalogue.py
-not_in_nav: |
-  /events/
 #watch:
 #  - README.md
 #  - CHANGELOG.md
@@ -81,9 +78,6 @@ plugins:
       # several hundred links into Home Assistant's source, one per catalogue entry
       ignore_pages:
         - events/index.md
-      # linked from the changelog before the page is first deployed
-      ignore_urls:
-        - https://homeassistant-repl.rhizomatics.org.uk/events/*
   - llmstxt:
       full_output: llms-full.txt
       preprocess: docs_hooks/llmstxt_preprocess.py
@@ -105,6 +99,7 @@ plugins:
           - developer/design/debug_console.md: How `ha-repl` compares with Home Assistant 2026.11's own browser Debug console, and which suits what
           - configuration/fnox.md: Keeping the Home Assistant token and URL in fnox, for people and for coding agents with no terminal
           - configuration/alternative_integration.md: Using `homeassistant_repl.connect()` from plain Python, ipython or Marimo instead of the shell
+          - events/index.md: Event Catalogue - the event types Home Assistant core fires on its event bus, by integration and constant, with how each was found; the complete catalogue, with source links, is at https://homeassistant-repl.rhizomatics.org.uk/events/events.json
         Optional:
           - developer/design/design_principles.md: Design principles behind the client/server split
         # changelog and roadmap left out - old or planned behaviour an agent would take as current

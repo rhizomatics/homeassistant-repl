@@ -1,11 +1,8 @@
 """The event catalogue page, its tables and its CSV and JSON downloads, all
 from dev/events/events.json, which dev/events/scan.py writes.
 
-A page with `unlisted: true` in its front matter is kept out of the
-sitemap (overrides/sitemap.xml) and away from search engines
-(overrides/main.html), and with the theme's own `search: exclude: true` out
-of the site's search, so it can be reviewed at its URL before anything
-points people to it. `not_in_nav` in properdocs.yml keeps it out of the nav.
+llms-full.txt gets a shorter form of the table - see
+docs_hooks/llmstxt_preprocess.py.
 """
 
 from __future__ import annotations
@@ -89,7 +86,12 @@ def _csv(catalogue: dict[str, Any]) -> str:
 
 
 def _code(text: Any) -> str:
-    return f"<code>{escape(str(text))}</code>" if text else ""
+    """Breakable only after a `_` or `.`, so a long event type or constant
+    wraps between its words, not inside one."""
+    if not text:
+        return ""
+    breakable = escape(str(text)).replace("_", "_<wbr>").replace(".", ".<wbr>")
+    return f"<code>{breakable}</code>"
 
 
 def _row(entry: dict[str, Any], names: dict[str, str]) -> str:
@@ -182,3 +184,15 @@ def on_files(files, config):
 
 def on_page_markdown(markdown, page, config, files):
     return markdown.replace(MARKER, render(_load())) if MARKER in markdown else markdown
+
+
+def on_nav(nav, config, files):
+    """Name the catalogue's tab after the page, not after its folder - which
+    would make it "Events" - keeping its URL, /events/, as it is."""
+    for item in nav.items:
+        if item.is_section and any(
+            getattr(child, "file", None) and child.file.src_uri == "events/index.md"
+            for child in item.children
+        ):
+            item.title = "Event Catalogue"
+    return nav
