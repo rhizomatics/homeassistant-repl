@@ -68,7 +68,9 @@ def async_register(hass: HomeAssistant) -> None:
 def _manager(
     hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]
 ) -> SessionManager | None:
-    if (manager := hass.data.get(DOMAIN)) is None:
+    # single_config_entry, so there's at most one
+    loaded = hass.config_entries.async_loaded_entries(DOMAIN)
+    if (manager := loaded[0].runtime_data if loaded else None) is None:
         connection.send_error(
             msg["id"], "not_loaded", "Home Assistant REPL integration is not loaded"
         )

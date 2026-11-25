@@ -16,6 +16,7 @@ from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.event import async_track_point_in_utc_time
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.requirements import RequirementsNotFound, async_process_requirements
@@ -30,9 +31,12 @@ from .const import (
     SQL_REQUIREMENTS,
 )
 from .objtree import ObjTree
-from .session import SessionManager
+from .session import HaReplConfigEntry, SessionManager
 
 _LOGGER = logging.getLogger(__name__)
+
+SQL_ISSUE = "sql_unavailable"
+SQL_DOCS = "https://homeassistant-repl.rhizomatics.org.uk/configuration/server_install/#if-sql-cant-be-loaded"
 
 CONFIG_SCHEMA = cv.empty_config_schema(DOMAIN)
 
@@ -97,7 +101,7 @@ def _apply_time_limits(hass: HomeAssistant, entry: ConfigEntry) -> None:
             )
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+async def async_setup_entry(hass: HomeAssistant, entry: HaReplConfigEntry) -> bool:
     _apply_time_limits(hass, entry)
     # In entry.options, not entry.data: editable after setup via Configure
     # (see config_flow.py's HaReplServerOptionsFlow), not fixed at creation.
@@ -119,8 +123,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 "Home Assistant REPL: sql is unavailable, everything else works: %s",
                 reason,
             )
+    _report_sql(hass, unavailable.get("sql"))
 
-    hass.data[DOMAIN] = SessionManager(
+    entry.runtime_data = SessionManager(
         bindings,
         frozenset(features),
         complete_limit=entry.options.get("complete_limit", DEFAULT_COMPLETE_LIMIT),
@@ -137,6 +142,25 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return True
 
 
+def _report_sql(hass: HomeAssistant, reason: str | None) -> None:
+    """A repair issue while sql is wanted but couldn't be loaded, which a
+    reload can fix once the cause has gone, or switching sql off can end -
+    and none once it loads, or is switched off."""
+    if reason is None:
+        ir.async_delete_issue(hass, DOMAIN, SQL_ISSUE)
+        return
+    ir.async_create_issue(
+        hass,
+        DOMAIN,
+        SQL_ISSUE,
+        is_fixable=False,
+        severity=ir.IssueSeverity.WARNING,
+        translation_key=SQL_ISSUE,
+        translation_placeholders={"reason": reason},
+        learn_more_url=SQL_DOCS,
+    )
+
+
 async def _load_sql(hass: HomeAssistant) -> str | None:
     """Install and import what `sql` needs. None if that worked, otherwise
     why not - for `sql` alone to be switched off."""
@@ -151,9 +175,8 @@ async def _load_sql(hass: HomeAssistant) -> str | None:
     return None
 
 
-async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+async def async_unload_entry(hass: HomeAssistant, entry: HaReplConfigEntry) -> bool:
     if not await hass.config_entries.async_unload_platforms(entry, PLATFORMS):
         return False
-    if manager := hass.data.pop(DOMAIN, None):
-        manager.cancel(None, "Stopped: Home Assistant REPL unloaded")
+    entry.runtime_data.cancel(None, "Stopped: Home Assistant REPL unloaded")
     return True

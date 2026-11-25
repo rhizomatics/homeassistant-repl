@@ -13,7 +13,15 @@ from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.util import dt as dt_util
 
 from custom_components.ha_repl_server.const import DOMAIN
+from custom_components.ha_repl_server.session import SessionManager
 from tests.ha_testing import MockConfigEntry, async_fire_time_changed
+
+
+def _loaded(hass: HomeAssistant) -> SessionManager:
+    """The loaded entry's SessionManager."""
+    (entry,) = hass.config_entries.async_loaded_entries(DOMAIN)
+    return entry.runtime_data
+
 
 _ALL_ACKS = {
     "ack_stability": True,
@@ -113,7 +121,7 @@ async def test_options_flow_updates_entry_options_and_reloads(
     entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done()
-    assert hass.data[DOMAIN].has_feature("sql")
+    assert _loaded(hass).has_feature("sql")
 
     result = await hass.config_entries.options.async_init(entry.entry_id)
     result = await hass.config_entries.options.async_configure(
@@ -129,7 +137,7 @@ async def test_options_flow_updates_entry_options_and_reloads(
     }
     # OptionsFlowWithReload reloaded the entry - the session manager was
     # rebuilt with the new settings, not the old ones.
-    assert not hass.data[DOMAIN].has_feature("sql")
+    assert not _loaded(hass).has_feature("sql")
 
 
 async def _configure(hass: HomeAssistant, entry: MockConfigEntry, **user_input):
@@ -162,16 +170,16 @@ async def test_a_time_limit_switches_just_that_capability_off_when_it_runs_out(
     assert until is not None
     assert timedelta(minutes=29) < until - dt_util.utcnow() <= timedelta(minutes=30)
     assert "expose_hass_until" not in entry.options
-    assert hass.data[DOMAIN].has_feature("sql")
+    assert _loaded(hass).has_feature("sql")
 
     async_fire_time_changed(hass, until - timedelta(seconds=30))
     await hass.async_block_till_done()
-    assert hass.data[DOMAIN].has_feature("sql")
+    assert _loaded(hass).has_feature("sql")
 
     async_fire_time_changed(hass, until + timedelta(seconds=1))
     await hass.async_block_till_done()
-    assert not hass.data[DOMAIN].has_feature("sql")
-    assert "hass" in hass.data[DOMAIN].get("default").globals_
+    assert not _loaded(hass).has_feature("sql")
+    assert "hass" in _loaded(hass).get("default").globals_
     # as if it had been switched off from Configure
     assert entry.options == {
         "expose_hass": True,
@@ -194,8 +202,8 @@ async def test_a_time_limit_that_ran_out_while_stopped_is_applied_at_setup(
     assert await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done()
 
-    assert "hass" not in hass.data[DOMAIN].get("default").globals_
-    assert hass.data[DOMAIN].has_feature("sql")
+    assert "hass" not in _loaded(hass).get("default").globals_
+    assert _loaded(hass).has_feature("sql")
     assert entry.options == {"expose_hass": False, "expose_sql": True}
 
 
@@ -242,7 +250,7 @@ async def test_completion_limits_are_options_the_session_manager_uses(
     entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done()
-    assert (hass.data[DOMAIN].complete_limit, hass.data[DOMAIN].complete_budget) == (
+    assert (_loaded(hass).complete_limit, _loaded(hass).complete_budget) == (
         500,
         0.5,
     )
@@ -250,7 +258,7 @@ async def test_completion_limits_are_options_the_session_manager_uses(
         hass, entry, limits={"complete_limit": 50, "complete_budget_ms": 200}
     )
     assert entry.options["complete_limit"] == 50
-    assert (hass.data[DOMAIN].complete_limit, hass.data[DOMAIN].complete_budget) == (
+    assert (_loaded(hass).complete_limit, _loaded(hass).complete_budget) == (
         50,
         0.2,
     )
