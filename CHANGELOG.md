@@ -4,6 +4,15 @@
     For live mode, generally the client and server component have to be on the same version. Different versions *might* work
     with each other for point releases
 
+# 0.16.1
+
+## 🏅 Quality
+- The Live Server declares the Bronze level of Home Assistant's [Integration Quality Scale](https://contributors.home-assistant.io/core/quality-scale/). Every rule up to Platinum is now done or exempt except test coverage - see `quality_scale.yaml`
+    - **Diagnostics**: *Download diagnostics* on the integration's page gives its version, options, whether `sql` loaded and why not, and its sessions by name and variable name, never a variable's value
+    - **Repairs**: a repair issue says when `sql` couldn't be loaded, and why, until it loads or is switched off
+    - **Docs**: [Known Limitations](https://homeassistant-repl.rhizomatics.org.uk/configuration/server_install/#known-limitations) and [Troubleshooting](https://homeassistant-repl.rhizomatics.org.uk/configuration/server_install/#troubleshooting) for the Live Server
+    - Strictly typed, and its sessions kept in the config entry's runtime data
+
 # 0.16.0
 
 ## ✨ Enhancements

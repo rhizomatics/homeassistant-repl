@@ -57,3 +57,52 @@ logger:
 3. In Marketplace, open *Home Assistant REPL* and choose **Remove**, then restart Home Assistant
 
 `nanoarrow` and `sqlparse`, installed for `sql`, stay in Home Assistant's Python environment until it is next rebuilt (as on an upgrade). Nothing uses them.
+
+## Known Limitations
+
+What the Live Server doesn't do, by design:
+
+- **Code inside Home Assistant runs on its event loop.** Code that blocks it - `time.sleep()`, a blocking HTTP call - holds up all of Home Assistant while it runs, and can't be stopped by Ctrl-C or the Stop button. `await` asynchronous calls, and run blocking ones with `await hass.async_add_executor_job(...)`
+- **A session's variables inside Home Assistant last until the integration reloads or Home Assistant restarts.** Saving **Configure**, or a time limit running out, reloads it. Nothing is written to disk
+- **One statement at a time per session.** A second command waits for the first to finish; completion still answers meanwhile
+- **Only plain data crosses between the shell and Home Assistant** - strings, numbers, and lists and dicts of them. See [What Runs Where](../modes/live_mode.md#what-runs-where)
+- **The shell and the Live Server are released together.** Different versions may work with each other for point releases, but aren't tested that way
+- **`sql` needs a build of `nanoarrow` for the platform Home Assistant runs on.** Where there isn't one, `sql` is switched off and everything else works
+- **It isn't a debugger.** There are no breakpoints or stepping through code
+
+## Troubleshooting
+
+### `... not available: is the ha_repl_server integration installed ...`
+
+- **Cause**: the Live Server isn't installed, or Home Assistant hasn't been restarted since it was downloaded, so its commands don't exist
+- **Resolution**: install it as described [above](#marketplace-component), restart Home Assistant, and add the integration. `api` mode works without it
+
+### `... failed: Home Assistant REPL integration is not loaded`
+
+- **Cause**: the integration is installed, but its entry isn't loaded - disabled, failed to start, or reloading
+- **Resolution**: open **Settings → Devices & services → Home Assistant REPL**. Enable or reload the entry, and check the log for why it didn't start
+
+### `... failed: Unauthorized`
+
+- **Cause**: every command needs an administrator, and the token belongs to a user who isn't one
+- **Resolution**: use a long-lived access token created by an administrator
+
+### `sql` is missing, and a repair issue says it couldn't be loaded
+
+- **Cause**: the packages `sql` needs couldn't be installed or imported - see [If `sql` Can't Be Loaded](#if-sql-cant-be-loaded)
+- **Resolution**: if the cause has gone, such as no network while Home Assistant was starting, reload the integration. If `sql` can't run on this platform, switch it off under **Configure**, which also clears the repair issue
+
+### The shell says completion inside Home Assistant needs a newer Live Server
+
+- **Cause**: the shell is newer than the Live Server
+- **Resolution**: update the Live Server in Marketplace and restart Home Assistant, so the two are on the same version
+
+### Home Assistant stops responding while code runs
+
+- **Cause**: the code is blocking Home Assistant's event loop - see [Known Limitations](#known-limitations)
+- **Resolution**: if it doesn't finish, restart Home Assistant. Run blocking calls with `await hass.async_add_executor_job(...)` next time
+
+### Variables have gone from a session
+
+- **Cause**: the integration was reloaded - **Configure** was saved, or a time limit ran out - or Home Assistant restarted. The shell says which have gone when it reconnects after a restart
+- **Resolution**: run the statements that made them again, or put the ones you always want in a [plugin](plugins.md)

@@ -19,11 +19,22 @@ from unittest.mock import patch
 
 import pytest
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import issue_registry as ir
 from homeassistant.requirements import RequirementsNotFound
 
 from custom_components.ha_repl_server.const import DOMAIN
+from custom_components.ha_repl_server.diagnostics import (
+    async_get_config_entry_diagnostics,
+)
 from custom_components.ha_repl_server.objtree import ObjTree
+from custom_components.ha_repl_server.session import SessionManager
 from tests.ha_testing import MockConfigEntry
+
+
+def _loaded(hass: HomeAssistant) -> SessionManager:
+    """The loaded entry's SessionManager."""
+    (entry,) = hass.config_entries.async_loaded_entries(DOMAIN)
+    return entry.runtime_data
 
 
 async def test_setup_and_unload_entry(
@@ -35,7 +46,7 @@ async def test_setup_and_unload_entry(
     assert await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done()
 
-    manager = hass.data[DOMAIN]
+    manager = _loaded(hass)
     session = manager.get("default")
     assert session.globals_["hass"] is hass
     assert isinstance(session.globals_["obj"], ObjTree)
@@ -47,7 +58,7 @@ async def test_setup_and_unload_entry(
 
     assert await hass.config_entries.async_unload(entry.entry_id)
     await hass.async_block_till_done()
-    assert DOMAIN not in hass.data
+    assert not hass.config_entries.async_loaded_entries(DOMAIN)
 
 
 async def test_setup_entry_respects_expose_hass_and_expose_sql_false(
@@ -61,9 +72,9 @@ async def test_setup_entry_respects_expose_hass_and_expose_sql_false(
     assert await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done()
 
-    session = hass.data[DOMAIN].get("default")
+    session = _loaded(hass).get("default")
     assert "hass" not in session.globals_
-    assert not hass.data[DOMAIN].has_feature("sql")
+    assert not _loaded(hass).has_feature("sql")
     assert isinstance(session.globals_["obj"], ObjTree)
 
     assert await hass.config_entries.async_unload(entry.entry_id)
@@ -97,7 +108,7 @@ async def test_sql_that_cannot_load_switches_off_only_sql(
         assert await hass.config_entries.async_setup(entry.entry_id)
         await hass.async_block_till_done()
 
-    manager = hass.data[DOMAIN]
+    manager = _loaded(hass)
     assert not manager.has_feature("sql")
     assert manager.get("default").globals_["hass"] is hass
     assert "sql is unavailable, everything else works" in caplog.text
@@ -109,3 +120,37 @@ async def test_sql_that_cannot_load_switches_off_only_sql(
     assert str(error) in response["error"]["message"]
     await client.send_json({"id": 2, "type": "ha_repl_server/exec", "code": "1 + 1"})
     assert (await client.receive_json())["result"]["value"] == "2"
+
+    # A repair issue says so, with the reason, until a reload loads it
+    issue = ir.async_get(hass).async_get_issue(DOMAIN, "sql_unavailable")
+    assert issue is not None
+    assert issue.translation_placeholders == {
+        "reason": f"{type(error).__name__}: {error}"
+    }
+    assert await hass.config_entries.async_reload(entry.entry_id)
+    await hass.async_block_till_done()
+    assert _loaded(hass).has_feature("sql")
+    assert ir.async_get(hass).async_get_issue(DOMAIN, "sql_unavailable") is None
+
+
+async def test_diagnostics_say_how_it_is_set_up_and_never_a_value(
+    recorder_mock, hass: HomeAssistant, enable_custom_integrations: None
+) -> None:
+    entry = MockConfigEntry(
+        domain=DOMAIN, data={}, options={"expose_hass": True, "complete_limit": 200}
+    )
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    _loaded(hass).get("default").globals_["token"] = "a value never to be shown"
+
+    found = await async_get_config_entry_diagnostics(hass, entry)
+
+    assert found["options"] == {"expose_hass": True, "complete_limit": 200}
+    assert found["sql"] == {"available": True, "unavailable_because": None}
+    assert found["complete"]["limit"] == 200
+    (session,) = found["sessions"]
+    assert session["name"] == "default"
+    assert "token" in session["variables"]
+    assert "a value never to be shown" not in repr(found)
+    assert found["version"]

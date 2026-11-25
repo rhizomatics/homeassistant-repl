@@ -48,12 +48,10 @@ import sqlalchemy as sa
 import sqlparse
 from homeassistant.components.recorder import db_schema, get_instance
 from homeassistant.components.recorder.core import Recorder
-from homeassistant.components.recorder.models.context import (
-    bytes_to_ulid_or_none,
-    bytes_to_uuid_hex_or_none,
-)
+from homeassistant.components.recorder.models.context import bytes_to_uuid_hex_or_none
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.recorder import session_scope
+from homeassistant.util.ulid import bytes_to_ulid_or_none
 from nanoarrow.ipc import StreamWriter
 
 from .const import DEFAULT_MAX_ROWS
@@ -107,7 +105,7 @@ def _datetime_micros(value: Any) -> int:
         value = datetime.fromisoformat(value)
     if value.tzinfo is None:
         value = value.replace(tzinfo=UTC)
-    return (value - _EPOCH) // _MICROSECOND
+    return int((value - _EPOCH) // _MICROSECOND)
 
 
 _TIMESTAMP = _ColumnKind(_UTC_MICROS, _timestamp_micros)
