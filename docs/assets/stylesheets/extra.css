@@ -55,3 +55,8 @@
 .event-catalogue th[aria-sort="descending"] button::after {
   content: " ▼";
 }
+.event-catalogue td code {
+  /* only where docs_hooks/event_catalogue.py put a <wbr> */
+  word-break: normal;
+  overflow-wrap: normal;
+}

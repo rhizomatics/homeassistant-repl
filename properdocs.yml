@@ -6,9 +6,6 @@ repo_name: rhizomatics/homeassistant-repl
 repo_url: https://github.com/rhizomatics/homeassistant-repl
 edit_uri: edit/main/docs/
 docs_dir: docs
-# Pages reached only by their URL, while under review - see docs_hooks/event_catalogue.py
-not_in_nav: |
-  /events/
 #watch:
 #  - README.md
 #  - CHANGELOG.md

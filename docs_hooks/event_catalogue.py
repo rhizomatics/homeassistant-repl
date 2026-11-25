@@ -89,7 +89,12 @@ def _csv(catalogue: dict[str, Any]) -> str:
 
 
 def _code(text: Any) -> str:
-    return f"<code>{escape(str(text))}</code>" if text else ""
+    """Breakable only after a `_` or `.`, so a long event type or constant
+    wraps between its words, not inside one."""
+    if not text:
+        return ""
+    breakable = escape(str(text)).replace("_", "_<wbr>").replace(".", ".<wbr>")
+    return f"<code>{breakable}</code>"
 
 
 def _row(entry: dict[str, Any], names: dict[str, str]) -> str:
@@ -182,3 +187,15 @@ def on_files(files, config):
 
 def on_page_markdown(markdown, page, config, files):
     return markdown.replace(MARKER, render(_load())) if MARKER in markdown else markdown
+
+
+def on_nav(nav, config, files):
+    """Name the catalogue's tab after the page, not after its folder - which
+    would make it "Events" - keeping its URL, /events/, as it is."""
+    for item in nav.items:
+        if item.is_section and any(
+            getattr(child, "file", None) and child.file.src_uri == "events/index.md"
+            for child in item.children
+        ):
+            item.title = "Event Catalogue"
+    return nav
