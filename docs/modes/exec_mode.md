@@ -25,6 +25,8 @@ Home Assistant. `hass` is the live HomeAssistant object, `obj` the object tree,
 
 The repo also ships an [Agent Skill](https://agentskills.io), [`plugin/skills/ha-repl`](https://github.com/rhizomatics/homeassistant-repl/tree/main/plugin/skills/ha-repl), which teaches an agent the command, its JSON output and the rules on this page, so you don't have to write the instructions yourself. Install it in the project where you develop your component.
 
+Everything an agent reads through `ha-repl`, personal data included, goes to its model provider: read [Privacy](../privacy.md) first.
+
 For Claude Code, as a plugin:
 
 ```bash

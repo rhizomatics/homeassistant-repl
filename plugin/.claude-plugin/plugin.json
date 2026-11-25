@@ -6,6 +6,7 @@
     "url": "https://github.com/rhizomatics"
   },
   "homepage": "https://homeassistant-repl.rhizomatics.org.uk",
+  "privacyPolicyUrl": "https://homeassistant-repl.rhizomatics.org.uk/privacy/",
   "repository": "https://github.com/rhizomatics/homeassistant-repl",
   "license": "Apache-2.0",
   "keywords": ["home-assistant", "repl", "custom-component"]
