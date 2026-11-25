@@ -127,10 +127,10 @@ rules:
     status: todo
     comment: |
       The rule asks for more than 95% in every module, with no exceptions. On 2026-11-25:
-      complete.py 63%, objtree 83%, websocket_api 84%, button 89%, providers 93%, sql 94% and
-      session 95% fall short; __init__ 96%, config_flow, diagnostics, const and paths are over.
-      complete.py is kept identical to src/homeassistant_repl/complete.py by a test, and that
-      copy is at 85%, so part of its gap is tests that only import the client copy.
+      objtree 83%, websocket_api 84%, button 89%, providers 93%, sql 94% and session 95% fall
+      short; complete 96%, __init__ 96%, config_flow, diagnostics, const and paths are over.
+      complete.py is the same file as src/homeassistant_repl/complete.py, and
+      tests/test_complete_server.py runs all of test_complete.py against this copy too.
       pyproject.toml fail-under is 45 across both packages.
 
   # ==================
