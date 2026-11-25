@@ -54,6 +54,8 @@ hooks:
   - docs_hooks/blended_examples.py
   # the event catalogue page and its downloads, from dev/events/events.json
   - docs_hooks/event_catalogue.py
+  # groups some top-level pages under one tab, keeping their URLs
+  - docs_hooks/nav_groups.py
 
 plugins:
   - search
