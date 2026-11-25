@@ -16,7 +16,7 @@
         <link rel="prev" href="../0002-auto-completed/">
       
       
-        <link rel="next" href="../../../../modes/">
+        <link rel="next" href="../../../../events/">
       
       
         
@@ -68,7 +68,6 @@
 
     
     
-  
   
   
   
@@ -383,6 +382,28 @@
     
   
   Developer
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../events/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Event Catalogue
 
         </a>
       </li>
@@ -1467,6 +1488,77 @@
           
         
       
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_10" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../../events/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Event Catalogue
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Event Catalogue
+  
+
+          </label>
+          <ul class="md-nav__list">
+            
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
         
       
         
@@ -1488,7 +1580,7 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_10" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_11" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -1510,14 +1602,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_10" id="__nav_10_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_11" id="__nav_11_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1862,7 +1954,7 @@
 <li>Event types fired as string literals, with no constant, are added as certain events</li>
 <li><code>dev/events/overrides.toml</code> corrects entries by module and constant, and adds events no scan of core can find. An override that matches nothing is reported, so a stale one is noticed</li>
 <li>A weekly GitHub Action scans the latest release and opens a pull request when the catalogue changes. Merging it publishes the page with the docs</li>
-<li>The page, <code>/events/</code>, has CSV and JSON downloads, and is unlisted while under review: not in the nav, the sitemap or the site's search, and marked <code>noindex</code></li>
+<li>The page, <code>/events/</code>, has CSV and JSON downloads. It was unlisted while under review, and is now in the top menu, the sitemap, site search and <code>llms.txt</code>, with <code>llms-full.txt</code> given its standard and entity events only</li>
 </ul>
 <p>On Home Assistant 2026.11.0: 128 events, 26 event entity types, 4 data keys, 123 not events, and 60 undecided, about half of them Traccar and Netatmo event types carried in another event's data.</p>
 <p>Checked against the listeners on a live server, every core event was found, all but <code>timer.finished</code> with certainty, except:</p>
