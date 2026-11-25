@@ -1,6 +1,6 @@
 {
- "home_assistant": "2026.11.0",
- "source_url": "https://github.com/home-assistant/core/blob/2026.11.0/{path}#L{line}",
+ "home_assistant": "2026.11.3",
+ "source_url": "https://github.com/home-assistant/core/blob/2026.11.3/{path}#L{line}",
  "counts": {
   "event": 128,
   "entity_event_type": 26,
@@ -2934,7 +2934,7 @@
    ],
    "integration": "Home Assistant core",
    "module": "homeassistant.helpers.config_validation",
-   "line": 1493,
+   "line": 1506,
    "constant": "EVENT_SCHEMA",
    "path": "homeassistant/helpers/config_validation.py"
   },
