@@ -946,6 +946,15 @@ def _format_signature(
     return re.sub(r"\s*=\s*", "=", text)
 
 
+def _message(err: BaseException) -> str:
+    """An exception's message, as the standard traceback words it when its
+    __str__ is broken - which mustn't stop the error being reported."""
+    try:
+        return str(err)
+    except Exception:  # noqa: BLE001 - a broken __str__ can raise anything
+        return "<exception str() failed>"
+
+
 def _format_error(err: BaseException) -> dict[str, Any]:
     """An error as data: its type and message, the standard traceback text,
     and - for the client to draw a fuller traceback from - each exception in
@@ -955,7 +964,7 @@ def _format_error(err: BaseException) -> dict[str, Any]:
     # Drop the frames belonging to this module so the traceback starts at user code.
     while tb is not None and tb.tb_frame.f_code.co_filename == __file__:
         tb = tb.tb_next
-    error: dict[str, Any] = {"type": type(err).__name__, "message": str(err)}
+    error: dict[str, Any] = {"type": type(err).__name__, "message": _message(err)}
     if isinstance(err, SyntaxError):
         # No frames worth showing for this one, just the offending line and caret.
         error["traceback"] = "".join(traceback.format_exception_only(type(err), err))
@@ -986,10 +995,7 @@ def _stacks(err: BaseException, tb: Any) -> list[dict[str, Any]] | None:
         hidden = max(len(frames) - _MAX_FRAMES, 0)
         if hidden:
             del frames[_MAX_FRAMES // 2 : _MAX_FRAMES // 2 + hidden]
-        try:
-            message = str(current)
-        except Exception:  # noqa: BLE001 - a broken __str__ can raise anything
-            message = "<exception str() failed>"
+        message = _message(current)
         stacks.append({
             "type": type(current).__name__,
             "message": message,

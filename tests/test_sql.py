@@ -8,7 +8,8 @@ from __future__ import annotations
 
 import re
 import uuid
-from datetime import timedelta
+from datetime import UTC, date, datetime, timedelta, timezone
+from decimal import Decimal
 from typing import Any
 
 import nanoarrow as na
@@ -25,6 +26,10 @@ from custom_components.ha_repl_server.sql import (
     ArrowResult,
     SqlError,
     _add_virtual_tables,
+    _build_column,
+    _coerce_for_arrow,
+    _datetime_micros,
+    _infer_arrow_type,
     _recorder_column_kinds,
     sql,
     table_schemas,
@@ -415,3 +420,41 @@ def test_a_plain_double_is_not_taken_for_a_timestamp():
     kinds = _recorder_column_kinds()
     assert str(kinds["mean"].arrow.type) == "Type.DOUBLE"
     assert str(kinds["start_ts"].arrow.type) == "Type.TIMESTAMP"
+
+
+async def test_sql_without_the_recorder_says_so(hass: HomeAssistant):
+    with pytest.raises(SqlError, match="recorder is not set up"):
+        await sql(hass, "select 1")
+
+
+def test_datetimes_as_text_or_with_a_timezone_are_utc_microseconds():
+    noon = datetime(2026, 11, 25, 12, 0, tzinfo=UTC)
+    expected = _datetime_micros(noon)
+    # as SQLite hands back a query's own text, with no timezone: UTC
+    assert _datetime_micros("2026-11-25 12:00:00") == expected
+    # an aware one an hour ahead of UTC is an hour earlier
+    ahead = datetime(2026, 11, 25, 13, 0, tzinfo=timezone(timedelta(hours=1)))
+    assert _datetime_micros(ahead) == expected
+
+
+def test_values_arrow_wont_take_are_made_ones_it_will():
+    assert _coerce_for_arrow(Decimal("1.5")) == pytest.approx(1.5)
+    assert _coerce_for_arrow(date(2026, 11, 25)) == "2026-11-25"
+    assert _coerce_for_arrow(datetime(2026, 11, 25, 12, 0)) == "2026-11-25T12:00:00"
+    assert _coerce_for_arrow("left alone") == "left alone"
+
+
+def test_an_unknown_columns_type_is_its_first_value():
+    assert _infer_arrow_type([None, True]).type == na.bool_().type
+    assert _infer_arrow_type([3]).type == na.int64().type
+    assert _infer_arrow_type([2.5]).type == na.float64().type
+    assert _infer_arrow_type([b"x"]).type == na.binary().type
+    assert _infer_arrow_type(["x"]).type == na.string().type
+    assert _infer_arrow_type([None]).type == na.string().type
+
+
+def test_a_column_whose_values_dont_fit_its_type_is_text():
+    # inferred as int64 from its first value, then given a string
+    column = _build_column("count", [1, "two"])
+    assert column.schema.type == na.string().type
+    assert list(column.to_pylist()) == ["1", "two"]

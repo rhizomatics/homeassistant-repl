@@ -4,17 +4,23 @@
     For live mode, generally the client and server component have to be on the same version. Different versions *might* work
     with each other for point releases
 
-# 0.16.1
+# 1.0.0
 
-## 🏅 Quality
-- The Live Server declares the Bronze level of Home Assistant's [Integration Quality Scale](https://contributors.home-assistant.io/core/quality-scale/). Every rule up to Platinum is now done or exempt except test coverage - see `quality_scale.yaml`
-    - **Diagnostics**: *Download diagnostics* on the integration's page gives its version, options, whether `sql` loaded and why not, and its sessions by name and variable name, never a variable's value
-    - **Repairs**: a repair issue says when `sql` couldn't be loaded, and why, until it loads or is switched off
-    - **Docs**: [Known Limitations](https://homeassistant-repl.rhizomatics.org.uk/configuration/server_install/#known-limitations) and [Troubleshooting](https://homeassistant-repl.rhizomatics.org.uk/configuration/server_install/#troubleshooting) for the Live Server
-    - Strictly typed, and its sessions kept in the config entry's runtime data
+## 🏆 Platinum
+The Live Server now reaches **Platinum**, the top level of Home Assistant's [Integration Quality Scale](https://contributors.home-assistant.io/core/quality-scale/). Each of its 54 rules is done, or doesn't apply to an integration like this one, as `quality_scale.yaml` records rule by rule. Self-assessed: it's a custom integration, so not reviewed by Home Assistant.
+
+- **Diagnostics**: *Download diagnostics* on the integration's page gives its version, options, whether `sql` loaded and why not, and its sessions by name and variable name, never a variable's value
+- **Repairs**: a repair issue says when `sql` couldn't be loaded, and why, until it loads or is switched off
+- **Docs**: [Known Limitations](https://homeassistant-repl.rhizomatics.org.uk/configuration/server_install/#known-limitations) and [Troubleshooting](https://homeassistant-repl.rhizomatics.org.uk/configuration/server_install/#troubleshooting) for the Live Server
+- **Tests**: every module of the Live Server over 95% covered, from 84% overall. The tests that took it there found the two bugs below
+- **Typing**: strictly typed, and its sessions kept in the config entry's runtime data
+
+## 🚧 Work in Progress
+- The [Event Catalogue](https://homeassistant-repl.rhizomatics.org.uk/events/) is a work in progress now, no longer experimental: it's in the top menu, listed for search engines and in `llms.txt` for agents, and carries on being built up
 
 ## 🐛 Bug Fixes
 - In live mode, `obj.values()` and `obj.items()` at the root of the tree work, and `"mqtt" in obj` is true for an integration `obj.keys()` lists. Each of the integrations' bare names was taken for an entity id, so looking one up failed
+- In live mode, raising an exception whose own message can't be made - its `__str__` raises - is reported as an error, with `<exception str() failed>` for its message. Before, the command failed instead of answering
 
 # 0.16.0
 

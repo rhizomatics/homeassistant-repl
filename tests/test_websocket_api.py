@@ -8,6 +8,8 @@ import asyncio
 import base64
 import logging
 import re
+from typing import Any
+from unittest.mock import patch
 
 from homeassistant.core import HomeAssistant
 from homeassistant.loader import async_get_integration
@@ -409,3 +411,116 @@ async def test_ws_complete_describes_without_running(
     assert found["type"] == "homeassistant.core.StateMachine.async_set"
     assert found["signature"].startswith("(entity_id: str, new_state: str")
     assert found["doc"]
+
+
+async def test_every_command_says_when_the_integration_isnt_loaded(
+    recorder_mock, hass: HomeAssistant, enable_custom_integrations: None, hass_ws_client
+):
+    entry = MockConfigEntry(domain=DOMAIN, data={})
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    assert await hass.config_entries.async_unload(entry.entry_id)
+    await hass.async_block_till_done()
+    client = await hass_ws_client(hass)
+    commands: list[dict[str, Any]] = [
+        {"type": "ha_repl_server/exec", "code": "1"},
+        {"type": "ha_repl_server/cancel"},
+        {"type": "ha_repl_server/complete", "source": "x", "cursor": 1},
+        {"type": "ha_repl_server/reset"},
+        {"type": "ha_repl_server/sessions"},
+        {"type": "ha_repl_server/sql", "query": "select 1"},
+    ]
+    for number, command in enumerate(commands, start=1):
+        await client.send_json({"id": number, **command})
+        response = await client.receive_json()
+        assert response["error"]["code"] == "not_loaded", command["type"]
+
+
+async def test_sessions_are_listed_and_reset(
+    recorder_mock, hass: HomeAssistant, enable_custom_integrations: None, hass_ws_client
+):
+    await _setup(hass)
+    client = await hass_ws_client(hass)
+    await client.send_json({"id": 1, "type": "ha_repl_server/exec", "code": "kept = 1"})
+    assert (await client.receive_json())["success"]
+
+    await client.send_json({"id": 2, "type": "ha_repl_server/sessions"})
+    (session,) = (await client.receive_json())["result"]["sessions"]
+    assert session["name"] == "default"
+    assert "kept" in session["variables"]
+
+    await client.send_json({"id": 3, "type": "ha_repl_server/reset"})
+    assert (await client.receive_json())["result"] == {"reset": True}
+    await client.send_json({"id": 4, "type": "ha_repl_server/sessions"})
+    assert (await client.receive_json())["result"]["sessions"] == []
+
+
+async def test_complete_says_when_it_cant_follow_the_expression(
+    recorder_mock, hass: HomeAssistant, enable_custom_integrations: None, hass_ws_client
+):
+    await _setup(hass)
+    client = await hass_ws_client(hass)
+    await client.send_json({
+        "id": 1,
+        "type": "ha_repl_server/complete",
+        "source": "nothing_here().",
+        "cursor": 15,
+    })
+    assert (await client.receive_json())["result"] == {
+        "items": [],
+        "replace": 0,
+        "resolved": False,
+    }
+    # A string given to a name Home Assistant has nothing for
+    source = 'anything(colour="'
+    await client.send_json({
+        "id": 2,
+        "type": "ha_repl_server/complete",
+        "source": source,
+        "cursor": len(source),
+    })
+    assert (await client.receive_json())["result"]["items"] == []
+
+
+async def test_a_run_cut_off_by_its_connection_closing_is_logged(
+    recorder_mock,
+    hass: HomeAssistant,
+    enable_custom_integrations: None,
+    hass_ws_client,
+    caplog,
+):
+    await _setup(hass)
+    client = await hass_ws_client(hass)
+    with patch(
+        "custom_components.ha_repl_server.session.Session.run",
+        side_effect=asyncio.CancelledError,
+    ):
+        await client.send_json({"id": 1, "type": "ha_repl_server/exec", "code": "1"})
+        # Handled off the websocket, which async_block_till_done doesn't wait for
+        for _ in range(50):
+            if "stopped: connection closed" in caplog.text:
+                break
+            await asyncio.sleep(0.01)
+    assert "stopped: connection closed" in caplog.text
+
+
+async def test_stop_button_names_who_pressed_it(
+    recorder_mock,
+    hass: HomeAssistant,
+    enable_custom_integrations: None,
+    hass_admin_user,
+    caplog,
+):
+    from homeassistant.core import Context
+
+    await _setup(hass)
+    (entity_id,) = hass.states.async_entity_ids("button")
+    await hass.services.async_call(
+        "button",
+        "press",
+        {"entity_id": entity_id},
+        blocking=True,
+        context=Context(user_id=hass_admin_user.id),
+    )
+    assert f"{hass_admin_user.name} stopped nothing (none running)" in caplog.text
