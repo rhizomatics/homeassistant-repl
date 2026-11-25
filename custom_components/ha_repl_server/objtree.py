@@ -656,7 +656,9 @@ class ObjTree(Mapping[str, "Entity | ApiEntity | Action | ObjTree"]):
             # handles it the same way.
             domain, _, object_id = key.partition(".")
             key = f"{domain}/{object_id}"
-        if "/" not in key and self.integration is None:
+        # A bare entity id, at the root: "sensor.x" - never an integration's
+        # name, which .keys() gives bare here too, and has no ".".
+        if "/" not in key and "." in key and self.integration is None:
             if self._mode.api:
                 # No integration to check against here (that's the whole
                 # point of a bare entity_id) - just need entry+entity, not

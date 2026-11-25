@@ -13,6 +13,9 @@
     - **Docs**: [Known Limitations](https://homeassistant-repl.rhizomatics.org.uk/configuration/server_install/#known-limitations) and [Troubleshooting](https://homeassistant-repl.rhizomatics.org.uk/configuration/server_install/#troubleshooting) for the Live Server
     - Strictly typed, and its sessions kept in the config entry's runtime data
 
+## 🐛 Bug Fixes
+- In live mode, `obj.values()` and `obj.items()` at the root of the tree work, and `"mqtt" in obj` is true for an integration `obj.keys()` lists. Each of the integrations' bare names was taken for an entity id, so looking one up failed
+
 # 0.16.0
 
 ## ✨ Enhancements
