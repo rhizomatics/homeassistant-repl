@@ -19,14 +19,18 @@
     const search = controls.querySelector("input[type=search]");
     const kinds = Array.from(controls.querySelectorAll("input[data-kind]"));
     const certain = controls.querySelector("input[data-certain]");
+    // Upcoming or going on the dev branch: only there with a dev branch scan
+    const changes = Array.from(controls.querySelectorAll("input[name=ec-change]"));
     const count = controls.querySelector(".ec-count");
 
     function filter() {
       const words = search.value.toLowerCase().split(/\s+/).filter(Boolean);
       const shown = new Set(kinds.filter((box) => box.checked).map((box) => box.dataset.kind));
+      const change = (changes.find((radio) => radio.checked) || { value: "" }).value;
       let showing = 0;
       for (const row of rows) {
         const match =
+          (!change || row.dataset.change === change) &&
           shown.has(row.dataset.kind) &&
           (!certain.checked || row.dataset.certain === "true") &&
           words.every((word) => text.get(row).includes(word));
@@ -55,7 +59,7 @@
       });
     });
 
-    for (const input of [search, certain, ...kinds]) {
+    for (const input of [search, certain, ...kinds, ...changes]) {
       input.addEventListener("input", filter);
     }
     controls.hidden = false;

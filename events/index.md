@@ -22,7 +22,7 @@ Home Assistant core only
 
 Only Home Assistant itself and the integrations that ship with it are covered. Events fired by Marketplace integrations, or any other custom component, aren't in the catalogue, though they share the same event bus.
 
-As of Home Assistant **2026.11.3**, the latest release that changed it: 128 events, 26 event entity types, and 60 constants not yet decided. On the dev branch, for an upcoming release: 4 upcoming, and 5 going - type either in the filter to see them.
+As of Home Assistant **2026.11.3**, the latest release that changed it: 128 events, 26 event entity types, and 60 constants not yet decided. On the dev branch, for an upcoming release: 4 upcoming, and 5 going.
 
 Download: [CSV, for a spreadsheet](https://homeassistant-repl.rhizomatics.org.uk/events/events.csv) · [JSON](https://homeassistant-repl.rhizomatics.org.uk/events/events.json)
 
