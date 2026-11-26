@@ -108,7 +108,7 @@ def _dev_summary(catalogue: dict[str, Any]) -> str:
         return ""
     return (
         f" On the dev branch, for an upcoming release: {changes['upcoming']} upcoming, "
-        f"and {changes['going']} going - type either in the filter to see them."
+        f"and {changes['going']} going."
     )
 
 
@@ -147,14 +147,36 @@ def _row(entry: dict[str, Any], names: dict[str, str], url: str) -> str:
         found,
         source,
     ]
+    change = next((tag for tag in ("upcoming", "going") if entry.get(tag)), "")
     return (
-        f'<tr data-kind="{entry["kind"]}" data-certain="{str(entry["certain"]).lower()}">'
+        f'<tr data-kind="{entry["kind"]}" data-certain="{str(entry["certain"]).lower()}"'
+        f' data-change="{change}">'
         + "".join(f"<td>{cell}</td>" for cell in cells)
         + "</tr>"
     )
 
 
-def _controls(counts: dict[str, int]) -> str:
+def _changes(dev_counts: dict[str, int] | None) -> str:
+    """Upcoming or going on the dev branch, or either - only for a
+    catalogue that has a dev branch scan. Radios, as no entry is both."""
+    if not dev_counts:
+        return ""
+    choices = [
+        ("", "Any", None),
+        ("upcoming", "Upcoming", "upcoming"),
+        ("going", "Going", "going"),
+    ]
+    radios = "".join(
+        f'<label><input type="radio" name="ec-change" value="{value}"'
+        f"{' checked' if not value else ''}> {name}"
+        + (f" ({dev_counts.get(key, 0)})" if key else "")
+        + "</label>"
+        for value, name, key in choices
+    )
+    return f"<fieldset><legend>On the dev branch</legend>{radios}</fieldset>"
+
+
+def _controls(counts: dict[str, int], dev_counts: dict[str, int] | None = None) -> str:
     """Hidden until the page's script shows them, so a reader without
     JavaScript sees the whole table and no controls that do nothing."""
     boxes = "".join(
@@ -168,6 +190,7 @@ def _controls(counts: dict[str, int]) -> str:
         'aria-label="Filter the catalogue">'
         f"<fieldset><legend>Show</legend>{boxes}"
         '<label><input type="checkbox" data-certain> Certain only</label></fieldset>'
+        f"{_changes(dev_counts)}"
         '<span class="ec-count" aria-live="polite"></span>'
         "</div>"
     )
@@ -202,7 +225,7 @@ def render(catalogue: dict[str, Any]) -> str:
         # One block of HTML, which the page's script sorts and filters -
         # docs/assets/javascripts/event_catalogue.js
         (
-            f'<div class="event-catalogue">{_controls(counts)}'
+            f'<div class="event-catalogue">{_controls(counts, catalogue.get("dev_counts"))}'
             f"<table><thead><tr>{heads}</tr></thead><tbody>{rows}</tbody></table></div>"
         ),
     ])
